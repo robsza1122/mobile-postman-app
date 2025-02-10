@@ -1,0 +1,14 @@
+import { MONGO_URI } from "../constants/env";
+import mongoose from "mongoose";
+
+const postManDataBase = async () => {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("Successfully connected with DB");
+  } catch (error) {
+    console.error("Cannot connect to DB", error);
+    process.exit(1);
+  }
+}
+
+export default postManDataBase;
