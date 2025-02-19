@@ -1,0 +1,52 @@
+@font-face {
+    font-family: Post;
+    src: url("../../utils/fonts/SourceSans3-VariableFont_wght.ttf");
+}
+@import "../../utils/main/main.scss";
+
+.login {
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 200px;
+        height: 100%;
+        background-color: white;
+        gap: 20px;
+    }
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    &__text {
+        font-family: Post, sans-serif;
+        margin-top: 20px;
+    }
+    &__input {
+        width: 300px;
+        height: 30px;
+        border: 1px solid rgb(200, 198, 198);
+        border-radius: 6px;
+        text-indent: 12px;
+        :focus {
+            border: 1px solid rgb(200, 198, 198);
+        }
+    }
+        &__submit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 40px;
+            background-color: $post-color;
+            margin-top: 20px;
+            font-family: Post, sans-serif;
+            color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            border: 1px solid black;
+          }
+}

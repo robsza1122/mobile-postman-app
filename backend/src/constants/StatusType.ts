@@ -1,4 +1,4 @@
 export enum StatusType {
-  NOSENT = 'lack',
-  SENTTOPACK = 'Parcel sent to packing',
+  UNPAID = 'UNPAID',
+  SENTTOPACK = 'PARCEL SENT TO PACK',
 }

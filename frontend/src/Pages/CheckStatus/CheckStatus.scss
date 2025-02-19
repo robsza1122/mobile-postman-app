@@ -1,0 +1,65 @@
+@font-face {
+    font-family: Post;
+    src: url('../../utils/fonts/SourceSans3-VariableFont_wght.ttf');
+}
+
+.status {
+    background-color: rgb(248, 241, 241);
+    height: 100vh;
+    display: flex;
+    
+    &__window {
+    width: 80%;
+    height: 80vh;
+    margin: 30px auto;
+    border: 1px solid gray;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.952);
+    z-index: 1;
+    }
+
+    &__span {
+      font-family: Post, sans-serif;
+    }
+    &__spandata {
+        font-family: Post, sans-serif;
+        font-weight: 800;
+    }
+    &__number {
+        font-weight: 600;
+        font-size: 25px;
+    }
+    &__containers {
+        display: flex;
+        justify-content: center;
+    }
+    &__datacontainer {
+        width: 45%;
+    }
+    &__container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+    }
+    &__data {
+        font-family: Post, sans-serif;
+        font-size: 12px;
+        margin: 2px 0;
+    }
+    &__statuscontainer {
+        font-family: Post, sans-serif;
+        font-size: 30px;
+        text-align: center;
+    }
+    &__timeline {
+        background-image: url("../../icons/Timeline.svg");
+        background-size: 100% 30px;
+        width: 80%;
+        height: 30px;
+    }
+    &__error {
+        font-family: Post, sans-serif;
+    }
+}

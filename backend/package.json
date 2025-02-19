@@ -4,6 +4,7 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
+    "@tanstack/react-query": "^5.66.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -18,6 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "5.0.1",
+    "resend": "^4.1.2",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "zod": "^3.24.1"

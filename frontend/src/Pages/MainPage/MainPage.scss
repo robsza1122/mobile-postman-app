@@ -1,0 +1,42 @@
+@import '../../utils/main/main.scss';
+
+body {
+  margin: 0;
+  overflow: hidden;
+//   background-color: rgba(211, 211, 211, 0.458);
+}
+
+.mainpage {
+  &__background {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    padding-bottom: 262px;
+    width: 100%;
+    height: 84%;
+  background-image: url("../../image/PPgrafika.png");
+  background-size: 530% 219%;
+  background-position: 52% 51%;
+  z-index: 1;
+  }
+&__content {
+  width: 100%;
+  height: 130vh;
+}
+&__login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 40px;
+    background-color: $post-color;
+    margin-bottom: 192px;
+    font-family: Post, sans-serif;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid black;
+  }
+}
