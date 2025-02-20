@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { OK } from "./constants/http";
 import postManDataBase from "./config/MobilePostmanDB";
 import postRoutes from "./routes/parcel.route";
+import errorHandler from "./middleware/ErrorHandler";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(postRoutes);
+app.use(errorHandler)
 app.get('/firstParcel', (_, res) => {
   return res.status(OK).json({
     name: "first parcel",
@@ -28,7 +30,3 @@ app.listen(PORT, async () => {
   console.log(`Server is listening on port ${PORT} in ${NODE_ENV}`);
   await postManDataBase();
 })
-
-
-
-

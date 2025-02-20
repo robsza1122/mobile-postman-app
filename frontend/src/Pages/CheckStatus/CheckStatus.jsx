@@ -4,19 +4,32 @@ import "./CheckStatus.scss";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {getCheckStatus} from "../../api/api.js";
+import { Loading } from "../../Loading/Loading.jsx";
 
 export const CheckStatus = () => {
     const { number } = useParams();
-    const { isSuccess, isError, data: checkStatus } = useQuery({
+    const { isSuccess, isError, isPending, data: checkStatus } = useQuery({
         queryKey: ["checkStatus", number],
         queryFn: () => getCheckStatus(number), 
     })
-    console.log(checkStatus);
+    const colorizeStatus = (status) => {
+        switch (status) {
+            case "UNPAID":
+                return "darkred";
+            case "PARCEL SENT TO PACK":
+                return "rgba(215, 66, 12, 0.884)";
+        }
+    }
+  const data = "at " + checkStatus.parcel.createdAt
+  .toString().slice(0, -5).replace("T", " ");
     return (
         <>
         <Navigation />
         <div className="status">
             <div className="status__window">
+                {isPending && (
+                    <Loading message="Loading status..."/>
+                )}
                 {isError && (
                                         <>
                                         <div className="status__container">
@@ -63,11 +76,19 @@ export const CheckStatus = () => {
                                 <p className="status__data">{checkStatus.parcel.adress}</p>
                                 <span className="status__spandata">Adressee's country</span>
                                 <p className="status__data">{checkStatus.parcel.country}</p>
+                                <span className="status__spandata">Phone</span>
+                                <p className="status__data">{checkStatus.parcel.phone}</p>
                             </div>
                             </div>
                             <div className="status__statuscontainer">
                                 <span className="status__statusspan">STATUS:</span>
-                                <p>{checkStatus.status}</p>
+                                <p 
+                                className="status__statustext"
+                                 style={{color: colorizeStatus(checkStatus.status)}}>
+                                    {checkStatus.status}
+                                    </p>
+                                    <span className="status__data">{data}</span>
+                                <div className="status__box"></div>
                                 <div className="status__timeline"></div>
                             </div>
                             </>

@@ -17,8 +17,9 @@ export const parcelSchima = z.object({
   adress: dataSchima,
   postCode: dataSchima,
   numberOfParcel: numberSchima,
+  phone: z.string().startsWith("+48").length(12),
   clientEmail: z.string().email().min(5).max(255),
   cashOnDelivery: z.boolean(),
   amount: z.number().max(100000),
     userAgent: z.string().optional(),
-});
+}); 

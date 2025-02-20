@@ -1,8 +1,9 @@
 import { CREATED, OK } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
-import { createOrder, findCheckStatus } from "../services/auth.service";
+import { createNewUser, createOrder, findCheckStatus } from "../services/auth.service";
 import catchErrors from "../utils/catchErrors"
 import { parcelSchima } from "./parcel.schimas"
+import { UserSchima } from "./user.schima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
     const request = parcelSchima.parse({
@@ -34,6 +35,7 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
             amount: 1,
             cashOnDelivery: 1,
             clientEmail: 1,
+            phone: 1,
             numberOfParcel: 1,
           },
     {
@@ -48,4 +50,14 @@ export const getCheckStatusHandler = catchErrors(async (req, res) => {
     const {status} = await findCheckStatus(req.params.number);
 
     return res.status(OK).json(status);
-    })
+    });
+
+    export const registerHandler = catchErrors(async (req, res) => {
+        const request = UserSchima.parse({
+            ...req.body,
+            userAgent: req.headers["user-agent"],
+        })
+        const {newUser} = await createNewUser(request);
+
+    return res.status(CREATED).json(newUser)
+    });

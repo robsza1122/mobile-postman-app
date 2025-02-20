@@ -20,6 +20,7 @@ export interface ParcelDocument extends mongoose.Document {
   amount: number,
   clientEmail: string,
   numberOfParcel: string,
+  phone: string,
   createdAt: Date,
   expiresAt: Date,
 };
@@ -91,6 +92,9 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
         type: String,
     },
     clientEmail: {
+        type: String,
+    },
+    phone: {
         type: String,
     },
     createdAt: {
