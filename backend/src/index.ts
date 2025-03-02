@@ -7,6 +7,8 @@ import { OK } from "./constants/http";
 import postManDataBase from "./config/MobilePostmanDB";
 import postRoutes from "./routes/parcel.route";
 import errorHandler from "./middleware/ErrorHandler";
+import userRoutes from "./routes/user.route";
+import authenticate from "./middleware/authenticate";
 
 const app = express();
 
@@ -20,10 +22,13 @@ app.use(
 );
 app.use(cookieParser());
 app.use(postRoutes);
-app.use(errorHandler)
+//protected-routes
+app.use("/user", authenticate, userRoutes); 
+app.use(errorHandler);
+//@ts-expect-error
 app.get('/firstParcel', (_, res) => {
   return res.status(OK).json({
-    name: "first parcel",
+    name: "first parcel", 
   })
 })
 app.listen(PORT, async () => {

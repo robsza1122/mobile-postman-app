@@ -1,0 +1,14 @@
+.workpage {
+    &__background {
+        display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    padding-bottom: 262px;
+    width: 100%;
+    height: 84%;
+  background-image: url("../../image/PPgrafika.png");
+  background-size: 530% 219%;
+  background-position: 52% 51%;
+  z-index: 1;
+    }
+}

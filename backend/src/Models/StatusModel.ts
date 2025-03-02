@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 import { StatusType } from "../constants/StatusType";
 import { ParcelDocument } from "./ParcelModel";
 

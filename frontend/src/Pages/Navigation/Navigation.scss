@@ -1,8 +1,4 @@
 @import "../../utils/main/main.scss";
-@font-face {
-    font-family: Post;
-    src: url('../../utils/fonts/SourceSans3-VariableFont_wght.ttf');
-}
 
 .Nav {
     display: flex;
@@ -18,7 +14,7 @@
         background-size: 80px 50px;
     }
     &__title {
-        font-family: Post, sans-serif;
+        // // font-family: Post, sans-serif;
         font-size: 28px;
         margin: 6px 0 0 70px;
         text-shadow: 1px 1px 0 white,

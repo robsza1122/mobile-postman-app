@@ -1,13 +1,16 @@
-import mongoose from "mongoose"
-import { threeMonthsFromNow } from "../utils/Data";
+import mongoose, { ObjectId } from "mongoose";
+import { compareValue, hashValue } from "../utils/bscrypt";
 
 export interface UserDocument extends mongoose.Document {
+    userId: mongoose.Types.ObjectId;
   username: string;
   password: string;
-  confirmPassword: string;
   createdAt: Date;
-  expiresAt: Date;
-  userAgent?: string;
+  updatedAt: Date;
+  comparePassword(val: string): Promise<boolean>;
+  __v: number;
+  omitPassword(): Pick <UserDocument,
+    "username" | "createdAt" | "updatedAt" | "_id" | "__v">;
 }
 
 const userSchima = new mongoose.Schema<UserDocument>({
@@ -19,25 +22,32 @@ const userSchima = new mongoose.Schema<UserDocument>({
         type: String,
         required: true,
     },
-    confirmPassword: {
-        type: String,
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    expiresAt: {
-        type: Date,
-        default: threeMonthsFromNow()
-    },
-    userAgent: {
-        type: String,
+},
+{
+    timestamps: true,
+});
+userSchima.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
     }
+
+    this.password = await hashValue(this.password);
+    return next();
 });
 
-export const UserModel = mongoose.model(
+userSchima.methods.comparePassword = async function (val: string) {
+    return compareValue(val, this.password);
+};
+
+userSchima.methods.omitPassword = async function () {
+    const user = this.toObject();
+    delete user.password;
+    return user;
+}
+
+const UserModel = mongoose.model<UserDocument>(
     "User",
     userSchima,
-    "users",
 )
+
+export default UserModel;

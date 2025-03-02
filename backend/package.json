@@ -1,26 +1,20 @@
 {
   "name": "backend",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "dependencies": {
-    "@tanstack/react-query": "^5.66.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-scripts": "5.0.1",
+    "react-dom-server": "^0.0.5",
     "resend": "^4.1.2",
-    "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "zod": "^3.24.1"
   },
@@ -31,7 +25,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+    "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
@@ -50,8 +47,12 @@
     ]
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
-    "ts-node-dev": "^2.0.0"
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/express": "^5.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
   }
 }
