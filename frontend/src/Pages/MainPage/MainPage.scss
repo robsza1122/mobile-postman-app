@@ -1,15 +1,11 @@
 @import '../../utils/main/main.scss';
 
-body {
-  margin: 0;
-  overflow: hidden;
-//   background-color: rgba(211, 211, 211, 0.458);
-}
+
 
 .mainpage {
   &__background {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     align-items: center;
     padding-bottom: 262px;
     width: 100%;
@@ -24,19 +20,38 @@ body {
   height: 130vh;
 }
 &__login {
+    width: 150px;
     display: flex;
+    margin-top: 500px;
     justify-content: center;
     align-items: center;
-    width: 100px;
     height: 40px;
     background-color: $post-color;
-    margin-bottom: 192px;
-    // font-family: Post, sans-serif;
+    font-family: Post, sans-serif;
     color: white;
-    border-radius: 4px;
     font-weight: 600;
     text-align: center;
     text-decoration: none;
-    border: 1px solid black;
+  }
+  &__infos {
+    display: flex;
+    flex-direction: column;
+    margin: 0 15px;
+  }
+  &__info {
+    font-family: Post, sans-serif;
+    display: flex;
+    text-align: left;
+    margin: 10px 0;
+  }
+  &__text {
+    width: 100px;
+    margin: 0;
+    font-weight: 600;
+  }
+  &__data {
+    margin: 0;
+    margin-left: 30px;
+    color: rgba(128, 128, 128, 0.582);
   }
 }

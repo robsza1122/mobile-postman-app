@@ -4,69 +4,76 @@ import "./LoginPage.scss";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
+import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  console.log(user);
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const redirectUrl = location.state?.redirectUrl || "/";
   const {
     mutate: signIn,
     isError,
     isPending,
   } = useMutation({
     mutationFn: loginUser,
-    onSuccess: () => {
-      navigate(redirectUrl, {
-        replace: true,
-    });
-    }
+    // onSuccess: () => {
+    //   navigate("/workSpace");
+    // }
   });
 
   return (
-    <>     
+    <>
       {isPending && <Loading message="Loading ditionaries..." />}
         <>
-        <Navigation />
-        <div className="login__content">
-            <form>
-              <div className="login__field">
-                <span className="login__text">Login:</span>
-                <input
-                  type="text"
-                  className="login__input"
-                  onChange={(e) => setUsername(e.target.value)}
-                  value={username}
-                  autoComplete="username" />
-              </div>
-              {isError && <p>Invalid email or password</p>}
-              <div className="login__field">
-                <span className="login__text">Password:</span>
-                <input
-                  type="password"
-                  className="login__input"
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password} />
-              </div>
-              <button
-                type="submit"
-                className="login__submit"
-                onMouseDown={() => setClickedButton(true)}
-                onMouseUp={() => setClickedButton(false)}
-                onMouseLeave={() => setClickedButton(false)}
-                style={{
-                  backgroundColor: `${clickedButton ? "gray" : "rgb(219, 29, 29)"}`,
-                }}
-                onClick={() => signIn({username, password})}
-              >
-                Login
-              </button>
-            </form>
+          <Navigation />
+          <div className="login__content">
+            <h1 className="login__title">Poczta Polska ADFS</h1>
+            <p className="login__logintext">Login using your organisation account</p>
+          {isError && <p className="login__errortext">Invalid email or password</p>}
+            <div className="login__field">
+              <input
+                type="text"
+                className="login__input"
+                onChange={(e) => setUsername(e.target.value)}
+                value={username}
+                autoComplete="username"
+                placeholder="your.username..."
+              />
+            </div>
+        
+            <div className="login__field">
+              <input
+                type="password"
+                className="login__input"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                placeholder="password..."
+              />
+            </div>
+            <div className="login__buttonblock">
+            <button
+              className="login__submit"
+              onMouseDown={() => setClickedButton(true)}
+              onMouseUp={() => setClickedButton(false)}
+              onMouseLeave={() => setClickedButton(false)}
+              style={{
+                backgroundColor: `${
+                  clickedButton ? "gray" : "blue"
+                }`,
+              }}
+              onClick={() => {
+                signIn({ username, password });
+              }}
+            >
+              Login
+            </button>
+            </div>
           </div>
-          </>
-      )
+        </>
     </>
   );
 };

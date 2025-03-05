@@ -1,6 +1,6 @@
 @import url("../utils/main/main.scss");
 @font-face {
-  // font-family: Post;
+  font-family: Post;
   src: url("../utils/fonts/SourceSans3-VariableFont_wght.ttf");
 }
 
@@ -41,7 +41,7 @@
     }
     &__message {
       margin-top: 100px;
-      // font-family: Post, sans-serif;
+      font-family: Post, sans-serif;
     }
   }
   

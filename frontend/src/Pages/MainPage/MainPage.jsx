@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 export const MainPage = () => {
   const [clickedButton, setClickedButton] = useState(false);
-  console.log(clickedButton)
+  const userAgent = window.navigator.userAgent;
   return (
     <div className="mainpage__content">
       <Navigation />
@@ -21,6 +21,14 @@ export const MainPage = () => {
         to="/login"
         >Login
         </Link>
+        <div className="mainpage__infos">
+        <div className="mainpage__info">
+        <p className="mainpage__text">User Agent:</p><p className="mainpage__data">{userAgent}</p>
+        </div>
+        <div className="mainpage__info">
+        <p className="mainpage__text">Last logged:</p><p className="mainpage__data">ROBSZA</p>
+        </div>
+        </div>
       </div>
     </div>
   );

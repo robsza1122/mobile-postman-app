@@ -23,7 +23,7 @@ app.use(
 app.use(cookieParser());
 app.use(postRoutes);
 //protected-routes
-app.use("/user", authenticate, userRoutes); 
+app.use("/user", authenticate, userRoutes);  
 app.use(errorHandler);
 //@ts-expect-error
 app.get('/firstParcel', (_, res) => {

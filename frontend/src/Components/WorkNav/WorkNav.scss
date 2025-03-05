@@ -1,0 +1,23 @@
+@import "../../utils/main/main.scss";
+
+.worknav { 
+    &__maininfos {
+        width: 100%;
+        height: 50px;
+        background-color: $post-color;
+    }
+    &__maintext {
+        margin: 0;
+        margin-left: 10px;
+      font-family: Post, sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: white;
+    }
+    &__user {
+        margin: 0;
+        margin-left: 10px;
+        color: white;
+
+    }
+}

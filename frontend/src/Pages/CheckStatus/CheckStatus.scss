@@ -1,5 +1,5 @@
 @font-face {
-    // font-family: Post;
+    font-family: Post;
     src: url('../../utils/fonts/SourceSans3-VariableFont_wght.ttf');
 }
 
@@ -19,10 +19,10 @@
     }
 
     &__span {
-      // font-family: Post, sans-serif;
+      font-family: Post, sans-serif;
     }
     &__spandata {
-        // font-family: Post, sans-serif;
+        font-family: Post, sans-serif;
         font-weight: 800;
     }
     &__number {
@@ -46,12 +46,12 @@
         text-align: center;
     }
     &__data {
-        // font-family: Post, sans-serif;
+        font-family: Post, sans-serif;
         font-size: 12px;
         margin: 2px 0;
     }
     &__statuscontainer {
-        // font-family: Post, sans-serif;
+        font-family: Post, sans-serif;
         font-size: 30px;
         text-align: center;
     }
@@ -73,7 +73,7 @@
         height: 127px;
     }
     &__error {
-        // font-family: Post, sans-serif;
+        font-family: Post, sans-serif;
     }
     &__box {
         position: relative;
