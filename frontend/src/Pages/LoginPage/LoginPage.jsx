@@ -5,12 +5,10 @@ import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
 import useAuth from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  console.log(user);
+    const { user } = useAuth();
+
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,9 +18,6 @@ export const LoginPage = () => {
     isPending,
   } = useMutation({
     mutationFn: loginUser,
-    // onSuccess: () => {
-    //   navigate("/workSpace");
-    // }
   });
 
   return (
@@ -66,7 +61,7 @@ export const LoginPage = () => {
                 }`,
               }}
               onClick={() => {
-                signIn({ username, password });
+                signIn({ username, password })
               }}
             >
               Login

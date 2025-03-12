@@ -10,7 +10,7 @@ const authenticate: RequestHandler = (req, res, next) => {
         accessToken,
         UNAUTHORIZED,
         "Not authorized",
-        AppErrorCode.InvalidAccessToken
+        AppErrorCode.InvalidAccessToken,
     );
 
     const {error, payload} = verifyToken(accessToken);

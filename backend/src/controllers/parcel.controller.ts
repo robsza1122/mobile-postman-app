@@ -4,7 +4,6 @@ import SessionModel from "../Models/SessionModel";
 import {
   createNewUser,
   createOrder,
-  findCheckStatus,
   loginUser,
   refreshUserAccessToken,
 } from "../services/auth.service";
@@ -52,6 +51,12 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       clientEmail: 1,
       phone: 1,
       numberOfParcel: 1,
+      status: [
+        {
+          name: 1,
+          createdAt: 1,
+        }
+      ]
     },
     {
       sort: { createdAt: -1 },
@@ -61,12 +66,6 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
   return res
     .status(OK)
     .json(parcels.map((parcel) => ({ ...parcel.toObject() })));
-});
-
-export const getCheckStatusHandler = catchErrors(async (req, res) => {
-  const { status } = await findCheckStatus(req.params.number);
-
-  return res.status(OK).json(status);
 });
 
 export const registerHandler = catchErrors(async (req, res) => {

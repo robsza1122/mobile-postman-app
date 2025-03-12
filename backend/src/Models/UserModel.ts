@@ -3,6 +3,7 @@ import { compareValue, hashValue } from "../utils/bscrypt";
 
 export interface UserDocument extends mongoose.Document {
     userId: mongoose.Types.ObjectId;
+    EMINumber: string;
   username: string;
   password: string;
   createdAt: Date;
@@ -14,6 +15,10 @@ export interface UserDocument extends mongoose.Document {
 }
 
 const userSchima = new mongoose.Schema<UserDocument>({
+    EMINumber: {
+        type: String,
+        required: true,
+    },
     username: {
         type: String,
         required: true,

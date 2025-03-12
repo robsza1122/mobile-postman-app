@@ -7,13 +7,11 @@
     "senderCountry": "Poland",
     "name": "Robsza",
     "surname": "Szal",
-    "status": "Unpaid",
     "city": "Opole",
     "adress": "My Street",
     "country": "Poland",
     "postCode": "45-123",
     "cashOnDelivery": false,
     "amount": 0,
-    "clientEmail": "robsza1212@gmail.com",
-    "numberOfParcel": "558497593726"
+    "clientEmail": "robsza1212@gmail.com"
 }

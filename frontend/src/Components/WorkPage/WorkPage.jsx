@@ -5,6 +5,8 @@ import { MyParcelOption } from "../MyParcelOption/MyParcelOption.jsx";
 import { MyToolOption } from "../MyToolOption/MyToolOption.jsx";
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider.jsx";
+import { APMOption } from "../APMOption/APMOption.jsx";
+import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
 
 
 export const WorkPage = () => {
@@ -18,7 +20,7 @@ export const WorkPage = () => {
         <div 
         className="workpage__content"
         style={{
-          transform: `translateX(${slideOptions}%)`,
+          transform: `translateX(${slideOptions}%)`, 
           transition: "0.1s ease transform",
         }}>
         <div className="workpage__options">        
@@ -30,6 +32,12 @@ export const WorkPage = () => {
         {myToolsOptions.map(option => (
           <MyToolOption option={option} key={option.id} />
         ))}
+        </div>
+        <div className="workpage__options">
+          <APMOption />
+        </div>
+        <div className="workpage__options">
+          <MenuServisData />
         </div>
         </div>
       

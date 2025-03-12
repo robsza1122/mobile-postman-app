@@ -1,9 +1,7 @@
 import { APP_ORIGIN } from "../constants/env";
 import { CONFLICT, UNAUTHORIZED } from "../constants/http";
-import { StatusType } from "../constants/StatusType";
 import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
-import { StatusModel } from "../Models/StatusModel";
 import UserModel from "../Models/UserModel";
 import appAssert from "../utils/AppAssert";
 import { getDeliveryEmailTemplate } from "../utils/emailTemplate";
@@ -15,6 +13,7 @@ import {
 } from "../utils/jwt";
 import { sendEmail } from "../utils/sendEmail";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/Data";
+import makeEmiNumber from "../utils/getEMINumber";
 
 export type CreateParcelOrder = {
   senderName: string;
@@ -34,7 +33,30 @@ export type CreateParcelOrder = {
   clientEmail: string;
   phone?: string;
   numberOfParcel?: string;
+  deliveryCode?: string;
+  isMarked?: boolean,
+  isSignature?: boolean,
+  signature?: string,
+  status?: {
+    name: string;
+    createdAt: String;
+  }[];
 };
+
+const today = new Date();
+const currentMonth = today.getMonth() + 1;
+
+const date = `Date: ${today.getFullYear()}-${
+  currentMonth.toString().length === 1 ? "0" : ""
+}${currentMonth}-${
+  today.getDate().toString().length === 1 ? "0" : ""
+}${today.getDate()} Hour: ${
+  today.getHours().toString().length === 1 ? "0" : ""
+}${today.getHours()}-${
+  today.getMinutes().toString().length === 1 ? "0" : ""
+}${today.getMinutes()}-${
+  today.getSeconds().toString().length === 1 ? "0" : ""
+}${today.getSeconds()}`;
 
 type CreateNewUserType = {
   username: string;
@@ -43,7 +65,8 @@ type CreateNewUserType = {
   userAgent?: string;
 };
 
-export const createNumber = (Math.random() * 1000000000000).toFixed(0);
+export const createNumber = () => (Math.random() * 10000000000000).toFixed(0).toString().slice(0, 12);
+export const createDeliveryCode = () => ((Math.random() * 1000000000).toFixed(0).toString().slice(0, 6));
 
 export const createNewUser = async (data: CreateNewUserType) => {
   const duplicatedUser = await UserModel.exists({
@@ -52,9 +75,12 @@ export const createNewUser = async (data: CreateNewUserType) => {
 
   appAssert(!duplicatedUser, CONFLICT, "User already exists.");
 
+  const { result } = makeEmiNumber(3);
+
   const newUser = await UserModel.create({
     username: data.username,
     password: data.password,
+    EMINumber: result,
   });
 
   const newSession = await SessionModel.create({
@@ -77,7 +103,7 @@ export const createNewUser = async (data: CreateNewUserType) => {
     newUser,
     refreshToken,
     accessToken,
-  }; 
+  };
 };
 
 export const createOrder = async (data: CreateParcelOrder) => {
@@ -98,12 +124,12 @@ export const createOrder = async (data: CreateParcelOrder) => {
     cashOnDelivery: data.cashOnDelivery,
     clientEmail: data.clientEmail,
     phone: data.phone,
-    numberOfParcel: `PX${createNumber}`,
-  });
-  const status = await StatusModel.create({
-    numberOfParcel: parcel.numberOfParcel,
-    status: parcel.cashOnDelivery ? StatusType.SENTTOPACK : StatusType.UNPAID,
-    parcel: parcel,
+    isMarked: false,
+    isSignature: false,
+    signature: null,
+    deliveryCode: `${createDeliveryCode()}`,
+    status: [{ name: "ORDERED", createdAt: date }],
+    numberOfParcel: `PX${createNumber()}`,
   });
 
   if (data.cashOnDelivery && data.amount === 0) {
@@ -120,17 +146,6 @@ export const createOrder = async (data: CreateParcelOrder) => {
 
   return {
     parcel,
-    parcelStatus: status,
-  };
-};
-
-export const findCheckStatus = async (number: string) => {
-  const status = await StatusModel.findOne({
-    numberOfParcel: number,
-  });
-
-  return {
-    status,
   };
 };
 
@@ -199,7 +214,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     ? signToken(
         {
           sessionId: newSession._id,
-        }, 
+        },
         refreshTokenSignOptions
       )
     : undefined;

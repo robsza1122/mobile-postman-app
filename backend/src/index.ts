@@ -9,6 +9,7 @@ import postRoutes from "./routes/parcel.route";
 import errorHandler from "./middleware/ErrorHandler";
 import userRoutes from "./routes/user.route";
 import authenticate from "./middleware/authenticate";
+import sessionRoutes from "./routes/session.route";
 
 const app = express();
 
@@ -23,7 +24,8 @@ app.use(
 app.use(cookieParser());
 app.use(postRoutes);
 //protected-routes
-app.use("/user", authenticate, userRoutes);  
+app.use("/user", authenticate, userRoutes);
+app.use("/sessions", authenticate, sessionRoutes);  
 app.use(errorHandler);
 //@ts-expect-error
 app.get('/firstParcel', (_, res) => {

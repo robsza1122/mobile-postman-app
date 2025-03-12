@@ -9,3 +9,4 @@ export const logoutUser = async () => API.get("/logout");
 //protected routes
 
 export const getUser = async () => API.get("/user");
+export const getSessions = async () => API.get("/sessions");

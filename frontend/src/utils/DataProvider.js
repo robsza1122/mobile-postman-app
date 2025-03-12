@@ -22,3 +22,8 @@ export const myToolsOptions = [
     {id: 7, header: "SETTLE", img: "src/image/gears.svg"},
     {id: 8, header: "LOGOUT", img: "src/image/exit.svg"},
 ];
+
+export const APMOptionData = [
+    {title: "AUTHORIZATION CODE CAINAO", code: "src/image/code.svg", glass: "src/image/magni-glass.svg"}
+];
+

@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose, { Schema } from "mongoose"
 import { threeMonthsFromNow } from "../utils/Data"
 
 export interface ParcelDocument extends mongoose.Document {
@@ -20,9 +20,17 @@ export interface ParcelDocument extends mongoose.Document {
   amount: number,
   clientEmail: string,
   numberOfParcel: string,
+  deliveryCode: string,
   phone: string,
+  isSignature: boolean,
+  signature: string,
+  isMarked: boolean,
+  status: {
+    name: string,
+    createdAt: String,
+  }[],
   createdAt: Date,
-  expiresAt: Date,
+  expiresAt: Date, 
 };
 
 const parcelSchima = new mongoose.Schema<ParcelDocument>({
@@ -91,21 +99,44 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
     numberOfParcel: {
         type: String,
     },
+    deliveryCode: {
+        type: String,
+    },
     clientEmail: {
         type: String,
     },
     phone: {
         type: String,
     },
+    isMarked: {
+        type: Boolean,
+        default: false,
+    },
+    isSignature: {
+        type: Boolean,
+        default: false,
+    },
+    signature: {
+        type: String,
+        default: null,
+    },
+    status: {
+        type: [
+            {
+          name: String,
+          createdAt: String,
+            }
+        ]
+    },
     createdAt: {
         type: Date,
         required: true,
-        default: Date.now,
+        default: Date.now(),
     },
     expiresAt: {
         type: Date,
         required: true,
-        default: threeMonthsFromNow,
+        default: threeMonthsFromNow(),
     },
 });
 

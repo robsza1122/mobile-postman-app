@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  getCheckStatusHandler,
   getParcelsHandler,
   loginHandler,
   logoutHandler,
@@ -13,7 +12,6 @@ const postRoutes = Router();
 
 postRoutes.post("/orderParcel", orderedParcelHandler);
 postRoutes.get("/getParcels", getParcelsHandler);
-postRoutes.get("/getCheckStatus/:number", getCheckStatusHandler);
 postRoutes.post("/register", registerHandler);
 postRoutes.post("/login", loginHandler);
 postRoutes.get("/logout", logoutHandler);
