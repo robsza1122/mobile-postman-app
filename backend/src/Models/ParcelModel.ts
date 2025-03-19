@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose"
+import mongoose from "mongoose"
 import { threeMonthsFromNow } from "../utils/Data"
 
 export interface ParcelDocument extends mongoose.Document {

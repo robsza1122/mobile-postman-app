@@ -92,12 +92,17 @@
         height: 60px;
     }
     &__button {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
         width: 100%;
         background-color: $post-color;
         color: white;
         font-family: Post, sans-serif;
         font-weight: 600;
         border: none;
+        text-decoration: none;
         &-opacity {
             background-color: rgb(126, 33, 33);
             color: rgb(147, 122, 122);
@@ -199,10 +204,46 @@
         }
     }
     &__verifywindow {
+        display: flex;
+        gap: 30%;
         margin: 0 auto;
         border-radius: 10px;
         width: 90%;
         height: 25vh;
         border: 1px solid gray;
+    }
+    &__verifyinfo {
+        margin: 10px 0 0 10px;
+        font-family: Post, sans-serif;
+        color:rgb(81, 79, 79);
+        font-size: 13px;
+        &s {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+    &__checkbox {
+        display: grid;
+        place-content: center;
+        align-self: center;
+        appearance: none;
+        background-color: #fff;
+        margin: 0;
+        color: black;
+        width: 20px;
+        height: 20px;
+        border: 1px solid black;
+        transform: translateY(-0.075em);
+        &:checked::before {
+            transform: scale(1);
+        }
+        &::before {
+            content: "";
+            width: 15px;
+            height: 15px;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 13px 13px $post-color;
+        }
     }
 }

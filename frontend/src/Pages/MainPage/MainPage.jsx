@@ -18,7 +18,7 @@ export const MainPage = () => {
         style={{
           backgroundColor: `${clickedButton ? 'gray' : 'rgb(219, 29, 29)'}`,
         }}
-        to="/login"
+        to="/ML"
         >Login
         </Link>
         <div className="mainpage__infos">

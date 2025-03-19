@@ -1,17 +1,25 @@
 import useAuth from "../hooks/useAuth";
 import { Loading } from "../Loading/Loading";
 import { WorkPage } from "./WorkPage/WorkPage";
-import { LoginPage } from '../Pages/LoginPage/LoginPage';
+import { Navigate } from "react-router-dom";
 
 export const PostmanContainer = () => {
   const { user, isLoading } = useAuth();
   return (
     <>
-      {isLoading && <Loading message="loading dictionaries..." />}
-      {user ? (
+      {isLoading ? 
+      (<Loading message="loading dictionaries..." />
+      ) : user ? (
           <WorkPage /> 
       ) : (
-        <LoginPage />
+      
+        <Navigate
+        to="/login"
+        replace
+        state={{
+          redirectUrl: window.location.pathname,
+        }}
+        />
       )}
     </>
   );

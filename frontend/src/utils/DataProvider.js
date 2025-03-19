@@ -5,13 +5,6 @@ export const navButtons = [
     {id: 4, name: "MENU SERVIS"}
 ];
 
-export const myParcelsOptions = [
-    {id: 1, header: "SHOW ALL", amount: 0, title: "DOWNLOADED"},
-    {id: 2, header: "ADD OTHERS", amount: 0, title: "ADD TO OTHERS"},
-    {id: 3, header: "DELIVER", amount: 0, title: "TO DELIVERING"},
-    {id: 4, header: "ADVICE", amount: 0, title: "ADVICED"},
-];
-
 export const myToolsOptions = [
     {id: 1, header: "START TRAIL WITH BOOK", img: "src/image/download.svg"},
     {id: 2, header: "PARCEL ORDER", img: "src/image/rotate.svg"},
@@ -26,4 +19,3 @@ export const myToolsOptions = [
 export const APMOptionData = [
     {title: "AUTHORIZATION CODE CAINAO", code: "src/image/code.svg", glass: "src/image/magni-glass.svg"}
 ];
-

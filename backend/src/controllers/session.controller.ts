@@ -8,7 +8,7 @@ export const getSessionHandler = catchErrors(async (req, res) => {
       userId: req.userId,
       expiresAt: { $gt: Date.now() },
     },
-    {
+    { 
       _id: 1,
       userAgent: 1,
       createdAt: 1,

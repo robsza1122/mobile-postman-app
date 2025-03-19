@@ -4,11 +4,10 @@ import "./LoginPage.scss";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
-import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
-    const { user } = useAuth();
-
+  const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +17,11 @@ export const LoginPage = () => {
     isPending,
   } = useMutation({
     mutationFn: loginUser,
+    onSuccess: () => {
+      navigate("/ML", {
+        replace: true,
+      })
+    }
   });
 
   return (

@@ -4,6 +4,7 @@ import SessionModel from "../Models/SessionModel";
 import {
   createNewUser,
   createOrder,
+  date,
   loginUser,
   refreshUserAccessToken,
 } from "../services/auth.service";
@@ -51,10 +52,15 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       clientEmail: 1,
       phone: 1,
       numberOfParcel: 1,
+      isMarked: 1,
+      isSignature: 1,
+      signature: 1,
+      deliveryCode: 1,
+
       status: [
         {
-          name: 1,
-          createdAt: 1,
+          name: "ORDERED",
+          createdAt: date,
         }
       ]
     },

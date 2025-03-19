@@ -46,7 +46,7 @@ export type CreateParcelOrder = {
 const today = new Date();
 const currentMonth = today.getMonth() + 1;
 
-const date = `Date: ${today.getFullYear()}-${
+export const date = `Date: ${today.getFullYear()}-${
   currentMonth.toString().length === 1 ? "0" : ""
 }${currentMonth}-${
   today.getDate().toString().length === 1 ? "0" : ""
@@ -128,7 +128,10 @@ export const createOrder = async (data: CreateParcelOrder) => {
     isSignature: false,
     signature: null,
     deliveryCode: `${createDeliveryCode()}`,
-    status: [{ name: "ORDERED", createdAt: date }],
+    status: {
+      name: "ORDERED",
+      createdAt: date,
+    },
     numberOfParcel: `PX${createNumber()}`,
   });
 

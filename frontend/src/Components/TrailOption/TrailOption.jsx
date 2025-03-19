@@ -1,32 +1,50 @@
 import useAuth from "../../hooks/useAuth";
 import "./TrailOption.scss";
 import useParcels from "../../hooks/useParcels";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Loading } from "../../Loading/Loading.jsx";
 import classnames from "classnames";
+import {Link} from "react-router-dom";
+import { PostManState } from "../../PostGlobalProvider.jsx";
+import { date } from "../../utils/currentDate.js";
 
 export const TrailOption = () => {
+  const {downloadedBook, setDownloadedBook} = useContext(PostManState);
   const [parcelsNumber, setParcelsNumber] = useState("");
   const [openBook, setOpenBook] = useState(false);
   const [showError, setShowError] = useState(false);
   const { parcels, isLoading } = useParcels();
   const [loading, setLoading] = useState(false);
   const [errorText, setLoadingText] = useState("");
-  const [downloadedBook, setDownloadedBook] = useState([]);
   const [verifyBook, setVerifyBook] = useState(false);
+  const [markedBook, setMarkedBook] = useState(false);
   const { user } = useAuth();
-  console.log(downloadedBook)
-  console.log(user);
-  console.log(verifyBook)
-
-  const onSubmit = (e) => {
-    e.preventDefault();
+  console.log(downloadedBook);
+  console.log(verifyBook);
+  console.log(markedBook);
+  const onSubmit = () => {
     setLoading(true);
     setLoadingText("Looking for books...");
-    const timeoutId = setTimeout(() => {
+    setTimeout(() => {
       setLoading(false);
       setLoadingText("");
     }, 1000);
+
+    if (verifyBook && markedBook) {
+      setLoading(true);
+      setLoadingText("downloading book...");
+      setTimeout(() => {
+        setLoading(false);
+        setLoadingText('');
+      }, 1000);
+
+    }
+
+    
+    if (verifyBook && !markedBook) {
+      alert("No book is choosen.");
+      return;
+    }
 
     if (parcels.find((parcel) => parcel.numberOfParcel === parcelsNumber)) {
       setOpenBook(true);
@@ -37,9 +55,19 @@ export const TrailOption = () => {
     }
   };
 
-  const onReset = (e) => {
-    e.preventDefault();
-
+  const onReset = () => {
+    if (verifyBook) {
+      setLoading(true);
+      setLoadingText("Removing book...");
+      setTimeout(() => {
+        setLoading(false);
+        setLoadingText("");
+      }, 1000);
+      setOpenBook(false);
+      setVerifyBook(false);
+      setMarkedBook(false);
+      setParcelsNumber("");
+    }
     setOpenBook(false);
     setParcelsNumber("");
   };
@@ -47,13 +75,29 @@ export const TrailOption = () => {
   const onConfirmationFalse = () => {
     setLoadingText("Loading books...");
     setLoading(true);
-    const timeoutId = setTimeout(() => {
+    setTimeout(() => {
       setLoading(false);
       setLoadingText("");
     }, 1000);
   };
 
   const onConfirmationSuccess = () => {
+    const changeStatus = parcels.map(parcel => {
+        return {
+          
+          ...parcel,
+          status: [
+            ...parcel.status,
+            {
+              name: "IN DELIVERY",
+              createdAt: date,
+            }
+          ]
+          
+        }
+      }
+    )
+ 
     setLoadingText("downloading book...");
     setLoading(true);
     setTimeout(() => {
@@ -61,9 +105,12 @@ export const TrailOption = () => {
     }, 1000);
 
     setVerifyBook(true);
-    setDownloadedBook(...downloadedBook, {...parcels});
+    setDownloadedBook(changeStatus);
     setOpenBook(false);
-  }
+  };
+
+  console.log(downloadedBook);
+
   return (
     <>
       <div className="trail__body">
@@ -109,14 +156,20 @@ export const TrailOption = () => {
         </nav>
         {isLoading && <Loading message="Loading parcels..." />}
 
-        <form className="trail__content" onSubmit={onSubmit} onReset={onReset}>
+        <div className="trail__content">
           <div className="trail__inputkeyboard">
             <input
               type="text"
               className="trail__input"
               placeholder="Parcel's number..."
               value={parcelsNumber}
-              onChange={(e) => setParcelsNumber(e.target.value)}
+              onChange={(e) => 
+                setParcelsNumber(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    onSubmit();
+                  }
+                }}
             />
             <img
               src="src/image/keyboard.svg"
@@ -124,9 +177,24 @@ export const TrailOption = () => {
               className="trail__keyboard"
             />
           </div>
+          <button onClick={() => {
+            setDownloadedBook([]);
+            localStorage.clear();
+          }}>Clear book</button>
           {verifyBook && (
           <div className="trail__verifywindow">
-
+            <div className="trail__verifyinfos">
+            <p className="trail__verifyinfo">EMInumber of courier: {user.EMINumber} </p>
+            <p className="trail__verifyinfo">Amount of parcel to deliver: {downloadedBook.length}/{parcels.length}</p>
+            <p className="trail__verifyinfo">parcels to deliver to ZDO: 0</p>
+            <p className="trail__verifyinfo">parcels with Pocztex Procedure: 0</p>
+            <p className="trail__verifyinfo">parcels with limited responsiblity: 0</p>
+            </div>
+            <input
+             type="checkbox" 
+             className="trail__checkbox"
+             onClick={() => setMarkedBook(!markedBook)}
+              checked={markedBook} />
           </div>
         )}
           {!openBook && !verifyBook && (
@@ -136,11 +204,12 @@ export const TrailOption = () => {
           </>
         )}
           <div className="trail__buttons">
-            <button
-              type="submit"
+            <Link
               className={classnames("trail__button", {
                 "trail__button-opacity": openBook || showError,
               })}
+              onClick={() => onSubmit()}
+              to={verifyBook && markedBook ? "/booklist" : ""}
             >
               <p className="trail__buttontext">Accept Book</p>
               <img
@@ -148,12 +217,12 @@ export const TrailOption = () => {
                 alt=""
                 className="trail__img"
               />
-            </button>
-            <button
-              type="reset"
+            </Link>
+            <Link
               className={classnames("trail__button", {
                 "trail__button-opacity": openBook || showError,
               })}
+              onClick={() => onReset()}
             >
               <p className="trail__buttontext">Decline Book</p>
               <img
@@ -161,9 +230,9 @@ export const TrailOption = () => {
                 alt=""
                 className="trail__img"
               />
-            </button>
+            </Link>
           </div>
-        </form>
+        </div>
         <>
           {!loading && openBook && (
             <>

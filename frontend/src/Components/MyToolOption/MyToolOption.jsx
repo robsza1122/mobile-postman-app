@@ -3,11 +3,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { logoutUser } from "../../api/api";
-import useAuth from "../../hooks/useAuth";
 
 export const MyToolOption = (option) => {
-  const {user} = useAuth();
-  console.log(user);
     const navigate = useNavigate();
     const { mutate: signOut } = useMutation({
       mutationFn: logoutUser,
