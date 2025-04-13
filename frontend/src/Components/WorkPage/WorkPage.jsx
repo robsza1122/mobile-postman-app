@@ -7,14 +7,20 @@ import { PostManState } from "../../PostGlobalProvider.jsx";
 import { APMOption } from "../APMOption/APMOption.jsx";
 import {MyParcelOption} from "../MyParcelOption/MyParcelOption.jsx"
 import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
+import { useNavigate } from "react-router-dom";
+import useParcels from "../../hooks/useParcels.js";
 
 
 export const WorkPage = () => {
-  const {slideOptions, downloadedBook} = useContext(PostManState);
+  const {parcels} = useParcels();
+  const {slideOptions, downloadedBook, currentUser} = useContext(PostManState);
   console.log(downloadedBook);
   const parcelsToDeliver = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "IN DELIVERY")
 const advicedParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "ADVICED")
-const otherParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "OTHERS")
+const otherParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "OTHERS");
+
+  console.log(currentUser);
+  console.log(parcels)
 
   const myParcelsOptions = [
     {id: 1, header: "SHOW ALL", amount: downloadedBook.length, title: "DOWNLOADED"},

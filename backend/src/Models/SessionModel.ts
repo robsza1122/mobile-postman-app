@@ -10,7 +10,7 @@ export interface SessionDocument extends mongoose.Document {
 
 const sessionSchema = new mongoose.Schema<SessionDocument>({
   userId: {
-    ref: "User",
+    ref: "User", 
     type: mongoose.Schema.Types.ObjectId,
     index: true,
   },
@@ -22,7 +22,7 @@ const sessionSchema = new mongoose.Schema<SessionDocument>({
     required: true, 
     default: Date.now,
   },
-  expiresAt: {
+  expiresAt: { 
     type: Date,
     required: true,
     default: threeMonthsFromNow,

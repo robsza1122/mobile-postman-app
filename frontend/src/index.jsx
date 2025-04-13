@@ -4,7 +4,6 @@ import { App } from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { PostGlobalProvider } from "./PostGlobalProvider.jsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,11 +16,10 @@ const queryClient = new QueryClient({
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <PostGlobalProvider>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </QueryClientProvider>
-    </PostGlobalProvider>
+
 );

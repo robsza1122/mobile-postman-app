@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Navigation } from "../Navigation/Navigation.jsx";
 import "./MainPage.scss";
 import { Link } from "react-router-dom";
+import { PostManState } from "../../PostGlobalProvider.jsx";
 
 export const MainPage = () => {
+  const { setCurrentUser, currentUser, setCurrentParcels } = useContext(PostManState);
   const [clickedButton, setClickedButton] = useState(false);
   const userAgent = window.navigator.userAgent;
+  useEffect(() => {
+    setCurrentUser([]);
+    setCurrentParcels([]);
+  },[]);
+
+  console.log(currentUser);
+
   return (
     <div className="mainpage__content">
       <Navigation />

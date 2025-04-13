@@ -1,7 +1,10 @@
-import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
+
+import { APP_ORIGIN } from "../constants/env";
+import { CREATED, NOT_FOUND, OK, UNAUTHORIZED } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
 import {
+  addDifferentStatus,
   createNewUser,
   createOrder,
   date,
@@ -16,8 +19,11 @@ import {
   getRefreshTokenOptions,
   setUserCookies,
 } from "../utils/cookies";
+import { getInDeliveryStatusEmail } from "../utils/InDeliveryEmail";
 import { verifyToken } from "../utils/jwt";
+import { sendEmail } from "../utils/sendEmail";
 import { parcelSchima } from "./parcel.schimas";
+import { statusSchima } from "./status.schima";
 import { loginShema, registerSchima } from "./user.schima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
@@ -56,13 +62,14 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       isSignature: 1,
       signature: 1,
       deliveryCode: 1,
-
-      status: [
-        {
-          name: "ORDERED",
-          createdAt: date,
-        }
-      ]
+      amountOfTrials: 1,
+      isDeliveryCode: 1,
+      status: 1,
+      deliveryInput: 1,
+      reasonOfAdvice: 1,
+      officeOfAdvice: 1,
+      placeOfNotification: 1,
+      noAddressee: 1,
     },
     {
       sort: { createdAt: -1 },
@@ -83,7 +90,7 @@ export const registerHandler = catchErrors(async (req, res) => {
 
   return setUserCookies({ res, accessToken, refreshToken })
     .status(CREATED)
-    .json(newUser); 
+    .json(newUser);
 });
 
 export const loginHandler = catchErrors(async (req, res) => {
@@ -119,7 +126,7 @@ export const refreshHandler = catchErrors(async (req, res) => {
 
   const { accessToken, newRefreshToken } = await refreshUserAccessToken(
     refreshToken
-  ); 
+  );
 
   if (newRefreshToken) {
     res
@@ -131,4 +138,50 @@ export const refreshHandler = catchErrors(async (req, res) => {
     .status(OK)
     .cookie("accessToken", accessToken, getAccessTokenOptions())
     .json({ message: "Access token refreshed" });
+});
+
+export const checkStatusHandler = catchErrors(async (req, res) => {
+  const checkedParcel = await parcelModel.findById(req.params.id);
+
+  appAssert(checkedParcel, NOT_FOUND, "Parcel not found");
+
+  return res.status(OK).json(checkedParcel);
+});
+
+export const inDeliveryStatusHandler = catchErrors(async (req, res) => {
+  const inDeliveryStatus = {
+    name: "IN DELIVERY",
+    createdAt: date,
+  };
+
+  await parcelModel.updateMany(
+    { isMarked: false },
+    { $push: { status: inDeliveryStatus } }
+  );
+
+  const sendEmailsToParcel = await parcelModel.find({}).then((data) => {
+    data.map(async (parcel) => {
+      const url = `${APP_ORIGIN}/checkStatus/${parcel._id}`;
+
+      await sendEmail({
+        ...getInDeliveryStatusEmail(parcel, url),
+        to: parcel.clientEmail,
+      });
+    });
+  });
+
+  appAssert(sendEmailsToParcel, NOT_FOUND, "Can not send email");
+
+  return res.status(OK).json(sendEmailsToParcel);
+}); 
+
+export const differentStatusHandler = catchErrors(async (req, res) => {
+  const request = statusSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const {updateParcels} = await addDifferentStatus(request);
+
+  return res.status(OK).json(updateParcels);
 });

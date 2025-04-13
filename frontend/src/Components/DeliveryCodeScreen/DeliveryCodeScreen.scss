@@ -34,13 +34,17 @@
         font-size: 20px;
         text-align: center;
     }
+    &__cashondelivery {
+        margin: 5px auto;
+        font-weight: 600;
+        font-size: 22px;
+        font-family: Post, sans-serif;
+        text-align: center;
+    }
     &__trials {
         font-family: Post, sans-serif;
         font-size: 20px;
         text-align: center;
-    }
-    &__square {
-        
     }
     &__user {
         margin: 0;

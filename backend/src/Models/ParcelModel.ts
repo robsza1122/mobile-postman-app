@@ -25,10 +25,19 @@ export interface ParcelDocument extends mongoose.Document {
   isSignature: boolean,
   signature: string,
   isMarked: boolean,
+  amountOfTrials: number,
+  isDeliveryCode: boolean,
   status: {
     name: string,
     createdAt: String,
+    subjectOfDelivery: string;
+    particularOfDelivery: string;
   }[],
+    reasonOfAdvice: string,
+    officeOfAdvice: string,
+    placeOfNotification: string,
+  deliveryInput: string;
+  noAddressee: boolean;
   createdAt: Date,
   expiresAt: Date, 
 };
@@ -120,13 +129,36 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
         type: String,
         default: null,
     },
+    amountOfTrials: {
+        type: Number,
+    },
+    isDeliveryCode: {
+        type: Boolean,
+    },
     status: {
         type: [
             {
           name: String,
           createdAt: String,
+          particularOfDelivery: String,
+          subjectOfDelivery: String,
             }
-        ]
+        ],
+    },
+    reasonOfAdvice: {
+        type: String,
+    },
+    officeOfAdvice: {
+        type: String,
+    },
+    placeOfNotification: {
+        type: String,
+    },
+    deliveryInput: {
+        type: String,
+    },
+    noAddressee: {
+        type: Boolean,
     },
     createdAt: {
         type: Date,

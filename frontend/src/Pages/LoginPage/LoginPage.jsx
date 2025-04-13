@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Navigation } from "../Navigation/Navigation";
 import "./LoginPage.scss";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
 import { useNavigate } from "react-router-dom";
+import { PostManState } from "../../PostGlobalProvider";
 
 export const LoginPage = () => {
+  const {currentUser} = useContext(PostManState);
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
@@ -20,9 +22,11 @@ export const LoginPage = () => {
     onSuccess: () => {
       navigate("/ML", {
         replace: true,
-      })
+      });
+      setCurrentParcels([]);
     }
   });
+  console.log(currentUser)
 
   return (
     <>

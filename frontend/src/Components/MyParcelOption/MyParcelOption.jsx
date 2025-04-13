@@ -17,10 +17,12 @@ export const MyParcelOption = (option) => {
               return "/booklist";
             case "ADD OTHERS":
               return "/otherOption";
-            case "ADVICED":
+            case "ADVICE":
               return "/advicedOption";
           }
         };
+
+        console.log(handleRouterLinks(header))
         
   return (
     <Link className="parceloption__content" to={handleRouterLinks(header)}>

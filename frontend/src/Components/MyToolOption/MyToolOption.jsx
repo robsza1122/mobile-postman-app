@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { logoutUser } from "../../api/api";
+import { useContext } from "react";
+import { PostManState } from "../../PostGlobalProvider";
 
 export const MyToolOption = (option) => {
+  const {setCurrentUser} = useContext(PostManState);
     const navigate = useNavigate();
     const { mutate: signOut } = useMutation({
       mutationFn: logoutUser,
@@ -20,7 +23,10 @@ export const MyToolOption = (option) => {
     const handleToolOptions = (optionsHeader) => {
       switch(optionsHeader) {
         case "LOGOUT":
-          return () => signOut().then(data => data = undefined);
+          return () => signOut().then(data => {
+            data = undefined;
+            setCurrentUser(undefined);
+      });
       }
     };
 

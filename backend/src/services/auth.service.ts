@@ -1,5 +1,5 @@
 import { APP_ORIGIN } from "../constants/env";
-import { CONFLICT, UNAUTHORIZED } from "../constants/http";
+import { CONFLICT, NOT_FOUND, UNAUTHORIZED } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
 import UserModel from "../Models/UserModel";
@@ -14,6 +14,7 @@ import {
 import { sendEmail } from "../utils/sendEmail";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/Data";
 import makeEmiNumber from "../utils/getEMINumber";
+import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
 
 export type CreateParcelOrder = {
   senderName: string;
@@ -34,13 +35,23 @@ export type CreateParcelOrder = {
   phone?: string;
   numberOfParcel?: string;
   deliveryCode?: string;
-  isMarked?: boolean,
-  isSignature?: boolean,
-  signature?: string,
+  isMarked?: boolean;
+  isSignature?: boolean;
+  signature?: string;
+  amountOfTrials?: number;
+  isDeliveryCode?: boolean;
   status?: {
     name: string;
     createdAt: String;
+    subjectOfDelivery?: string;
+    particularOfDelivery?: string;
   }[];
+  deliveryInput?: string | null;
+  noAddressee?: boolean;
+  reasonOfAdvice?: string;
+  officeOfAdvice?: string;
+  placeOfNotification?: string;
+  _id?: unknown;
 };
 
 const today = new Date();
@@ -65,8 +76,10 @@ type CreateNewUserType = {
   userAgent?: string;
 };
 
-export const createNumber = () => (Math.random() * 10000000000000).toFixed(0).toString().slice(0, 12);
-export const createDeliveryCode = () => ((Math.random() * 1000000000).toFixed(0).toString().slice(0, 6));
+export const createNumber = () =>
+  (Math.random() * 10000000000000).toFixed(0).toString().slice(0, 12);
+export const createDeliveryCode = () =>
+  (Math.random() * 1000000000).toFixed(0).toString().slice(0, 6);
 
 export const createNewUser = async (data: CreateNewUserType) => {
   const duplicatedUser = await UserModel.exists({
@@ -124,6 +137,8 @@ export const createOrder = async (data: CreateParcelOrder) => {
     cashOnDelivery: data.cashOnDelivery,
     clientEmail: data.clientEmail,
     phone: data.phone,
+    amountOfTrials: 0,
+    isDeliveryCode: false,
     isMarked: false,
     isSignature: false,
     signature: null,
@@ -132,6 +147,11 @@ export const createOrder = async (data: CreateParcelOrder) => {
       name: "ORDERED",
       createdAt: date,
     },
+    deliveryInput: data.deliveryInput,
+    noAddressee: data.noAddressee,
+    reasonOfAdvice: '',
+    officeOfAdvice: '',
+    placeOfNotification: '',
     numberOfParcel: `PX${createNumber()}`,
   });
 
@@ -230,5 +250,60 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   return {
     accessToken,
     newRefreshToken,
+  };
+};
+
+type DifferentStatusType = {
+  nameOfStatus: string;
+  id: string;
+  subjectOfDelivery: string;
+  particularOfDelivery: string;
+  signature?: any;
+  isDeliveryCode: boolean;
+  isSignature: boolean;
+  noAddressee: boolean;
+  deliveryInput: string;
+  reasonOfAdvice: string;
+  officeOfAdvice: string;
+  placeOfNotification: string;
+};
+
+export const addDifferentStatus = async ({
+  id,
+  subjectOfDelivery,
+  particularOfDelivery,
+  nameOfStatus,
+  signature,
+  isDeliveryCode,
+  isSignature,
+  noAddressee,
+  deliveryInput,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+}: DifferentStatusType) => {
+  const handleStatus = {
+    name: nameOfStatus,
+    createdAt: date,
+    subjectOfDelivery,
+    particularOfDelivery,
+  };
+
+  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
+    $push: { status: handleStatus },
+    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
+  });
+
+  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+
+  const url = `${APP_ORIGIN}/checkStatus/${id}`;
+
+  await sendEmail({
+    ...getDeliveredEmailTemplate(updateParcels, url),
+    to: updateParcels.clientEmail,
+  });
+
+  return {
+    updateParcels,
   };
 };

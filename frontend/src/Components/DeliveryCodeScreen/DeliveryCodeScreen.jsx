@@ -1,17 +1,21 @@
-import { useContext, useEffect, useState } from "react";
-import useAuth from "../../hooks/useAuth";
+import { useContext, useEffect } from "react";
 import "./DeliveryCodeScreen.scss";
 import PinInput from "react-pin-input";
 import { PostManState } from "../../PostGlobalProvider";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { date } from "../../utils/currentDate";
+import { useNavigate } from "react-router-dom";
+import useParcels from '../../hooks/useParcels'
 
 export const DeliveryCodeScreen = () => {
-  const [trialsAmount, setTrialsAmount] = useState(0);
-  const [deliveryCode, setDeliveryCode] = useState();
-  const { currentParcels, downloadedBook, setDownloadedBook } =
-    useContext(PostManState);
   const navigate = useNavigate();
+  const {
+    currentParcels,
+    setDownloadedBook,
+    downloadedBook,
+    onDeliveryCode,
+    setDeliveryCode,
+    currentUser,
+  } = useContext(PostManState);
+  const {parcels} = useParcels();
   useEffect(() => {
     window.onpopstate = () => {
       setDownloadedBook(
@@ -27,56 +31,27 @@ export const DeliveryCodeScreen = () => {
         })
       );
     };
-  });
+  }, []);
+
   console.log(currentParcels);
-  console.log(deliveryCode);
-  const { user } = useAuth();
-
-  const onConfirm = (clickedParcel) => {
-    console.log(clickedParcel[0].deliveryCode);
-    console.log(deliveryCode);
-    if (deliveryCode === clickedParcel[0].deliveryCode) {
-      setDownloadedBook(
-        downloadedBook.map((parcel) => {
-          if (parcel.deliveryCode === deliveryCode) {
-          return {
-            ...parcel,
-            status: [
-              ...parcel.status,
-              {
-                name: "DELIVERED",
-                createdAt: date,
-              },
-            ],
-          };
-        }
-
-        return parcel;
-        })
-      );
-      navigate("/workPage", {
-        replace: true,
-      });
-    }
-  };
-
   console.log(downloadedBook);
-  console.log(currentParcels);
+  console.log(parcels);
+
+  const codeTrials = downloadedBook.find(parcel => parcel._id === currentParcels[0]._id);
 
   return (
     <div className="dsc__content">
       <nav className="dsc__nav">
         <p className="dsc__text">Type Delivery Code</p>
-        <p className="dsc__user">{`${user.username} [${user.EMINumber}]`}</p>
+        <p className="dsc__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
       <div className="dsc__body">
         <p className="dsc__number">
-          {currentParcels.map((parcel) => {
-            return parcel.numberOfParcel;
-          })}
+          {currentParcels[0].numberOfParcel}
         </p>
         <p className="dsc__deliverytext">TYPE DELIVERY CODE</p>
-        <p className="dsc__trials">Amount of trials {trialsAmount}/ 3</p>
+        <p className="dsc__cashondelivery">Cash on delivery {currentParcels[0].amount}</p>
+          <p className="dsc__trials">Amount of trials {codeTrials.amountOfTrials} / 3</p>
         <PinInput
           className="dsc__pinsquare"
           style={{
@@ -90,10 +65,12 @@ export const DeliveryCodeScreen = () => {
           focus
         />
         <div className="dsc__buttons">
-          <button className="dsc__button">Deliver traditionally</button>
+          <button
+           className="dsc__button"
+           onClick={() => navigate("/traditionalDeliver")}>Deliver traditionally</button>
           <button
             className="dsc__button"
-            onClick={() => onConfirm(currentParcels)}
+            onClick={() => onDeliveryCode(currentParcels)}
           >
             Confirm
           </button>

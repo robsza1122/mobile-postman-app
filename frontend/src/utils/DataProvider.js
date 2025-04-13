@@ -19,3 +19,41 @@ export const myToolsOptions = [
 export const APMOptionData = [
     {title: "AUTHORIZATION CODE CAINAO", code: "src/image/code.svg", glass: "src/image/magni-glass.svg"}
 ];
+
+export const subjectsOption = [
+    "Addressee",
+    "Person authorized to receive parcel",
+    "Adult homemate",
+    "Legal representative",
+    "The addressee's representative"
+];
+
+export const particularDeliveryInfo = [
+    "Addressee refused doing readable signature",
+    "Addressee could not do signature by poor health conditions",
+    "Parcel left in place set with addressee",
+    "Parcel left in post box",
+    "Service R to post box"
+];
+
+export const navOptionsButtons = ["INDIVIDUAL", "ZDO"];
+
+export const reasonOfAdvice = [
+    "No one at home / closed company",
+    "Lack of cash",
+    "Adviced for wish",
+];
+
+export const placeOfAdvice = [
+    "Pocztowa 1 UP 1",
+    "Ogonowa 23 UP 2",
+    "Zielona 5 UP 3",
+    "Przymulona 9a 5 UP 4",
+];
+
+export const placeOfNotification = [
+    "Post box of addressee",
+    "Visible place on possession",
+    "Other place, to which addressee has access",
+    "Front door"
+];

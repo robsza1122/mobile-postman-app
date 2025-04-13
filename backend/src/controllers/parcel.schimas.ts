@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { date } from "../services/auth.service";
 
 const dataSchima = z.string().min(3).max(255);
 export const numberSchima = z.string().length(12).optional();
@@ -22,12 +23,20 @@ export const parcelSchima = z.object({
   signature: z.string().optional(),
   deliveryCode: z.string().length(6).optional(),
   status: z.array(z.object({
-    name: z.string(),
-    createdAt: z.string(),
+    name: z.string().default("ORDERED"),
+    createdAt: z.string().default(date),
+    subjectOfDelivery: z.string().optional(),
+    particularOfDelivery: z.string().optional(),
   })).optional(),
+  deliveryInput: z.string().nullable().optional().default(null),
+  noAddressee: z.boolean().optional().default(false),
   phone: z.string().startsWith("+48").length(12).optional(),
   clientEmail: z.string().email().min(5).max(255),
   cashOnDelivery: z.boolean(),
   amount: z.number().max(100000),
+  reasonOfAdvice: z.string().optional(),
+  officeOfAdvice: z.string().optional(),
+  placeOfNotification: z.string().optional(),
     userAgent: z.string().optional(),
+    _id: z.unknown().optional(),
 }); 
