@@ -1,11 +1,11 @@
-import React, { createContext, useMemo, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import { useLocaleStorage } from "./hooks/useLocaleStorage";
 import { date } from "./utils/currentDate";
-import { useNavigate } from "react-router-dom";
+import { useAsyncError, useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import useParcels from "./hooks/useParcels";
 import { useMutation } from "@tanstack/react-query";
-import { addDifferentStatus } from "./api/api";
+import useAuth from "./hooks/useAuth";
+import { addDeliveredStatus } from "./api/api";
 
 
 export const PostManState = createContext({
@@ -35,6 +35,10 @@ export const PostManState = createContext({
     setInput: () => {},
     handleSignatureButton: () => {},
     signatureRef: {},
+    particularSubject: "Addressee refused doing readable signature",
+    setParticularSubject: () => {},
+    settled: false,
+    setSettled: () => {},
 }
 );
 
@@ -50,14 +54,24 @@ export const PostGlobalProvider = ({children}) => {
     const [savePoints, setSavePoints] = useLocaleStorage("savePoints", null);
     const [chooseSubject, setChooseSubject] = useLocaleStorage("chooseSubject", "Addressee");
     const [input, setInput] = useLocaleStorage("input", "");
+    const [particularSubject, setParticularSubject] = useLocaleStorage("particularSubject", "Addressee refused doing readable signature");
+    const [settled, setSettled] = useState(false);
 
     const navigate = useNavigate();
     const signatureRef = useRef({});
 
     const {mutate: changeStatus} = useMutation({
       mutationKey: ['changeStatus'],
-      mutationFn: addDifferentStatus,
+      mutationFn: addDeliveredStatus,
     })
+
+    const {user} = useAuth();
+
+    useEffect(() => {
+      if (user) {
+      setCurrentUser(user);
+      }
+    }, []);
  
       const onDeliveryCode = (clickedParcel) => {
 
@@ -102,6 +116,13 @@ export const PostGlobalProvider = ({children}) => {
           signature: null,
           isSignature: false,
           isDeliveryCode: true,
+          noAddressee: false,
+          deliveryInput: '',
+          reasonOfAdvice: '', 
+          officeOfAdvice: '',
+          placeOfNotification: '',
+          subject: '',
+          details: '',
         })
           return {
             ...parcel,
@@ -138,6 +159,7 @@ export const PostGlobalProvider = ({children}) => {
      const clearBook = () => {
       setDownloadedBook([]);
               localStorage.clear();
+              setSettled(false);
               };
 
               const clearSignature = () => {
@@ -205,6 +227,10 @@ export const PostGlobalProvider = ({children}) => {
             setChooseSubject,
             input,
             setInput,
+            particularSubject,
+            setParticularSubject,
+            setSettled,
+            settled,
             onDeliveryCode,
             clearBook,
             saveSignature,

@@ -57,3 +57,13 @@ export const placeOfNotification = [
     "Other place, to which addressee has access",
     "Front door"
 ];
+
+export const resultOfDelivery = [
+    "Parcel postponed",
+    "Lack of status",
+    "Wrong address",
+    "Delivered to ZDO",
+    "Parcel undelivered to ZDO",
+    "Parcel directed to office of undeliverable parcels",
+    "Parcel returned to sender",
+];

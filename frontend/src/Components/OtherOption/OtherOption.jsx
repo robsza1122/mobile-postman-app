@@ -1,5 +1,5 @@
 import useAuth from "../../hooks/useAuth";
-import "./DeliverOption.scss";
+import "../DeliverOption/DeliverOption.scss";
 import classnames from "classnames";
 import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -7,13 +7,14 @@ import { PostManState } from "../../PostGlobalProvider";
 import { navigate } from "../../api/navigation";
 import { navOptionsButtons } from "../../utils/DataProvider";
 
-export const DeliverOption = () => {
+export const OtherOption = () => {
   const {
     setDownloadedBook,
     setCurrentParcels,
     downloadedBook,
     currentParcels,
     currentUser,
+    setCurrentUser,
   } = useContext(PostManState);
     useEffect(() => {
       setDownloadedBook(downloadedBook.map(parcel => {
@@ -26,9 +27,13 @@ export const DeliverOption = () => {
 
         return parcel;
       }))
+      setCurrentParcels([]);
       window.onpopstate = () => {
-        setCurrentParcels([]);
+        if (user) {
+          navigate("/ML");
+        }
       }
+      setCurrentUser(user);
     }, []);
   const [searchInput, setSearchInput] = useState("");
 
@@ -82,11 +87,8 @@ export const DeliverOption = () => {
   };
 
   const handleLink = () => {
-    if (currentParcels.length === 1 && currentParcels[0].amountOfTrials === 3) {
-      return  "/traditionalDeliver";
-    }
     if (currentParcels.length === 1) {
-      return "/deliveryCodeScreen";
+      return "/otherOptionScreen";
     }
     return "";
   };
@@ -106,7 +108,7 @@ export const DeliverOption = () => {
     <div className="deliver__content">
       <nav className="deliver__nav">
         <div className="deliver__texts">
-          <p className="deliver__text">DELIVERY</p>
+          <p className="deliver__text">OTHER OPTIONS</p>
           <p className="deliver__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </div>
         <div className="deliver__icons">
@@ -219,7 +221,8 @@ export const DeliverOption = () => {
             </div>
             ))}
             <div className="deliver__othersblock">OTHERS</div>
-            {searchPosition(otherParcels).map((parcel) => (
+            {searchPosition(otherParcels).map((parcel) => {
+              return (
               <div className="deliver__position" key={parcel._id}>
               <div className="deliver__positioncontent">
                 <p className="deliver__number">{parcel.numberOfParcel}</p>
@@ -239,7 +242,8 @@ export const DeliverOption = () => {
               )}
               </div>
             </div>
-            ))}
+              )
+})}
           </div>
           <div
             className="deliver__buttons"
@@ -253,12 +257,12 @@ export const DeliverOption = () => {
               to={handleLink()}
               onClick={() => handleOneDeliveryAlerts()}
             >
-              <p className="deliver__buttontext">Individual Delivery</p>
+              <p className="deliver__buttontext">Other Option</p>
               <img src="src/image/hand.svg" alt="" className="deliver__img" />
               <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
             </Link>
             <Link className="deliver__button">
-              <p className="deliver__buttontext">Multi-delivery</p>
+              <p className="deliver__buttontext">Grouped Result</p>
               <img src="src/image/boxes.svg" alt="" className="deliver__img" />
             </Link>
           </div>

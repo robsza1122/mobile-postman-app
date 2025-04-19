@@ -23,6 +23,13 @@ export const BookList = () => {
                     "booklist__position--delivered":
                       parcel.status[parcel.status.length - 1].name ===
                       "DELIVERED",
+                      "booklist__position--adviced":
+                      parcel.status[parcel.status.length - 1].name ===
+                      "ADVICED",
+                      "booklist__position--other": 
+                      parcel.status[parcel.status.length - 1].name ===
+                      "OTHER",
+                
                   })}
                   key={parcel._id}
                 >

@@ -10,14 +10,9 @@ export const PostmanContainer = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    if (user) {
-      setCurrentUser(user)
-    }
     window.onpopstate = () => {
-      if (window.location.pathname === "/ML") {
-        alert("If you want to go back, please click LOGOUT BUTTON");
-
-        navigate("/ML");
+      if (window.location.pathname === "/") {
+      
       }
     }
   });
@@ -34,7 +29,7 @@ export const PostmanContainer = () => {
         </>
       ) : (
         <Navigate
-          to="/login"
+          to="/"
           replace
           state={{
             redirectUrl: window.location.pathname,

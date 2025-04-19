@@ -15,6 +15,8 @@ import { sendEmail } from "../utils/sendEmail";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/Data";
 import makeEmiNumber from "../utils/getEMINumber";
 import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
+import { getAdvicingEmail } from "../utils/getAdvicingEmail";
+import { otherStatusEmail } from "../utils/otherStatusEmail";
 
 export type CreateParcelOrder = {
   senderName: string;
@@ -43,8 +45,8 @@ export type CreateParcelOrder = {
   status?: {
     name: string;
     createdAt: String;
-    subjectOfDelivery?: string;
-    particularOfDelivery?: string;
+    subject?: string;
+    details?: string;
   }[];
   deliveryInput?: string | null;
   noAddressee?: boolean;
@@ -148,7 +150,7 @@ export const createOrder = async (data: CreateParcelOrder) => {
       createdAt: date,
     },
     deliveryInput: data.deliveryInput,
-    noAddressee: data.noAddressee,
+    noAddressee: false,
     reasonOfAdvice: '',
     officeOfAdvice: '',
     placeOfNotification: '',
@@ -256,22 +258,22 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
 type DifferentStatusType = {
   nameOfStatus: string;
   id: string;
-  subjectOfDelivery: string;
-  particularOfDelivery: string;
+  subject: string;
+  details: string;
   signature?: any;
   isDeliveryCode: boolean;
   isSignature: boolean;
-  noAddressee: boolean;
+  noAddressee?: boolean;
   deliveryInput: string;
   reasonOfAdvice: string;
   officeOfAdvice: string;
   placeOfNotification: string;
 };
 
-export const addDifferentStatus = async ({
+export const deliveredStatus = async ({
   id,
-  subjectOfDelivery,
-  particularOfDelivery,
+  subject,
+  details,
   nameOfStatus,
   signature,
   isDeliveryCode,
@@ -285,8 +287,8 @@ export const addDifferentStatus = async ({
   const handleStatus = {
     name: nameOfStatus,
     createdAt: date,
-    subjectOfDelivery,
-    particularOfDelivery,
+    subject,
+    details,
   };
 
   const updateParcels = await parcelModel.findByIdAndUpdate(id, {
@@ -296,7 +298,7 @@ export const addDifferentStatus = async ({
 
   appAssert(updateParcels, NOT_FOUND, "Id is wrong");
 
-  const url = `${APP_ORIGIN}/checkStatus/${id}`;
+  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
 
   await sendEmail({
     ...getDeliveredEmailTemplate(updateParcels, url),
@@ -307,3 +309,87 @@ export const addDifferentStatus = async ({
     updateParcels,
   };
 };
+
+export const advicedStatus = async ({
+  id,
+  subject,
+  details,
+  nameOfStatus,
+  signature,
+  isDeliveryCode,
+  isSignature,
+  noAddressee,
+  deliveryInput,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+}: DifferentStatusType) => {
+  const handleStatus = {
+    name: nameOfStatus,
+    createdAt: date,
+    subject,
+    details,
+  };
+
+  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
+    $push: { status: handleStatus },
+    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
+  });
+
+  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+
+  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
+
+  await sendEmail({
+    ...getAdvicingEmail(updateParcels, url),
+    to: updateParcels.clientEmail,
+  });
+
+  return {
+    updateParcels,
+  };
+};
+
+export const otherStatus = async ({
+  id,
+  subject,
+  details,
+  nameOfStatus,
+  signature,
+  isDeliveryCode,
+  isSignature,
+  noAddressee,
+  deliveryInput,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+}: DifferentStatusType) => {
+  const handleStatus = {
+    name: nameOfStatus,
+    createdAt: date,
+    subject,
+    details,
+  };
+
+  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
+    $push: { status: handleStatus },
+    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
+  });
+
+  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+
+  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
+
+  await sendEmail({
+    ...otherStatusEmail(updateParcels, url),
+    subject: otherStatusEmail(updateParcels, url).subject || "Default Subject",
+    text: otherStatusEmail(updateParcels, url).text || "Default Text",
+    to: updateParcels.clientEmail,
+  });
+
+  return {
+    updateParcels,
+  };
+};
+
+

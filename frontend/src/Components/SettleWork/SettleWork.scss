@@ -1,0 +1,57 @@
+@import '../../utils/main/main.scss';
+
+.settle {
+    &__nav {
+        height: 50px;
+        width: 100%;
+        background-color: $post-color;
+    }
+    &__user {
+        margin: 0;
+        margin-left: 10px;
+        font-family: Post, sans-serif;
+        color: white;
+        font-size: 16px;
+    }
+    &__info {
+        margin: 0;
+    margin-left: 10px;
+    font-family: Post, sans-serif;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    }
+    &__window {
+        font-family: Post, sans-serif;
+        width: 85%;
+        height: 60vh;
+        background-color: rgb(235, 232, 232);
+        border: 1px solid gray;
+        border-radius: 10px;
+        margin: 60px auto;
+        &--settled {
+            background-color: lightgreen;
+        }
+    }
+    &__data {
+        display: flex;
+        justify-content: space-between;
+        margin: 0 15px;
+    }
+    &__button {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        border: 0;
+        background-color: $post-color;
+        color: white;
+        font-family: Post, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 20px 0;
+        cursor: pointer;
+        &:hover {
+            background-color: rgb(233, 63, 63);
+        }
+    }
+}

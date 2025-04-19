@@ -34,6 +34,13 @@
             border-left: 10px solid gray;
             
         }
+        &--adviced {
+            border-left: 10px solid rgb(186, 113, 11);
+        }
+
+        &--other {
+            border-left: 10px solid blue;
+        }
         &:last-child {
             border-bottom: 2px solid gray;
         }
@@ -64,5 +71,23 @@
         &--marked {
             margin: 1px 0 0 30px;
         }
+    }
+    &__dropzone {
+        background-color: #ccc;
+  transition-property: height padding;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+  overflow: hidden;
+  &--hidden {
+    height: 0px;
+    padding: 0px;
+  }
+    }
+    &__dragged {
+        position:absolute;
+        padding: 0.3rem;
+        white-space: nowrap;
+        cursor: pointer;
+        height: 1.5rem;
     }
 }

@@ -10,6 +10,7 @@
     &__window {
     margin: 30px auto;
     width: 90%;
+    min-width: 728px;
     border: 1px solid gray;
     border-radius: 12px;
     background-color: rgba(255, 255, 255, 0.952);
@@ -60,6 +61,9 @@
         text-align: center;
     }
     &__span {
+        display: block;
+        margin: 0 auto;
+        width: 200px;
         font-family: Post, sans-serif;
     }
     &__statusspan {
@@ -73,6 +77,8 @@
     }
     }
     &__statustext {
+        text-align: center;
+
         margin: 0;
         font-size: 25px;
         border: 1px solid gray;
@@ -94,9 +100,11 @@
     &__signatureperson {
         margin: 0;
         font-size: 28px;
+        font-weight: 600;
     }
     &__info {
-        font-size: 16px;
+        font-size: 22px;
+        line-height: 52px;
     }
     &__data {
         height: 10px;
@@ -126,5 +134,13 @@
         background-size: 40px;
         width: 60px;
         height: 30px;
+    }
+    &__error {
+        font-family: Post, sans-serif;
+        font-size: 40px;
+        margin: 0;
+    }
+    &__errortext {
+        text-align: center;
     }
 }

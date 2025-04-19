@@ -30,8 +30,8 @@ export interface ParcelDocument extends mongoose.Document {
   status: {
     name: string,
     createdAt: String,
-    subjectOfDelivery: string;
-    particularOfDelivery: string;
+    subject: string;
+    details: string;
   }[],
     reasonOfAdvice: string,
     officeOfAdvice: string,
@@ -140,8 +140,8 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
             {
           name: String,
           createdAt: String,
-          particularOfDelivery: String,
-          subjectOfDelivery: String,
+          details: String,
+          subject: String,
             }
         ],
     },

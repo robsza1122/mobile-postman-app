@@ -17,7 +17,7 @@ export const WorkPage = () => {
   console.log(downloadedBook);
   const parcelsToDeliver = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "IN DELIVERY")
 const advicedParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "ADVICED")
-const otherParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "OTHERS");
+const otherParcels = downloadedBook.filter(parcel => parcel.status[parcel.status.length - 1].name === "OTHER");
 
   console.log(currentUser);
   console.log(parcels)

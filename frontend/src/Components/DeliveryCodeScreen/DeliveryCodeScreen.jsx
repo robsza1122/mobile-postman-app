@@ -50,7 +50,7 @@ export const DeliveryCodeScreen = () => {
           {currentParcels[0].numberOfParcel}
         </p>
         <p className="dsc__deliverytext">TYPE DELIVERY CODE</p>
-        <p className="dsc__cashondelivery">Cash on delivery {currentParcels[0].amount}</p>
+        <p className="dsc__cashondelivery">Cash on delivery {!currentParcels[0].amount.toString().includes(".") ? `${currentParcels[0].amount}.00` : currentParcels[0].amount}</p>
           <p className="dsc__trials">Amount of trials {codeTrials.amountOfTrials} / 3</p>
         <PinInput
           className="dsc__pinsquare"
