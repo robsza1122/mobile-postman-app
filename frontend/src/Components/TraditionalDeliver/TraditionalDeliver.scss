@@ -176,7 +176,7 @@
         place-content: center;
         align-self: center;
         appearance: none;
-        background-color: #fff;
+        box-shadow: inset 13px 13px $post-color;
         margin: 0;
         color: black;
         width: 20px;
@@ -192,7 +192,7 @@
             height: 20px;
             transform: scale(0);
             transition: 120ms transform ease-in-out;
-            box-shadow: inset 13px 13px $post-color;
+            background-color: #fff;
         }
         }
         &__inputcontent {

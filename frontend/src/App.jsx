@@ -19,6 +19,8 @@ import { OtherOption } from "./Components/OtherOption/OtherOption.jsx";
 import { OtherOptionScreen } from "./Components/OtherOptionScreen/OtherOptionScreen.jsx";
 import { SettleWork } from "./Components/SettleWork/SettleWork.jsx";
 import { ReorderList } from "./Components/ReorderList/ReorderList.jsx";
+import { CreateBook } from "./Components/CreateBook/CreateBook.jsx";
+import { MultiDeliveryVerification } from "./Components/MultiDeliveryVerification/MultiDeliveryVerification.jsx";
 
 export const App = () => {
   const navigate = useNavigate();
@@ -44,6 +46,8 @@ setNavigate(navigate);
       <Route path="/otherOptionScreen" element={<OtherOptionScreen />} />
       <Route path="/settle" element={<SettleWork />} />
       <Route path="/reorderList" element={<ReorderList />} />
+      <Route path="/createBook" element={<CreateBook />} />
+      <Route path="/multiDeliveryVerification" element={<MultiDeliveryVerification />} />
     </Routes>
     </PostGlobalProvider>
   ); 

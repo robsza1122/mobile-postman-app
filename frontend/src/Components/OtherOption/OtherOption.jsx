@@ -16,25 +16,25 @@ export const OtherOption = () => {
     currentUser,
     setCurrentUser,
   } = useContext(PostManState);
-    useEffect(() => {
-      setDownloadedBook(downloadedBook.map(parcel => {
-        if (parcel.isMarked) {
-          return {
-            ...parcel,
-            isMarked: false,
-          }
-        }
-
-        return parcel;
-      }))
-      setCurrentParcels([]);
-      window.onpopstate = () => {
-        if (user) {
-          navigate("/ML");
+  useEffect(() => {
+    setDownloadedBook(downloadedBook.map(parcel => {
+      if (parcel.isMarked) {
+        return {
+          ...parcel,
+          isMarked: false,
+          deliveryInput: '',
         }
       }
-      setCurrentUser(user);
-    }, []);
+
+      return parcel;
+    }))
+    window.onpopstate = () => {
+      if (currentParcels.length === 0) {
+        navigate("/deliverOption")
+      }
+      setCurrentParcels([]);
+    }
+  }, []);
   const [searchInput, setSearchInput] = useState("");
 
   const parcelsInDelivery = downloadedBook.filter(

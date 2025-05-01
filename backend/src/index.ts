@@ -18,7 +18,7 @@ app.use(urlencoded({extended: true}));
 app.use(
   cors({
     origin: APP_ORIGIN,
-    credentials: true,
+    credentials: true, 
   })
 );
 app.use(cookieParser());
@@ -37,3 +37,4 @@ app.listen(PORT, async () => {
   console.log(`Server is listening on port ${PORT} in ${NODE_ENV}`);
   await postManDataBase();
 })
+ 

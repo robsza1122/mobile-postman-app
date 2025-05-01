@@ -15,18 +15,24 @@ export const DeliverOption = () => {
     currentParcels,
     currentUser,
   } = useContext(PostManState);
+
+
     useEffect(() => {
       setDownloadedBook(downloadedBook.map(parcel => {
         if (parcel.isMarked) {
           return {
             ...parcel,
             isMarked: false,
+            deliveryInput: '',
           }
         }
 
         return parcel;
       }))
       window.onpopstate = () => {
+        if (currentParcels.length === 0) {
+          navigate("/deliverOption")
+        }
         setCurrentParcels([]);
       }
     }, []);
@@ -48,7 +54,6 @@ export const DeliverOption = () => {
     setChosenOption(id);
     setSlideOptions(id);
   };
-  const { user } = useAuth();
 
   const changeCheckbox = (id) => {
     const changeStatus = downloadedBook.map((currentParcel) => {
@@ -81,6 +86,16 @@ export const DeliverOption = () => {
     }
   };
 
+  const handleMultiDeliveryAlerts = () => {
+    const parcelIsMarked = currentParcels.length;
+    switch (parcelIsMarked) {
+      case 0:
+        return alert("No position is marked");
+      case 1:
+        return alert("Mark more than one position");
+    }
+  }
+
   const handleLink = () => {
     if (currentParcels.length === 1 && currentParcels[0].amountOfTrials === 3) {
       return  "/traditionalDeliver";
@@ -90,6 +105,14 @@ export const DeliverOption = () => {
     }
     return "";
   };
+
+  const handleMultiDeliveryLink = () => {
+    if (currentParcels.length === 0 || currentParcels.length === 1) {
+      return "";
+    } else if (currentParcels.length > 1) {
+      return "/multiDeliveryVerification";
+    }
+  }
 
   const searchPosition = (positions) => {
     const filterPosition = positions.filter((position) => {
@@ -106,7 +129,7 @@ export const DeliverOption = () => {
     <div className="deliver__content">
       <nav className="deliver__nav">
         <div className="deliver__texts">
-          <p className="deliver__text">DELIVERY</p>
+          <p className="deliver__text">DELIVERY OPTION</p>
           <p className="deliver__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </div>
         <div className="deliver__icons">
@@ -257,7 +280,10 @@ export const DeliverOption = () => {
               <img src="src/image/hand.svg" alt="" className="deliver__img" />
               <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
             </Link>
-            <Link className="deliver__button">
+            <Link 
+            className="deliver__button"
+            to={handleMultiDeliveryLink()}
+            onClick={() => handleMultiDeliveryAlerts()}>
               <p className="deliver__buttontext">Multi-delivery</p>
               <img src="src/image/boxes.svg" alt="" className="deliver__img" />
             </Link>

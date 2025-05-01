@@ -1,4 +1,4 @@
-const _reorderForward = <T>(l: T[], start: number, end: number) => {
+const _reorderForward = (l, start, end) => {
     const temp = l[start];
   
     for (let i = start; i < end; i++) {
@@ -10,7 +10,7 @@ const _reorderForward = <T>(l: T[], start: number, end: number) => {
     return l;
   };
   
-  const _reorderBackward = <T>(l: T[], start: number, end: number) => {
+  const _reorderBackward = (l, start, end) => {
     const temp = l[start];
   
     for (let i = start; i > end; i--) {
@@ -22,11 +22,13 @@ const _reorderForward = <T>(l: T[], start: number, end: number) => {
     return l;
   };
   
-  const reorderList = <T>(l: T[], startIndex: number, endIndex: number) => {
-    if (startIndex < endIndex)
+  const reorderList = (l, startIndex, endIndex) => {
+    if (startIndex < endIndex) 
       return _reorderForward(l.slice(), startIndex, endIndex);
-    else if (startIndex > endIndex)
+    
+    else if (startIndex > endIndex) 
       return _reorderBackward(l.slice(), startIndex, endIndex);
+    
     else return l;
   };
   

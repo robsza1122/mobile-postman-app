@@ -94,6 +94,17 @@ export const CheckStatus = () => {
                       }
                     };
 
+                    const handleOtherResultText = () => {
+                      switch(status.details) {
+                        case "Parcel returned to sender":
+                          return "Reason:";
+                        case "Parcel left in shop, ORLEN, ParcelPoint":
+                          return "Subject of delivery:";
+                          default: 
+                          return "Reason:";
+                      }
+                    }
+
                     const handleShowStatuses = () => {
                       if (status.name === "DELIVERED") {
                         setClickedId(status._id);
@@ -173,32 +184,28 @@ export const CheckStatus = () => {
                                 </span>
                                 <p className="status__signatureperson">
                                   {
-                                    checkStatus.status[
-                                      checkStatus.status.length - 1
-                                    ].subject
+                                    status.subject
                                   }
                                 </p>
-                                {checkStatus.noAddressee && (
+                                {status.noAddressee && (
                                   <>
                                     <span className="status__info">
                                       Reason of not doing signature by addressee
                                     </span>
                                     <p className="status__signatureperson">
                                       {
-                                        checkStatus.status[
-                                          checkStatus.status.length - 1
-                                        ].details
+                                        status.details
                                       }
                                     </p>
                                   </>
                                 )}
                                 <span className="status__info">
-                                  {checkStatus.noAddressee
+                                  {status.noAddressee
                                     ? "Place of leaving parcel"
                                     : "Receiving person"}
                                 </span>
                                 <p className="status__signatureperson">
-                                  {checkStatus.deliveryInput}
+                                  {status.deliveryInput}
                                 </p>
                                 <span
                                   className="status__info"
@@ -208,7 +215,7 @@ export const CheckStatus = () => {
                                 </span>
                                 <img
                                   className="status__signature"
-                                  src={checkStatus.signature}
+                                  src={status.signature}
                                   alt="signature"
                                 />
                               </td>
@@ -233,19 +240,19 @@ export const CheckStatus = () => {
                                   Office of advice
                                 </span>
                                 <p className="status__signatureperson">
-                                  {checkStatus.officeOfAdvice}
+                                  {status.officeOfAdvice}
                                 </p>
                                 <span className="status__info">
                                   Reason of advice
                                 </span>
                                 <p className="status__signatureperson">
-                                  {checkStatus.reasonOfAdvice}
+                                  {status.reasonOfAdvice}
                                 </p>
                                 <span className="status__info">
                                   Place of notification
                                 </span>
                                 <p className="status__signatureperson">
-                                  {checkStatus.placeOfNotification}
+                                  {status.placeOfNotification}
                                 </p>
                               </td>
                             </tr>
@@ -268,9 +275,7 @@ export const CheckStatus = () => {
                                 <span className="status__info">Result:</span>
                                 <p className="status__signatureperson">
                                   {
-                                    checkStatus.status[
-                                      checkStatus.status.length - 1
-                                    ].subject
+                                    status.subject
                                   }
                                 </p>
                                 <span className="status__info">
@@ -278,20 +283,16 @@ export const CheckStatus = () => {
                                 </span>
                                 <p className="status__signatureperson">
                                   {
-                                    checkStatus.status[
-                                      checkStatus.status.length - 1
-                                    ].details
+                                    status.details
                                   }
-                                </p>
-                                {checkStatus.deliveryInput && (
-                                    <>
+                                </p>                           
                                       <span className="status__info">
-                                        Reason:
+                                        {handleOtherResultText()}
                                       </span>
+                                      {status.deliveryInput && (
                                       <p className="status__signatureperson">
-                                        {checkStatus.deliveryInput}
+                                        {status.deliveryInput}
                                       </p>
-                                    </>
                                   )}
                               </td>
                             </tr>

@@ -13,4 +13,8 @@ export const statusSchima = z.object({
         reasonOfAdvice: z.string().optional().default(''),
         officeOfAdvice: z.string().optional().default(''),
         placeOfNotification: z.string().optional().default(''),
+        numberOfBook: z.string().optional(),
+        isBooked: z.boolean().optional(),
+        username: z.string().optional(),
+        isDownloaded: z.boolean().optional(),
     });

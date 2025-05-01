@@ -1,53 +1,37 @@
 import useParcels from "../../hooks/useParcels";
 import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider";
-import classNames from "classnames";
+import "../BookList/BookList.scss";
 import "./ReorderList.scss";
 import { useState } from "react";
-import reorderList from "../../hooks/reorderList";
+import reorderList from "../../hooks/reorderList.js";
 
 export const ReorderList = () => {
-  const { downloadedBook, currentUser, setDownloadedBook } =
+  const { currentUser, downloadedBook, setDownloadedBook } =
     useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
   const [dragged, setDragged] = useState(null);
   const [mouse, setMouse] = useState([0, 0]);
   const [closestDropZone, setClosestDropZone] = useState(0);
-  const [items, setItems] = useState([
-    // "You asked if",
-    // "you could see me",
-    // "before I went to",
-    // "Spain, you didn't",
-    // "give a reason didn't",
-    // "know what you would",
-    // "say. But I was hoping",
-    // "that my breath on your",
-    // "face would blow every",
-    // "last thing into place"
-
-  ]);
 
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragged !== null) {
         event.preventDefault();
         setDragged(null);
-
-        setDownloadedBook((parcel) =>
-          reorderList(parcel, dragged, closestDropZone)
-        );
+        setDownloadedBook(parcel => reorderList(parcel, dragged, closestDropZone))
       }
     };
 
     document.addEventListener("mouseup", handleMouseMove);
     return () => 
       document.removeEventListener("mouseup", handleMouseMove);
-  }, []);
+  });
 
   useEffect(() => {
     const handleMouseMove = (event) => {
-      setMouse([event.clientX, event.clientY]);
+      setMouse([event.x, event.y]);
     };
     document.addEventListener("mousemove", handleMouseMove);
     return () => document.removeEventListener("mousemove", handleMouseMove);
@@ -56,20 +40,20 @@ export const ReorderList = () => {
   useEffect(() => {
     if (dragged !== null) {
       const elements = Array.from(
-        document.getElementsByClassName("booklist__position")
+        document.getElementsByClassName("reorder__dropzone")
       );
       const positions = elements.map((e) => e.getBoundingClientRect().top);
       const absDifferences = positions.map((v) => Math.abs(v - mouse[1]));
       let result = absDifferences.indexOf(Math.min(...absDifferences));
 
-      if (result > dragged) {
+      if (result > dragged) 
         result += 1;
-      }
+      
       setClosestDropZone(result);
     }
-  }, []);
+  }, [dragged, mouse]);
 
-  console.log(typeof ["hey"]);
+
   console.log(dragged)
   console.log(closestDropZone)
 
@@ -77,27 +61,29 @@ export const ReorderList = () => {
     <>
     <nav className="booklist__nav">
       <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-      <p className="booklist__text">BOOK LIST</p>
+      <p className="booklist__text">REORDER PARCELS</p>
       </nav>
       <div className="booklist__content">
         {dragged !== null && (
           <div
-            className="booklist__dragged"
+            className="reorder__floating reorder__listitem"
             style={{
               top: `${mouse[1]}px`,
               left: `${mouse[0]}px`,
               
             }}
           >
-            {dragged}
+            <p className="reorder__item">{downloadedBook[dragged].numberOfParcel}</p>
+            <p className="reorder__data">{`${downloadedBook[dragged].name} ${downloadedBook[dragged].surname}`}</p>
+            <p className="reorder__data">{`${downloadedBook[dragged].city} ${downloadedBook[dragged].postCode}`}</p>
           </div>
         )}
+        <div className="reorder__list">
         <div
         key={`0-dropzone`}
-          className={classNames("booklist__dropzone booklist__position", {
-            "booklist__dropzone--hidden":
-              dragged === null || closestDropZone !== 0,
-          })}
+          className={`reorder__listitem reorder__dropzone ${
+            dragged === null || closestDropZone !== 0 ? "hidden" : "" 
+          }`}
         />
         {downloadedBook.map((parcel, i) => {
           return (
@@ -105,65 +91,28 @@ export const ReorderList = () => {
               {dragged !== i && (
                 <>
                   <div
-                    className={classNames("booklist__position", {
-                      "booklist__position--delivered":
-                        parcel.status[parcel.status.length - 1].name ===
-                        "DELIVERED",
-                      "booklist__position--adviced":
-                        parcel.status[parcel.status.length - 1].name ===
-                        "ADVICED",
-                    })}
                     key={parcel._id}
+                    className="reorder__listitem"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       setDragged(i);
                       setClosestDropZone(i);
                     }}
                   >
-                    <p
-                      className={classNames("booklist__number", {
-                        "booklist__number--marked":
-                          parcel.status[parcel.status.length - 1].name ===
-                          "DELIVERED",
-                      })}
-                    >
-                      {parcel.numberOfParcel}
-                    </p>
-                    <p
-                      className={classNames("booklist__info", {
-                        "booklist__info--marked":
-                          parcel.status[parcel.status.length - 1].name ===
-                          "DELIVERED",
-                      })}
-                    >{`${parcel.name} ${parcel.surname}`}</p>
-                    <p
-                      className={classNames("booklist__info", {
-                        "booklist__info--marked":
-                          parcel.status[parcel.status.length - 1].name ===
-                          "DELIVERED",
-                      })}
-                    >
-                      {parcel.adress}
-                    </p>
-                    <p
-                      className={classNames("booklist__adress", {
-                        "booklist__adress--marked":
-                          parcel.status[parcel.status.length - 1].name ===
-                          "DELIVERED",
-                      })}
-                    >{`${parcel.city} ${parcel.postCode}`}</p>
+                    <p className="reorder__item">{parcel.numberOfParcel}</p>
+                    <p className="reorder__data">{`${parcel.name} ${parcel.surname}`}</p>
+                    <p className="reorder__data">{`${parcel.city} ${parcel.postCode}`}</p>
                   </div>
                   <div
-                    key={`${i}-drop-zone`}
-                    className={classNames("booklist__dropzone booklist__position", {
-                      "booklist__dropzone--hidden":
-                        dragged === null || closestDropZone !== 0,
-                    })}
+                    key={`${parcel._id}-drop-zone`}
+                    className={`reorder__listitem reorder__dropzone ${
+                      dragged === null || closestDropZone !== i + 1 ? "hidden" : "" 
+                    }`}
                     onMouseUp={(e) => {
                       e.preventDefault();
-                      if (dragged !== null) {
-                        setDragged(null);
-                      }
+                    if (dragged !== null) {
+                      setDragged(null);
+                    }
                     }}
                   ></div>
                 </>
@@ -171,6 +120,7 @@ export const ReorderList = () => {
             </>
           );
         })}
+        </div>
       </div>
       </>
   );

@@ -246,4 +246,14 @@
             box-shadow: inset 13px 13px $post-color;
         }
     }
+    &__createbook {
+        color: black;
+        text-decoration: none;
+        font-family: Post, sans-serif;
+        text-align: center;
+        border: 1px solid gray;
+        &:hover {
+            background-color: lightgray;
+        }
+    }
 }

@@ -1,10 +1,10 @@
-function makeEmiNumber(length: number) {
+function makeDifferentNumbers(length) {
     let result = '';
     let versionSystem = '';
     let numberOfDeliveryBook = '';
     const charactersForVersion = '.ABC.DE.FGHI.123456789.0123456789.80JKLMN.O.PQRSTU.VWX.YZ';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const charaktersForDeliveryBook = "0123456789";
+    const charaktersForDeliveryBook = '0123456789';
     const charactersLength = characters.length;
     let counter = 0;
     let counterVersion = 0;
@@ -18,14 +18,14 @@ function makeEmiNumber(length: number) {
       counterVersion += 1;
     }
     while (numberOfBook < length) {
-      numberOfDeliveryBook += charaktersForDeliveryBook.charAt(Math.floor(Math.random() * charactersLength));
+      numberOfDeliveryBook += charaktersForDeliveryBook.charAt(Math.floor(Math.random() * 10));
       numberOfBook += 1;
     }
     return {
       result,
       versionSystem,
-      numberOfBook,
+      numberOfDeliveryBook,
     }
 };
 
-export default makeEmiNumber;
+export default makeDifferentNumbers;

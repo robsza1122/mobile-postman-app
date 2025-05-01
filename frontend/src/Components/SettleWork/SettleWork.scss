@@ -33,6 +33,19 @@
             background-color: lightgreen;
         }
     }
+
+    &__noposition {
+        font-family: Post, sans-serif;
+        font-size: 24px;
+        margin: 200px auto;
+        text-align: center;
+        }
+        &__line {
+            width: 95%;
+            margin: 0 auto;
+            border: 0.5px solid black;
+
+        }
     &__data {
         display: flex;
         justify-content: space-between;
@@ -50,6 +63,9 @@
         font-weight: 600;
         padding: 20px 0;
         cursor: pointer;
+        &--nopositions {
+            background-color: rgb(127, 5, 5);
+        }
         &:hover {
             background-color: rgb(233, 63, 63);
         }

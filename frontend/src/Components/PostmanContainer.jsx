@@ -8,14 +8,16 @@ import { PostManState } from "../PostGlobalProvider";
 export const PostmanContainer = () => {
   const {setCurrentUser} = useContext(PostManState);
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
   useEffect(() => {
+    if (user) {
+      setCurrentUser(user)
+    }
     window.onpopstate = () => {
       if (window.location.pathname === "/") {
       
       }
     }
-  });
+  }, []);
 
   return (
     <>

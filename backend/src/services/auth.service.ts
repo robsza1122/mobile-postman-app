@@ -4,7 +4,6 @@ import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
 import UserModel from "../Models/UserModel";
 import appAssert from "../utils/AppAssert";
-import { getDeliveryEmailTemplate } from "../utils/emailTemplate";
 import {
   RefreshTokenPayload,
   refreshTokenSignOptions,
@@ -15,6 +14,7 @@ import { sendEmail } from "../utils/sendEmail";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/Data";
 import makeEmiNumber from "../utils/getEMINumber";
 import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
+import { off } from "node:process";
 import { getAdvicingEmail } from "../utils/getAdvicingEmail";
 import { otherStatusEmail } from "../utils/otherStatusEmail";
 
@@ -33,13 +33,11 @@ export type CreateParcelOrder = {
   postCode: string;
   amount: number;
   cashOnDelivery: boolean;
-  clientEmail: string;
+  clientEmail?: string;
   phone?: string;
   numberOfParcel?: string;
   deliveryCode?: string;
   isMarked?: boolean;
-  isSignature?: boolean;
-  signature?: string;
   amountOfTrials?: number;
   isDeliveryCode?: boolean;
   status?: {
@@ -47,12 +45,17 @@ export type CreateParcelOrder = {
     createdAt: String;
     subject?: string;
     details?: string;
+    isSignature?: boolean;
+    signature?: string;
+    deliveryInput?: string | null;
+    noAddressee?: boolean;
+    reasonOfAdvice?: string;
+    officeOfAdvice?: string;
+    placeOfNotification?: string;
   }[];
-  deliveryInput?: string | null;
-  noAddressee?: boolean;
-  reasonOfAdvice?: string;
-  officeOfAdvice?: string;
-  placeOfNotification?: string;
+  forUser?: string;
+  isBooked?: boolean;
+  numberOfBook?: string;
   _id?: unknown;
 };
 
@@ -95,6 +98,7 @@ export const createNewUser = async (data: CreateNewUserType) => {
   const newUser = await UserModel.create({
     username: data.username,
     password: data.password,
+    downloadedParcels: [],
     EMINumber: result,
   });
 
@@ -142,18 +146,23 @@ export const createOrder = async (data: CreateParcelOrder) => {
     amountOfTrials: 0,
     isDeliveryCode: false,
     isMarked: false,
-    isSignature: false,
-    signature: null,
     deliveryCode: `${createDeliveryCode()}`,
     status: {
       name: "ORDERED",
+      subject: "",
+      details: "",
       createdAt: date,
+      isSignature: false,
+      signature: null,
+      deliveryInput: "",
+      noAddressee: false,
+      reasonOfAdvice: "",
+      officeOfAdvice: "",
+      placeOfNotification: "",
     },
-    deliveryInput: data.deliveryInput,
-    noAddressee: false,
-    reasonOfAdvice: '',
-    officeOfAdvice: '',
-    placeOfNotification: '',
+    forUser: "",
+    isBooked: false,
+    numberOfBook: "",
     numberOfParcel: `PX${createNumber()}`,
   });
 
@@ -161,13 +170,6 @@ export const createOrder = async (data: CreateParcelOrder) => {
     appAssert(data.cashOnDelivery, CONFLICT, "Amount of money required");
     throw new Error("Amount of money is required");
   }
-
-  const url = `${APP_ORIGIN}/getCheckStatus/${parcel.numberOfParcel}`;
-
-  await sendEmail({
-    ...getDeliveryEmailTemplate(parcel, url),
-    to: parcel.clientEmail,
-  });
 
   return {
     parcel,
@@ -255,6 +257,92 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   };
 };
 
+type InDeliveryType = {
+  numberOfBook: string;
+  username: string;
+};
+
+type AssignType = {
+  numberOfBook: string;
+  username: string;
+};
+
+export const assignParcels = async ({ numberOfBook, username }: AssignType) => {
+  await parcelModel.updateMany(
+    { isMarked: true, forUser: "" },
+    {
+      $set: {
+        isBooked: true,
+        isMarked: false,
+        numberOfBook,
+        forUser: username,
+      },
+    }
+  );
+
+  const assignedParcels = await parcelModel.find({});
+
+  return {
+    assignedParcels,
+  };
+};
+
+export const addInDeliveryStatus = async ({
+  numberOfBook,
+  username,
+}: InDeliveryType) => {
+  const addStatus = {
+    name: "IN DELIVERY",
+    createdAt: date,
+    subject: "",
+    details: "",
+    signature: null,
+    isDeliveryCode: false,
+    isSignature: false,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+  };
+
+  await parcelModel.updateMany(
+    {numberOfBook },
+    {
+      $push: { status: addStatus },
+      $set: { isDownloaded: true },
+    }
+  );
+
+  const updatedParcels = await parcelModel.find({ forUser: username, isDownloaded: true });
+
+  const assignParcelsToUser = await UserModel.findOneAndUpdate(
+    { username },
+    {
+      $set: { parcels: updatedParcels },
+    }
+  );
+
+  return {
+    assignParcelsToUser,
+  };
+}; 
+
+type MarkParcelType = {
+  id: string;
+  markParcel: boolean;
+};
+
+export const markParcel = async ({ id, markParcel }: MarkParcelType) => {
+  const markedParcel = await parcelModel.findByIdAndUpdate(id, {
+    isMarked: markParcel,
+  });
+
+  return {
+    markedParcel,
+  };
+};
+
 type DifferentStatusType = {
   nameOfStatus: string;
   id: string;
@@ -268,128 +356,199 @@ type DifferentStatusType = {
   reasonOfAdvice: string;
   officeOfAdvice: string;
   placeOfNotification: string;
+  isBooked?: boolean;
+  numberOfBook?: string;
+  username?: string;
+  isDownloaded?: boolean;
 };
 
 export const deliveredStatus = async ({
+  nameOfStatus,
   id,
   subject,
   details,
-  nameOfStatus,
   signature,
   isDeliveryCode,
-  isSignature,
   noAddressee,
   deliveryInput,
   reasonOfAdvice,
   officeOfAdvice,
   placeOfNotification,
+  isBooked,
+  numberOfBook,
+  username,
+  isDownloaded,
 }: DifferentStatusType) => {
-  const handleStatus = {
+  const addStatus = {
     name: nameOfStatus,
     createdAt: date,
     subject,
     details,
-  };
+    signature,
+    isDeliveryCode,
+    noAddressee,
+    deliveryInput,
+    reasonOfAdvice,
+    officeOfAdvice,
+    placeOfNotification,
+  }
 
-  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
-    $push: { status: handleStatus },
-    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
-  });
 
-  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+  const updateParcel = await parcelModel.findOneAndUpdate(
+    {_id: id},
+    {
+      $set: { isBooked, numberOfBook, isMarked: false, forUser: username },
+      $push: { status: addStatus },
+    }
+  );
 
-  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
+  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
+
+  const updatedUser = await UserModel.findOneAndUpdate(
+    { username },
+    {
+      $set: { parcels: updateParcelsForUser },
+    }
+  );
+
+  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+
+  const url = `${APP_ORIGIN}/checkStatus/${id}`;
+
+  appAssert(updateParcel, NOT_FOUND, "Wrong id");
 
   await sendEmail({
-    ...getDeliveredEmailTemplate(updateParcels, url),
-    to: updateParcels.clientEmail,
+    ...getDeliveredEmailTemplate(updateParcel, url),
+    to: updateParcel.clientEmail,
   });
 
   return {
-    updateParcels,
+    updatedUser,
   };
 };
 
 export const advicedStatus = async ({
+  nameOfStatus,
   id,
   subject,
   details,
-  nameOfStatus,
   signature,
   isDeliveryCode,
-  isSignature,
   noAddressee,
   deliveryInput,
   reasonOfAdvice,
   officeOfAdvice,
   placeOfNotification,
+  isBooked,
+  numberOfBook,
+  username,
+  isDownloaded,
 }: DifferentStatusType) => {
-  const handleStatus = {
+  const addStatus = {
     name: nameOfStatus,
     createdAt: date,
     subject,
     details,
+    signature,
+    isDeliveryCode,
+    noAddressee,
+    deliveryInput,
+    reasonOfAdvice,
+    officeOfAdvice,
+    placeOfNotification,
   };
 
-  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
-    $push: { status: handleStatus },
-    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
-  });
+  const updateParcel = await parcelModel.findOneAndUpdate(
+    {_id: id},
+    {
+      $set: { isBooked, numberOfBook, isMarked: false },
+      $push: { status: addStatus },
+    }
+  );
 
-  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
 
-  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
+  const updatedUser = await UserModel.findOneAndUpdate(
+    { username },
+    {
+      $set: { parcels: updateParcelsForUser },
+    }
+  );
+
+  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+
+  appAssert(updateParcel, NOT_FOUND, "Wrong id");
+  const url = `${APP_ORIGIN}/checkStatus/${updateParcel._id}`;
 
   await sendEmail({
-    ...getAdvicingEmail(updateParcels, url),
-    to: updateParcels.clientEmail,
+    ...getAdvicingEmail(updateParcel, url),
+    to: updateParcel.clientEmail,
   });
 
   return {
-    updateParcels,
-  };
+    updatedUser,
+  }
 };
 
 export const otherStatus = async ({
+  nameOfStatus,
   id,
   subject,
   details,
-  nameOfStatus,
   signature,
   isDeliveryCode,
-  isSignature,
   noAddressee,
   deliveryInput,
   reasonOfAdvice,
   officeOfAdvice,
   placeOfNotification,
+  isBooked,
+  numberOfBook,
+  username,
+  isDownloaded,
 }: DifferentStatusType) => {
-  const handleStatus = {
+  const addStatus = {
     name: nameOfStatus,
     createdAt: date,
     subject,
     details,
+    signature,
+    isDeliveryCode,
+    noAddressee,
+    deliveryInput,
+    reasonOfAdvice,
+    officeOfAdvice,
+    placeOfNotification,
   };
 
-  const updateParcels = await parcelModel.findByIdAndUpdate(id, {
-    $push: { status: handleStatus },
-    $set: { signature, isDeliveryCode, isSignature, noAddressee, deliveryInput, reasonOfAdvice, officeOfAdvice, placeOfNotification },
-  });
+  const updateParcel = await parcelModel.findOneAndUpdate(
+    {_id: id},
+    {
+      $set: { isBooked, numberOfBook, isMarked: false },
+      $push: { status: addStatus },
+    }
+  );
 
-  appAssert(updateParcels, NOT_FOUND, "Id is wrong");
+  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
 
-  const url = `${APP_ORIGIN}/checkStatus/${id}`; 
+  const updatedUser = await UserModel.findOneAndUpdate(
+    { username },
+    {
+      $set: { parcels: updateParcelsForUser },
+    }
+  );
+
+  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+
+  appAssert(updateParcel, NOT_FOUND, "Wrong id");
+  const url = `${APP_ORIGIN}/checkStatus/${updateParcel._id}`;
 
   await sendEmail({
-    ...otherStatusEmail(updateParcels, url),
-    subject: otherStatusEmail(updateParcels, url).subject || "Default Subject",
-    text: otherStatusEmail(updateParcels, url).text || "Default Text",
-    to: updateParcels.clientEmail,
+    ...otherStatusEmail(updateParcel, url),
+    to: updateParcel.clientEmail,
   });
 
   return {
-    updateParcels,
-  };
+    updatedUser,
+  }
 };
-
-

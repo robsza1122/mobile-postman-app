@@ -1,16 +1,20 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import "./BookList.scss";
-import { Loading } from "../../Loading/Loading";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
-import { useQuery } from "@tanstack/react-query";
-import { getInDeliveryStatus } from "../../api/api";
 import useParcels from "../../hooks/useParcels";
 
 export const BookList = () => {
   const { downloadedBook, currentUser } = useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
+  console.log(downloadedBook);
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      navigate("/trailOption")
+    }
+  });
   return (
     <nav className="booklist__nav">
       <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>

@@ -2,7 +2,7 @@ import { CreateParcelOrder } from "../services/auth.service";
 
 export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
     subject: "Your parcel is adviced",
-    text:   `Your parcel is adviced on ${parcel.officeOfAdvice}`,
+    text:   `Your parcel is adviced on ${parcel?.status?.[parcel.status.length - 1]?.officeOfAdvice}`,
     html: ` <html lang="en-US">
     <head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
     <title>
@@ -58,8 +58,17 @@ export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
                             </h1>
                             <p
                               style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
-                              Your parcel is adviced on ${parcel.officeOfAdvice}. Place of notification: ${parcel.placeOfNotification}. Reason of advice: ${parcel.reasonOfAdvice}.
+                              Your parcel is adviced on ${parcel?.status?.[parcel.status.length - 1]?.officeOfAdvice}.
                             </p>
+                            <p
+                              style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
+                              Place of notification: ${parcel?.status?.[parcel.status.length - 1]?.placeOfNotification}.
+                              </p>
+
+                              <p
+                              style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
+                              Reason of advice: ${parcel?.status?.[parcel.status.length - 1]?.reasonOfAdvice}.
+                              </p>
                             
                             <p
                               style="font-size:24px;line-height:24px;margin:16px 0;margin-top:8px;color:rgb(107,114,128)">

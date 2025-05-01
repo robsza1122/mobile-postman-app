@@ -1,17 +1,21 @@
-
+import { boolean, z } from "zod";
 import { APP_ORIGIN } from "../constants/env";
 import { CREATED, NOT_FOUND, OK, UNAUTHORIZED } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
+import UserModel from "../Models/UserModel";
 import {
-  deliveredStatus,
+  addInDeliveryStatus,
+  advicedStatus,
+  assignParcels,
   createNewUser,
   createOrder,
   date,
+  deliveredStatus,
   loginUser,
-  refreshUserAccessToken,
-  advicedStatus,
+  markParcel,
   otherStatus,
+  refreshUserAccessToken,
 } from "../services/auth.service";
 import appAssert from "../utils/AppAssert";
 import catchErrors from "../utils/catchErrors";
@@ -21,12 +25,19 @@ import {
   getRefreshTokenOptions,
   setUserCookies,
 } from "../utils/cookies";
+import { getDeliveryEmailTemplate } from "../utils/emailTemplate";
+import { getAdvicingEmail } from "../utils/getAdvicingEmail";
+import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
 import { getInDeliveryStatusEmail } from "../utils/InDeliveryEmail";
 import { verifyToken } from "../utils/jwt";
+import { otherStatusEmail } from "../utils/otherStatusEmail";
 import { sendEmail } from "../utils/sendEmail";
 import { parcelSchima } from "./parcel.schimas";
 import { statusSchima } from "./status.schima";
 import { loginShema, registerSchima } from "./user.schima";
+import { usersParcelSchima } from "./usersparcel.schima";
+import { assignParcelSchima } from "./assignparcels.schima";
+import { markParcelSchima } from "./markparcel.schima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
   const request = parcelSchima.parse({
@@ -34,6 +45,12 @@ export const orderedParcelHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
   const { parcel } = await createOrder(request);
+  const url = `${APP_ORIGIN}/getCheckStatus/${parcel._id}`;
+
+  await sendEmail({
+    ...getDeliveryEmailTemplate(parcel, url),
+    to: parcel.clientEmail,
+  });
   res.status(CREATED).json(parcel);
 });
 
@@ -61,17 +78,13 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       phone: 1,
       numberOfParcel: 1,
       isMarked: 1,
-      isSignature: 1,
-      signature: 1,
       deliveryCode: 1,
       amountOfTrials: 1,
       isDeliveryCode: 1,
       status: 1,
-      deliveryInput: 1,
-      reasonOfAdvice: 1,
-      officeOfAdvice: 1,
-      placeOfNotification: 1,
-      noAddressee: 1,
+      isBooked: 1,
+      numberOfBook: 1,
+      forUser: 1,
     },
     {
       sort: { createdAt: -1 },
@@ -103,7 +116,7 @@ export const loginHandler = catchErrors(async (req, res) => {
 
   const { accessToken, refreshToken } = await loginUser(request);
 
-  return setUserCookies({ res, accessToken, refreshToken }) 
+  return setUserCookies({ res, accessToken, refreshToken })
     .status(OK)
     .json({ message: "Login successful" });
 });
@@ -150,32 +163,16 @@ export const checkStatusHandler = catchErrors(async (req, res) => {
   return res.status(OK).json(checkedParcel);
 });
 
-export const inDeliveryStatusHandler = catchErrors(async (req, res) => {
-  const inDeliveryStatus = {
-    name: "IN DELIVERY",
-    createdAt: date,
-  };
-
-  await parcelModel.updateMany(
-    { isMarked: false },
-    { $push: { status: inDeliveryStatus } }
-  );
-
-  const sendEmailsToParcel = await parcelModel.find({}).then((data) => {
-    data.map(async (parcel) => {
-      const url = `${APP_ORIGIN}/checkStatus/${parcel._id}`;
-
-      await sendEmail({
-        ...getInDeliveryStatusEmail(parcel, url),
-        to: parcel.clientEmail,
-      });
-    });
+export const addInDeliveryStatusHandler = catchErrors(async (req, res) => {
+  const request = usersParcelSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
   });
 
-  appAssert(sendEmailsToParcel, NOT_FOUND, "Can not send email");
+  const { assignParcelsToUser } = await addInDeliveryStatus(request);
 
-  return res.status(OK).json(sendEmailsToParcel);
-}); 
+  return res.status(OK).json(assignParcelsToUser);
+});
 
 export const deliveredStatusHandler = catchErrors(async (req, res) => {
   const request = statusSchima.parse({
@@ -183,9 +180,9 @@ export const deliveredStatusHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
 
-  const {updateParcels} = await deliveredStatus(request);
+  const { updatedUser } = await deliveredStatus(request);
 
-  return res.status(OK).json(updateParcels);
+  return res.status(OK).json(updatedUser);
 });
 
 export const advicedStatusHandler = catchErrors(async (req, res) => {
@@ -194,9 +191,9 @@ export const advicedStatusHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
 
-  const {updateParcels} = await advicedStatus(request);
+  const { updatedUser } = await advicedStatus(request);
 
-  return res.status(OK).json(updateParcels);
+  return res.status(OK).json(updatedUser);
 });
 
 export const otherResultHandler = catchErrors(async (req, res) => {
@@ -205,7 +202,141 @@ export const otherResultHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
 
-  const {updateParcels} = await otherStatus(request);
+  const { updatedUser } = await otherStatus(request);
+
+  return res.status(OK).json(updatedUser);
+});
+
+export const inDeliveryEmailHandler = catchErrors(async (req, res) => {
+  const sendEmailById = await parcelModel.findById(req.params.id);
+  appAssert(sendEmailById, NOT_FOUND, "Email not found");
+  const url = `${APP_ORIGIN}/checkStatus/${req.params.id}`;
+
+  await sendEmail({
+    ...getInDeliveryStatusEmail(sendEmailById, url),
+    to: sendEmailById.clientEmail,
+  });
+  appAssert(sendEmailById, NOT_FOUND, "Parcel not found");
+
+  return res.status(OK).json({
+    message: "Email was successfully sent",
+  });
+});
+
+export const showUsersHandler = catchErrors(async (req, res) => {
+  const users = await UserModel.find(
+    {
+      userId: req.userId,
+    },
+    {
+      username: 1,
+      password: 1,
+      EMINumber: 1,
+      parcels: 1,
+    },
+    {
+      sort: { createdAt: -1 },
+    }
+  );
+
+  return res.status(OK).json(users.map((user) => ({ ...user.toObject() })));
+});
+
+export const assignParcelsHandler = catchErrors(async (req, res) => {
+  const request = assignParcelSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { assignedParcels } = await assignParcels(request);
+
+  return res.status(OK).json(assignedParcels);
+});
+
+export const markParcelHandler = catchErrors(async (req, res) => {
+  const request = markParcelSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { markedParcel } = await markParcel(request);
+
+  return res.status(OK).json(markedParcel);
+});
+
+export const markingOnTrueHandler = catchErrors(async (req, res) => {
+  await parcelModel.updateMany(
+    { isBooked: false },
+    {
+      $set: { isMarked: true },
+    }
+  );
+  const updateParcels = await parcelModel.find({});
+
+  res.status(OK).json(updateParcels);
+});
+
+export const markingOnFalseHandler = catchErrors(async (req, res) => {
+  await parcelModel.updateMany(
+    { isBooked: false },
+    {
+      $set: { isMarked: false },
+    }
+  );
+
+  const updateParcels = await parcelModel.find({});
+
+  res.status(OK).json(updateParcels);
+});
+
+export const deleteBookHandler = catchErrors(async (req, res) => {
+  await parcelModel.updateMany(
+    { isBooked: true, isDownloaded: false },
+    {
+      $set: { isBooked: false, numberOfBook: "", forUser: "" },
+    }
+  );
+
+  const updateParcels = await parcelModel.find({});
 
   return res.status(OK).json(updateParcels);
+});
+
+export const clearDatesHandler = catchErrors(async (req, res) => {
+  const orderStatus = {
+    name: "ORDERED",
+    createdAt: date,
+    subject: "",
+    details: "",
+    signature: null,
+    isDeliveryCode: false,
+    isSignature: false,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+  };
+  await parcelModel.updateMany(
+    {},
+    {
+      isBooked: false,
+      isDownloaded: false,
+      forUser: "",
+      numberOfBook: "",
+      isMarked: false,
+      $set: { status: orderStatus },
+    }
+  );
+
+  await UserModel.updateMany(
+    {},
+    {
+      $set: { parcels: [] },
+    }
+  );
+
+  return res.status(OK).json({
+    message: "Book is successfully cleared",
+  });
 });

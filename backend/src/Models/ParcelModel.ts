@@ -22,8 +22,6 @@ export interface ParcelDocument extends mongoose.Document {
   numberOfParcel: string,
   deliveryCode: string,
   phone: string,
-  isSignature: boolean,
-  signature: string,
   isMarked: boolean,
   amountOfTrials: number,
   isDeliveryCode: boolean,
@@ -32,12 +30,19 @@ export interface ParcelDocument extends mongoose.Document {
     createdAt: String,
     subject: string;
     details: string;
-  }[],
     reasonOfAdvice: string,
     officeOfAdvice: string,
     placeOfNotification: string,
   deliveryInput: string;
+  isSignature: boolean,
+  signature: string,
+  noAddressee: boolean,
+  }[],
+  isDownloaded: boolean;
+  forUser: string;
   noAddressee: boolean;
+  isBooked: boolean;
+  numberOfBook: string;
   createdAt: Date,
   expiresAt: Date, 
 };
@@ -121,14 +126,6 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
         type: Boolean,
         default: false,
     },
-    isSignature: {
-        type: Boolean,
-        default: false,
-    },
-    signature: {
-        type: String,
-        default: null,
-    },
     amountOfTrials: {
         type: Number,
     },
@@ -142,23 +139,31 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
           createdAt: String,
           details: String,
           subject: String,
+          signature: {
+            type: String || null,
+            default: null,
+          },
+          reasonOfAdvice: String,
+          officeOfAdvice: String,
+          placeOfNotification: String,
+          isSignature: Boolean,
+          deliveryInput: String,
+          noAddressee: Boolean,
+          
             }
         ],
     },
-    reasonOfAdvice: {
-        type: String,
-    },
-    officeOfAdvice: {
-        type: String,
-    },
-    placeOfNotification: {
-        type: String,
-    },
-    deliveryInput: {
-        type: String,
-    },
-    noAddressee: {
+    isDownloaded: {
         type: Boolean,
+    },
+    forUser: {
+        type: String,
+    },
+    isBooked: {
+        type: Boolean,
+    },
+    numberOfBook: {
+        type: String,
     },
     createdAt: {
         type: Date,

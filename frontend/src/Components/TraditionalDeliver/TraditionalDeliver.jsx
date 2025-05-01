@@ -38,7 +38,7 @@ export const TraditionalDeliver = () => {
   const [openList, setOpenList] = useState(false);
   const [showSubjects, setShowSubjects] = useState(false);
   const [choosen, setChoosen] = useState("");
-  const [addresseesData, setAddresseesData] = useState(true);
+  const [addresseesData, setAddresseesData] = useState(false);
   const [showParticularSubject, setShowParticularSubject] = useState(false);
 
   const {mutate: changeStatus} = useMutation({
@@ -50,11 +50,13 @@ export const TraditionalDeliver = () => {
   };
   useEffect(() => {
     window.onpopstate = () => {
+      setInput('');
       setDownloadedBook(
         downloadedBook.map((parcel) => {
           if (parcel.isMarked) {
             return {
               ...parcel,
+              deliveryInput: '',
               isMarked: false,
             };
           }
@@ -66,6 +68,7 @@ export const TraditionalDeliver = () => {
         navigate("/deliverOption");
       }
     };
+    
   }, []);
 
   const handleConfirmButton = () => {
@@ -430,11 +433,10 @@ export const TraditionalDeliver = () => {
                 <input
                   type="checkbox"
                   className="td__checkbox"
-                  value={addresseesData}
+                  value={addresseesData ? true : false}
                   disabled={chooseSubject !== "Addressee"}
                   onClick={() => {
                     if (chooseSubject === "Addressee") {
-                      setAddresseesData(false);
                       setInput(`${currentParcels[0].name} ${currentParcels[0].surname}`)
                     }
                     setAddresseesData(!addresseesData);
@@ -448,6 +450,7 @@ export const TraditionalDeliver = () => {
                         if (parcel._id === currentParcels[0]._id) {
                           return {
                             ...parcel,
+                            deliveryInput: '',
                             isSignature: false,
                             signature: null,
                           };
@@ -474,6 +477,7 @@ export const TraditionalDeliver = () => {
                       if (parcel._id === currentParcels[0]._id) {
                         return {
                           ...parcel,
+                          deliveryInput: '',
                           isSignature: false,
                           signature: null,
                         };
@@ -524,6 +528,7 @@ export const TraditionalDeliver = () => {
               <button
                 className="td__signbutton"
                 onClick={() => {
+                  setAddresseesData(false);
                   setDownloadedBook(downloadedBook.map(parcel => {
                     if (parcel._id === currentParcels[0]._id) {
                       return {
@@ -535,8 +540,7 @@ export const TraditionalDeliver = () => {
                     return parcel;
                   }))
                   currentParcels[0].noAddressee = !currentParcels[0].noAddressee;
-                  setAddresseesData(!currentParcels[0].noAddressee ? "" : true);
-                  setInput(!currentParcels[0].noAddressee && "");
+                  setInput(!currentParcels[0].noAddressee ? `${currentParcels[0].name} ${currentParcels[0].surname}` :  "");
                 }}
                 style={{
                   transform: `translateX(${currentParcels[0].noAddressee ? "45px" : "0"})`,

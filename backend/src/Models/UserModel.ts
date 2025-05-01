@@ -1,11 +1,13 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { compareValue, hashValue } from "../utils/bscrypt";
+import { CreateParcelOrder } from "../services/auth.service";
 
 export interface UserDocument extends mongoose.Document {
     userId: mongoose.Types.ObjectId;
     EMINumber: string;
   username: string;
   password: string;
+  parcels: CreateParcelOrder[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(val: string): Promise<boolean>;
@@ -27,6 +29,10 @@ const userSchima = new mongoose.Schema<UserDocument>({
         type: String,
         required: true,
     },
+    parcels: {
+        type: [Object],
+        default: [],
+    }
 },
 {
     timestamps: true,
