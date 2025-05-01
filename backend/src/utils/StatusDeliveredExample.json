@@ -1,0 +1,17 @@
+{
+    "nameOfStatus": "DELIVERED",
+    "id": "680bc373cbeff91c6db26c3c",
+    "subject": "Addreessee",
+    "details": "Parcel left in place set with addressee",
+    "signature": "Yes",
+    "isSignature": true,
+    "noAddressee": true,
+    "deliveryInput": "Behind chair",
+    "reasonOfAdvice": "",
+    "officeOfAdvice": "",
+    "placeOfNotification": "",
+    "isBooked": true,
+    "numberOfBook": "43945101",
+    "username": "Test123",
+    "isDownloaded": true
+}
