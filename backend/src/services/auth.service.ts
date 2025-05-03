@@ -14,7 +14,6 @@ import { sendEmail } from "../utils/sendEmail";
 import { ONE_DAY_MS, thirtyDaysFromNow } from "../utils/Data";
 import makeEmiNumber from "../utils/getEMINumber";
 import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
-import { off } from "node:process";
 import { getAdvicingEmail } from "../utils/getAdvicingEmail";
 import { otherStatusEmail } from "../utils/otherStatusEmail";
 
@@ -260,6 +259,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
 type InDeliveryType = {
   numberOfBook: string;
   username: string;
+  createdAt: string;
 };
 
 type AssignType = {
@@ -287,13 +287,26 @@ export const assignParcels = async ({ numberOfBook, username }: AssignType) => {
   };
 };
 
+export const deleteBook = async ({numberOfBook, username}: AssignType) => {
+  await parcelModel.updateMany({numberOfBook, forUser: username, isDownloaded: false}, {
+    $set: {isBooked: false, forUser: "", numberOfBook: ""}
+  })
+
+  const updatedParcels = parcelModel.find({});
+
+  return {
+    updatedParcels,
+  }
+}
+
 export const addInDeliveryStatus = async ({
   numberOfBook,
   username,
+  createdAt,
 }: InDeliveryType) => {
   const addStatus = {
     name: "IN DELIVERY",
-    createdAt: date,
+    createdAt,
     subject: "",
     details: "",
     signature: null,
@@ -360,6 +373,7 @@ type DifferentStatusType = {
   numberOfBook?: string;
   username?: string;
   isDownloaded?: boolean;
+  createdAt: string;
 };
 
 export const deliveredStatus = async ({
@@ -378,10 +392,11 @@ export const deliveredStatus = async ({
   numberOfBook,
   username,
   isDownloaded,
+  createdAt,
 }: DifferentStatusType) => {
   const addStatus = {
     name: nameOfStatus,
-    createdAt: date,
+    createdAt,
     subject,
     details,
     signature,
@@ -397,7 +412,7 @@ export const deliveredStatus = async ({
   const updateParcel = await parcelModel.findOneAndUpdate(
     {_id: id},
     {
-      $set: { isBooked, numberOfBook, isMarked: false, forUser: username },
+      $set: { isBooked, numberOfBook, isMarked: false, forUser: username, isDeliveryCode },
       $push: { status: addStatus },
     }
   );
@@ -439,17 +454,20 @@ export const advicedStatus = async ({
   reasonOfAdvice,
   officeOfAdvice,
   placeOfNotification,
+  isSignature,
   isBooked,
   numberOfBook,
   username,
   isDownloaded,
+  createdAt,
 }: DifferentStatusType) => {
   const addStatus = {
     name: nameOfStatus,
-    createdAt: date,
+    createdAt,
     subject,
     details,
     signature,
+    isSignature,
     isDeliveryCode,
     noAddressee,
     deliveryInput,
@@ -506,10 +524,11 @@ export const otherStatus = async ({
   numberOfBook,
   username,
   isDownloaded,
+  createdAt,
 }: DifferentStatusType) => {
   const addStatus = {
     name: nameOfStatus,
-    createdAt: date,
+    createdAt,
     subject,
     details,
     signature,

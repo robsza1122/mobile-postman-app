@@ -5,10 +5,11 @@ import { Loading } from "../../Loading/Loading.jsx";
 import classnames from "classnames";
 import { Link } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider.jsx";
-import { useMutation } from "@tanstack/react-query";
-import { assignParcelsToUser, getInDeliveryStatus, sendInDeliveryEmail, updateAllStatus } from "../../api/api.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {  getInDeliveryStatus, sendInDeliveryEmail } from "../../api/api.js";
 import useAuth from "../../hooks/useAuth.js";
 import { date } from "../../utils/currentDate.js";
+import { USER } from "../../hooks/useAuth.js";
 
 export const TrailOption = () => {
   const {
@@ -19,6 +20,7 @@ export const TrailOption = () => {
     deliveryBooks,
     parcelsInDatabase,
     setDayIsFinished,
+    setSettled,
   } = useContext(PostManState);
   const { user } = useAuth();
   const [parcelsNumber, setParcelsNumber] = useState("");
@@ -26,25 +28,35 @@ export const TrailOption = () => {
   const [showError, setShowError] = useState(false);
   const { parcels, isLoading } = useParcels();
   const [loading, setLoading] = useState(false);
-  const [errorText, setLoadingText] = useState("");
+  const [loadingText, setLoadingText] = useState("");
   const [verifyBook, setVerifyBook] = useState(false);
   const [markedBook, setMarkedBook] = useState(false);
-  const { mutate: updateStatus } = useMutation({
-    mutationFn: updateAllStatus,
+  const queryClient = useQueryClient();
+  const { mutate: inDeliveryStatus } = useMutation({
+    mutationFn: getInDeliveryStatus,
+    mutationKey: ["parcels"],
+    onSuccess: () => {
+      window.location.reload();
+    },
   });
-  const {mutate: assignParcels} = useMutation({
-    mutationFn: assignParcelsToUser,
-  })
+
+  const { mutate: inDeliveryEmail } = useMutation({
+    mutationKey: ["parcels"],
+    mutationFn: sendInDeliveryEmail,
+    onSuccess: () => {
+      window.location.reload();
+    },
+  });
 
   const onSubmit = () => {
-    const typedParcel = parcelsInDatabase.find(
+    const typedParcel = parcels.find(
       (parcel) => parcel.numberOfParcel === parcelsNumber
     );
-    const typedParcelBookNumber = parcelsInDatabase.find(
+    const typedParcelBookNumber = parcels.find(
       (parcel) => parcel.numberOfParcel === parcelsNumber
     ).numberOfBook;
 
-    const downloadedParcels = parcelsInDatabase.filter(
+    const downloadedParcels = parcels.filter(
       (parcel) => parcel.numberOfBook === typedParcelBookNumber
     );
 
@@ -60,33 +72,32 @@ export const TrailOption = () => {
     if (markedBook && verifyBook) {
       const downloadedParcelsWithEmail = downloadedParcels.map((parcel) => {
         const inDeliveryStatus = {
-              name: "IN DELIVERY",
-              createdAt: date,
-              subject: "",
-              details: "",
-              signature: "",
-              isSignature: false,
-              noAddressee: false,
-              deliveryInput: "",
-              reasonOfAdvice: "",
-              officeOfAdvice: "",
-              placeOfNotification: "",
-            };
-        sendInDeliveryEmail(parcel._id);
+          name: "IN DELIVERY",
+          createdAt: date,
+          subject: "",
+          details: "",
+          signature: "",
+          isSignature: false,
+          noAddressee: false,
+          deliveryInput: "",
+          reasonOfAdvice: "",
+          officeOfAdvice: "",
+          placeOfNotification: "",
+        };
+        inDeliveryEmail(parcel._id);
         return {
           ...parcel,
           forUser: currentUser.username,
-          status: [
-            ...parcel.status,
-            inDeliveryStatus,
-          ]
+          status: [...parcel.status, inDeliveryStatus],
         };
       });
       setDayIsFinished(false);
+      setSettled(false);
       setDownloadedBook([...downloadedBook, ...downloadedParcelsWithEmail]);
-      updateStatus({
+      inDeliveryStatus({
         numberOfBook: typedParcelBookNumber,
         username: currentUser.username,
+        createdAt: date,
       });
       setLoading(true);
       setLoadingText("downloading book...");
@@ -94,23 +105,21 @@ export const TrailOption = () => {
         setLoading(false);
         setLoadingText("");
       }, 1000);
-    };
+    }
 
     if (typedParcel.forUser === "") {
       alert("Parcel is not assigned to any user");
-      setParcelsNumber('');
+      setParcelsNumber("");
 
       return;
     }
 
     if (typedParcel.forUser !== currentUser.username) {
       alert("Parcel is assigned to other user");
-      setParcelsNumber('');
+      setParcelsNumber("");
 
       return;
     }
-
-
 
     if (
       downloadedBook.filter(
@@ -201,7 +210,7 @@ export const TrailOption = () => {
   console.log(user);
   console.log(verifyBook);
   console.log(markedBook);
-  console.log(parcelsInDatabase);
+  console.log(parcels);
   console.log(deliveryBooks);
 
   return (
@@ -399,7 +408,7 @@ export const TrailOption = () => {
         {loading && (
           <>
             <div className="trail__confirmBook"></div>
-            <Loading message={errorText} />
+            <Loading message={loadingText} />
           </>
         )}
         {showError && !loading && (

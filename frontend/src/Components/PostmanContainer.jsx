@@ -12,11 +12,6 @@ export const PostmanContainer = () => {
     if (user) {
       setCurrentUser(user)
     }
-    window.onpopstate = () => {
-      if (window.location.pathname === "/") {
-      
-      }
-    }
   }, []);
 
   return (

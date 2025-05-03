@@ -35,6 +35,8 @@ export const SignatureScreen = () => {
           })
         );
       }
+      navigate("/ML");
+      window.location.reload();
     };
   });
 

@@ -15,12 +15,13 @@ export const BookList = () => {
       navigate("/trailOption")
     }
   });
+
   return (
     <nav className="booklist__nav">
       <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       <p className="booklist__text">BOOK LIST</p>
       <div className="booklist__content">
-        {downloadedBook.map((parcel) => {
+        {currentUser.parcels.map((parcel) => {
           return (
                 <div
                   className={classNames("booklist__position", {

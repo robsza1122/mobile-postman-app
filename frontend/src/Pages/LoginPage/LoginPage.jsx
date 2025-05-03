@@ -6,13 +6,15 @@ import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
 import { useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
+import useAuth from "../../hooks/useAuth";
 
 export const LoginPage = () => {
-  const {currentUser} = useContext(PostManState);
+  const {currentUser, setCurrentUser} = useContext(PostManState);
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const {
     mutate: signIn,
     isError,
@@ -23,7 +25,6 @@ export const LoginPage = () => {
       navigate("/ML", {
         replace: true,
       });
-      setCurrentParcels([]);
     }
   });
   console.log(currentUser)

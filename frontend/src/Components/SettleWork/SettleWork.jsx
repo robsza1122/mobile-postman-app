@@ -2,35 +2,54 @@ import React, { useContext } from "react";
 import "./SettleWork.scss";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
+import useParcels from "../../hooks/useParcels";
 
 export const SettleWork = () => {
-  const { currentUser, downloadedBook, setDownloadedBook } =
-    useContext(PostManState);
-  const parcelsInDelivery = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "IN DELIVERY"
-  ).length;
-  const parcelsDelivered = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "DELIVERED"
-  ).length;
-  const parcelsAdviced = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "ADVICED"
-  ).length;
-  const otherResults = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "OTHER"
-  ).length;
-  const deliveredToZDO = downloadedBook.filter(
+  const {
+    currentUser,
+    downloadedBook,
+    setDownloadedBook,
+    settled,
+    setSettled,
+    dayIsFinished,
+  } = useContext(PostManState);
+  const { parcels } = useParcels();
+  const parcelsInDelivery = parcels.filter(
     (parcel) =>
-      parcel.status[parcel.status.length - 1].subject === "Delivered to ZDO"
+      parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
+      parcel.forUser === currentUser.username
   ).length;
-  const undeliveredToZDO = downloadedBook.filter(
+  const parcelsDelivered = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "DELIVERED" &&
+      parcel.forUser === currentUser.username
+  ).length;
+  const parcelsAdviced = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "ADVICED" &&
+      parcel.forUser === currentUser.username
+  ).length;
+  const otherResults = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "OTHER" &&
+      parcel.forUser === currentUser.username
+  ).length;
+  const deliveredToZDO = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].subject === "Delivered to ZDO" &&
+      parcel.forUser === currentUser.username
+  ).length;
+  const undeliveredToZDO = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].subject ===
-      "Parcel undelivered to ZDO"
+        "Parcel undelivered to ZDO" && parcel.forUser === currentUser.username
   ).length;
 
   console.log(parcelsInDelivery);
+  console.log(currentUser);
+  console.log(settled)
 
-  const { settled, setSettled, dayIsFinished } = useContext(PostManState);
+  const {} = useContext(PostManState);
 
   const handleSettlingButton = () => {
     if (parcelsInDelivery > 0) {
@@ -41,20 +60,23 @@ export const SettleWork = () => {
       setDownloadedBook([]);
     }
   };
+
+  console.log(dayIsFinished);
   return (
     <div className="settle__content">
       <nav className="settle__nav">
         <p className="settle__info">SETTLE WORK DAY</p>
         <p className="settle__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
-      {downloadedBook.length === 0 && dayIsFinished ? (
+      {currentUser.parcels.length === 0 && (
         <>
           <div className="settle__noposition">
             There is no positions to settle
           </div>
           <div className="settle__line"></div>
         </>
-      ) : (
+      )}
+      {currentUser.parcels.length > 0 && (
         <div
           className={classNames("settle__window", {
             "settle__window--settled": settled,
@@ -96,7 +118,7 @@ export const SettleWork = () => {
           "settle__button--nopositions": downloadedBook.length === 0,
         })}
         onClick={() => handleSettlingButton()}
-        disabled={downloadedBook.length === 0}
+        disabled={currentUser.parcels.length === 0}
       >
         Settle defaultly
       </button>

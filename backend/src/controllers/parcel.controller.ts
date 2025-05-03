@@ -11,6 +11,7 @@ import {
   createNewUser,
   createOrder,
   date,
+  deleteBook,
   deliveredStatus,
   loginUser,
   markParcel,
@@ -290,16 +291,14 @@ export const markingOnFalseHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteBookHandler = catchErrors(async (req, res) => {
-  await parcelModel.updateMany(
-    { isBooked: true, isDownloaded: false },
-    {
-      $set: { isBooked: false, numberOfBook: "", forUser: "" },
-    }
-  );
+  const request = assignParcelSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
 
-  const updateParcels = await parcelModel.find({});
+  const { updatedParcels } = await deleteBook(request);
 
-  return res.status(OK).json(updateParcels);
+  return res.status(OK).json(updatedParcels);
 });
 
 export const clearDatesHandler = catchErrors(async (req, res) => {
@@ -320,12 +319,14 @@ export const clearDatesHandler = catchErrors(async (req, res) => {
   await parcelModel.updateMany(
     {},
     {
-      isBooked: false,
-      isDownloaded: false,
-      forUser: "",
-      numberOfBook: "",
-      isMarked: false,
-      $set: { status: orderStatus },
+      $set: {
+        status: orderStatus,
+        isBooked: false,
+        isDownloaded: false,
+        forUser: "",
+        numberOfBook: "",
+        isMarked: false,
+      },
     }
   );
 

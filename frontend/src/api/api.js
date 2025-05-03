@@ -16,6 +16,11 @@ export const sendInDeliveryEmail = async (id) =>
 export const showAllUsers = async () => API.get("/showAllUsers");
 export const assignParcelsToUser = async (data) =>
   API.post("/assignParcelsToUser", data);
+export const deleteAllDates = async () => API.post("/deleteAllDates");
+export const markParcel = async (data) => API.post("/markParcel", data);
+export const deleteDeliveryBook = async (data) => API.post("/deleteBook", data)
+export const markAllOnTrue = async () => API.post("/markAllParcelsOnTrue");
+export const markAllOnFalse = async () => API.post("/markAllParcelsOnFalse");
 //protected routes
 
 export const getUser = async () => API.get("/user");

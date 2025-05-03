@@ -3,6 +3,7 @@ import { z } from "zod"
 export const statusSchima = z.object({
         nameOfStatus: z.string(),
         id: z.string(),
+        createdAt: z.string(),
         subject: z.string().optional().default(''),
         details: z.string().optional().default(''),
         signature: z.any().optional().default(null),

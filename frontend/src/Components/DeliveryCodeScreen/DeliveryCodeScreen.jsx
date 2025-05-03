@@ -4,6 +4,9 @@ import PinInput from "react-pin-input";
 import { PostManState } from "../../PostGlobalProvider";
 import { useNavigate } from "react-router-dom";
 import useParcels from '../../hooks/useParcels'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addDeliveredStatus } from "../../api/api";
+import { date } from "../../utils/currentDate";
 
 export const DeliveryCodeScreen = () => {
   const navigate = useNavigate();
@@ -11,13 +14,22 @@ export const DeliveryCodeScreen = () => {
     currentParcels,
     setDownloadedBook,
     downloadedBook,
-    onDeliveryCode,
     setDeliveryCode,
     currentUser,
+    deliveryCode,
   } = useContext(PostManState);
   const {parcels} = useParcels();
+  const queryClient = useQueryClient();
+    const { mutate: changeStatus } = useMutation({
+      mutationFn: addDeliveredStatus,
+      mutationKey: ["parcels"],
+      onSuccess: () => {
+        window.location.reload();
+      },
+    });
   useEffect(() => {
     window.onpopstate = () => {
+      navigate("/ML")
       setDownloadedBook(
         downloadedBook.map((parcel) => {
           if (parcel.isMarked) {
@@ -32,6 +44,97 @@ export const DeliveryCodeScreen = () => {
       );
     };
   }, []);
+
+    const onDeliveryCode = (clickedParcel) => {
+      setDownloadedBook(
+        downloadedBook.map((parcel) => {
+          console.log(parcel.amountOfTrials);
+          if (
+            clickedParcel[0]._id === parcel._id &&
+            deliveryCode !== clickedParcel[0].deliveryCode &&
+            deliveryCode !== "" &&
+            deliveryCode.length === 6
+          ) {
+            switch (parcel.amountOfTrials) {
+              case 0:
+                setDeliveryCode("");
+                alert("Wrong delivery code");
+                return {
+                  ...parcel,
+                  amountOfTrials: 1,
+                };
+              case 1:
+                setDeliveryCode("");
+                alert("Wrong delivery code");
+                return {
+                  ...parcel,
+                  amountOfTrials: 2,
+                };
+              case 2:
+                setDeliveryCode("");
+                alert("Wrong delivery code");
+                alert("DELIVERY CODE IS BLOCKED");
+                navigate("/traditionalDeliver");
+                return {
+                  ...parcel,
+                  amountOfTrials: 3,
+                };
+            }
+          }
+  
+          if (deliveryCode === parcel.deliveryCode) {
+            navigate("/deliverOption");
+            changeStatus({
+              nameOfStatus: "DELIVERED",
+              id: parcel._id,
+              subject: "",
+              details: "",
+              signature: null,
+              isDeliveryCode: true,
+              isSignature: false,
+              noAddressee: false,
+              deliveryInput: "",
+              reasonOfAdvice: "",
+              officeOfAdvice: "",
+              placeOfNotification: "",
+              isBooked: true,
+              numberOfBook: parcel.numberOfBook,
+              isDownloaded: true,
+              username: parcel.forUser,
+              createdAt: date,
+  
+            });
+            return {
+              ...parcel,
+              isMarked: false,
+              isDeliveryCode: true,
+              status: [
+                ...parcel.status,
+                {
+                  name: "DELIVERED",
+                  createdAt: date,
+                },
+              ],
+            };
+          }
+          return parcel;
+        })
+      );
+  
+      if (deliveryCode === "") {
+        setDeliveryCode("");
+        alert("No delivery code is typed");
+  
+        return;
+      }
+  
+      if (deliveryCode.length !== 6) {
+        setDeliveryCode("");
+        alert("Delivery code has 6 characters");
+  
+        return;
+      }
+    };
 
   console.log(currentParcels);
   console.log(downloadedBook);

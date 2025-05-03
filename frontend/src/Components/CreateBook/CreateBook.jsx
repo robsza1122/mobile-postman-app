@@ -5,10 +5,15 @@ import useParcels from "../../hooks/useParcels";
 import classNames from "classnames";
 import makeDifferentNumbers from "../../hooks/createDifferentNumbers";
 import showCurrentUsers from "../../hooks/showAllUsers";
+import useAuth from "../../hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { assignParcelsToUser, deleteDeliveryBook, markAllOnFalse, markAllOnTrue, markParcel } from "../../api/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateBook = () => {
   const { parcels } = useParcels();
   const { showUsers } = showCurrentUsers();
+  const { user } = useAuth();
 
   const {
     downloadedBook,
@@ -28,22 +33,100 @@ export const CreateBook = () => {
   const allAreChecked =
     parcelsInDatabase.filter((parcel) => parcel.isMarked).length ===
     parcelsInDatabase.length;
-    
+
   useEffect(() => {
     if (showUsers) {
       setShowAllCurrentUsers(showUsers);
     }
   }, []);
+
+  const queryClient = useQueryClient();
+  const { mutate: markClickedParcel } = useMutation({
+    mutationFn: markParcel,
+    mutationKey: ["parcels"],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: ["parcels"] });
+
+      const previousParcels = queryClient.getQueriesData(["parcels"]);
+
+      queryClient.setQueryData(["parcels"], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["parcels"] }),
+  });
+
+  const {mutate: markOnTrue} = useMutation({
+    mutationFn: markAllOnTrue,
+    mutationKey: ["parcels"],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: ["parcels"] });
+
+      const previousParcels = queryClient.getQueriesData(["parcels"]);
+
+      queryClient.setQueryData(["parcels"], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["parcels"] }),
+  });
+
+  const {mutate: markOnFalse} = useMutation({
+    mutationFn: markAllOnFalse,
+    mutationKey: ["parcels"],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: ["parcels"] });
+
+      const previousParcels = queryClient.getQueriesData(["parcels"]);
+
+      queryClient.setQueryData(["parcels"], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["parcels"] }),
+  })
+
+  const {mutate: assignParcels} = useMutation({
+    mutationFn: assignParcelsToUser,
+    mutationKey: ["parcels"],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: ["parcels"] });
+
+      const previousParcels = queryClient.getQueriesData(["parcels"]);
+
+      queryClient.setQueryData(["parcels"], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["parcels"] }),
+  })
+  const {mutate: deleteBook} = useMutation({
+    mutationFn: deleteDeliveryBook,
+    mutationKey: ["parcels"],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: ["parcels"] });
+
+      const previousParcels = queryClient.getQueriesData(["parcels"]);
+
+      queryClient.setQueryData(["parcels"], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["parcels"] }),
+  })
+
   const handleTogglingParcels = () => {
     setParcelsInDatabase(
       parcelsInDatabase.map((parcel) => {
         if (allAreChecked && !parcel.isBooked) {
+          markOnFalse();
           return {
             ...parcel,
             isMarked: false,
           };
         }
         if (!allAreChecked && !parcel.isBooked) {
+          markOnTrue();
           return {
             ...parcel,
             isMarked: true,
@@ -70,6 +153,10 @@ export const CreateBook = () => {
 
     const changeStatus = parcelsInDatabase.map((parcel) => {
       if (parcel.isMarked) {
+        assignParcels({
+          numberOfBook: numberOfDeliveryBook,
+          username: assignedUser,
+        })
         return {
           ...parcel,
           isMarked: false,
@@ -83,9 +170,7 @@ export const CreateBook = () => {
 
     const addToBook = {
       number: numberOfDeliveryBook,
-      parcels: changeStatus.filter(
-        (parcel) => parcel.numberOfBook === numberOfDeliveryBook
-      ),
+      parcels: changeStatus.filter(parcel => parcel.isBooked && parcel.forUser === assignedUser && parcel.numberOfBook === numberOfDeliveryBook)
     };
 
     setParcelsInDatabase(changeStatus);
@@ -105,6 +190,7 @@ export const CreateBook = () => {
   };
 
   console.log(showAllCurrentUsers);
+  console.log(parcels);
   console.log(parcelsInDatabase);
   console.log(allAreChecked);
   console.log(deliveryBooks);
@@ -165,6 +251,11 @@ export const CreateBook = () => {
                 const handleAddingParcelToBook = (parcelsId) => {
                   const changeChecking = parcelsInDatabase.map((parcel) => {
                     if (parcel._id === parcelsId) {
+                      markClickedParcel({
+                        markParcel: !parcel.isMarked,
+                        id: parcelsId,
+                      });
+
                       return {
                         ...parcel,
                         isMarked: !parcel.isMarked,
@@ -246,6 +337,10 @@ export const CreateBook = () => {
                 };
 
                 const handleRemovingBook = (clickedNumber) => {
+                  deleteBook({
+                    numberOfBook: clickedNumber,
+                    username: book.parcels[0].forUser,
+                  })
                   setDeliveryBooks(
                     deliveryBooks.filter(
                       (book) => book.number !== clickedNumber
@@ -260,6 +355,7 @@ export const CreateBook = () => {
                         return {
                           ...parcel,
                           isBooked: false,
+                          forUser: "",
                           numberOfBook: "",
                         };
                       }

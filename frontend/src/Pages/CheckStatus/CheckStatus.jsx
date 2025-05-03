@@ -96,12 +96,12 @@ export const CheckStatus = () => {
 
                     const handleOtherResultText = () => {
                       switch(status.details) {
-                        case "Parcel returned to sender":
+                        case "Parcel returned from other reason":
                           return "Reason:";
                         case "Parcel left in shop, ORLEN, ParcelPoint":
                           return "Subject of delivery:";
                           default: 
-                          return "Reason:";
+                          return "";
                       }
                     }
 

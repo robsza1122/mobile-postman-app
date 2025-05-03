@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
 import { navigate } from "../../api/navigation";
 import { navOptionsButtons } from "../../utils/DataProvider";
+import useParcels from "../../hooks/useParcels";
 
 export const OtherOption = () => {
   const {
@@ -14,37 +15,47 @@ export const OtherOption = () => {
     downloadedBook,
     currentParcels,
     currentUser,
-    setCurrentUser,
+    settled,
   } = useContext(PostManState);
+  const { parcels } = useParcels();
   useEffect(() => {
-    setDownloadedBook(downloadedBook.map(parcel => {
-      if (parcel.isMarked) {
-        return {
-          ...parcel,
-          isMarked: false,
-          deliveryInput: '',
+    setDownloadedBook(
+      downloadedBook.map((parcel) => {
+        if (parcel.isMarked) {
+          return {
+            ...parcel,
+            isMarked: false,
+            deliveryInput: "",
+          };
         }
-      }
 
-      return parcel;
-    }))
+        return parcel;
+      })
+    );
     window.onpopstate = () => {
       if (currentParcels.length === 0) {
-        navigate("/deliverOption")
+        navigate("/ML");
+        window.location.reload()
       }
       setCurrentParcels([]);
-    }
+    };
   }, []);
   const [searchInput, setSearchInput] = useState("");
 
-  const parcelsInDelivery = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "IN DELIVERY"
+  const parcelsToDeliver = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
+      parcel.forUser === currentUser.username
   );
-  const advicedParcels = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "ADVICED"
+  const advicedParcels = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "ADVICED" &&
+      parcel.forUser === currentUser.username
   );
-  const otherParcels = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "OTHER"
+  const otherParcels = parcels.filter(
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "OTHER" &&
+      parcel.forUser === currentUser.username
   );
 
   const [chosenOption, setChosenOption] = useState(0);
@@ -96,14 +107,17 @@ export const OtherOption = () => {
   const searchPosition = (positions) => {
     const filterPosition = positions.filter((position) => {
       const searchedText = `${position.name}${position.surname}${position.city}${position.numberOfParcel}${position.adress}${position.postCode}`;
-      return searchedText.toLowerCase().trim().includes(searchInput.toLowerCase().trim());
+      return searchedText
+        .toLowerCase()
+        .trim()
+        .includes(searchInput.toLowerCase().trim());
     });
 
     return filterPosition;
   };
 
   console.log(currentParcels);
-  console.log(downloadedBook)
+  console.log(downloadedBook);
   return (
     <div className="deliver__content">
       <nav className="deliver__nav">
@@ -175,75 +189,94 @@ export const OtherOption = () => {
             }}
           >
             <div className="deliver__todeliverblock">TO DELIVERY</div>
-            {searchPosition(parcelsInDelivery).map((parcel) => {
-              return (
-                <div className="deliver__position" key={parcel._id}>
-                  <div className="deliver__positioncontent">
-                    <p className="deliver__number">{parcel.numberOfParcel}</p>
-                    <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                    <p className="deliver__info">{parcel.adress}</p>
-                    <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-                  </div>
-                  <div className="deliver__inputcash">
-                  <input
-                    type="checkbox"
-                    className="deliver__checkbox"
-                    onClick={() => changeCheckbox(parcel._id)}
-                  />
-                  {parcel.amount !== 0 && 
-                  (
-                    <p className="deliver__cash">{!parcel.amount.toString().includes(".") ? `${parcel.amount}.00` : `${parcel.amount}`}</p>
-                  )}
-                  </div>
-                </div>
-              );
-            })}
+            {settled
+              ? ""
+              : searchPosition(parcelsToDeliver).map((parcel) => {
+                  return (
+                    <div className="deliver__position" key={parcel._id}>
+                      <div className="deliver__positioncontent">
+                        <p className="deliver__number">
+                          {parcel.numberOfParcel}
+                        </p>
+                        <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                        <p className="deliver__info">{parcel.adress}</p>
+                        <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                      </div>
+                      <div className="deliver__inputcash">
+                        <input
+                          type="checkbox"
+                          className="deliver__checkbox"
+                          onClick={() => changeCheckbox(parcel._id)}
+                        />
+                        {parcel.amount !== 0 && currentParcels.length > 0 && (
+                          <p className="deliver__cash">
+                            {!parcel.amount.toString().includes(".")
+                              ? `${parcel.amount}.00`
+                              : `${parcel.amount}`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             <div className="deliver__advicedblock">ADVICED</div>
-            {searchPosition(advicedParcels).map((parcel) => (
-              <div className="deliver__position" key={parcel._id}>
-              <div className="deliver__positioncontent">
-                <p className="deliver__number">{parcel.numberOfParcel}</p>
-                <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                <p className="deliver__info">{parcel.adress}</p>
-                <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-              </div>
-              <div className="deliver__inputcash">
-              <input
-                type="checkbox"
-                className="deliver__checkbox"
-                onClick={() => changeCheckbox(parcel._id)}
-              />
-              {parcel.amount !== 0 && 
-              (
-                <p className="deliver__cash">{!currentParcels[0].amount.toString().includes(".") ? `${currentParcels[0].amount}.00` : currentParcels[0].amount}</p>
-              )}
-              </div>
-            </div>
-            ))}
+            {settled
+              ? ""
+              : searchPosition(advicedParcels).map((parcel) => (
+                  <div className="deliver__position" key={parcel._id}>
+                    <div className="deliver__positioncontent">
+                      <p className="deliver__number">{parcel.numberOfParcel}</p>
+                      <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                      <p className="deliver__info">{parcel.adress}</p>
+                      <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                    </div>
+                    <div className="deliver__inputcash">
+                      <input
+                        type="checkbox"
+                        className="deliver__checkbox"
+                        onClick={() => changeCheckbox(parcel._id)}
+                      />
+                      {parcel.amount !== 0 && currentParcels.length > 0 && (
+                        <p className="deliver__cash">
+                          {!currentParcels[0].amount.toString().includes(".")
+                            ? `${currentParcels[0].amount}.00`
+                            : currentParcels[0].amount}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
             <div className="deliver__othersblock">OTHERS</div>
-            {searchPosition(otherParcels).map((parcel) => {
-              return (
-              <div className="deliver__position" key={parcel._id}>
-              <div className="deliver__positioncontent">
-                <p className="deliver__number">{parcel.numberOfParcel}</p>
-                <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                <p className="deliver__info">{parcel.adress}</p>
-                <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-              </div>
-              <div className="deliver__inputcash">
-              <input
-                type="checkbox"
-                className="deliver__checkbox"
-                onClick={() => changeCheckbox(parcel._id)}
-              />
-              {parcel.amount !== 0 && 
-              (
-                <p className="deliver__cash">{!parcel.amount.toString().includes(".") ? `${parcel.amount}.00` : `${parcel.amount}`}</p>
-              )}
-              </div>
-            </div>
-              )
-})}
+            {settled
+              ? ""
+              : searchPosition(otherParcels).map((parcel) => {
+                  return (
+                    <div className="deliver__position" key={parcel._id}>
+                      <div className="deliver__positioncontent">
+                        <p className="deliver__number">
+                          {parcel.numberOfParcel}
+                        </p>
+                        <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                        <p className="deliver__info">{parcel.adress}</p>
+                        <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                      </div>
+                      <div className="deliver__inputcash">
+                        <input
+                          type="checkbox"
+                          className="deliver__checkbox"
+                          onClick={() => changeCheckbox(parcel._id)}
+                        />
+                        {parcel.amount !== 0 && (
+                          <p className="deliver__cash">
+                            {!parcel.amount.toString().includes(".")
+                              ? `${parcel.amount}.00`
+                              : `${parcel.amount}`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
           </div>
           <div
             className="deliver__buttons"

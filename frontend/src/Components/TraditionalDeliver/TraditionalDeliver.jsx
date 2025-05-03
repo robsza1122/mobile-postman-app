@@ -13,9 +13,9 @@ import { date } from "../../utils/currentDate";
 import { useMutation } from "@tanstack/react-query";
 import { addDeliveredStatus } from "../../api/api";
 import useParcels from "../../hooks/useParcels";
+import { Loading } from "../../Loading/Loading.jsx";
 
 export const TraditionalDeliver = () => {
-  const navigate = useNavigate();
   const {
     currentParcels,
     setCurrentParcels,
@@ -31,32 +31,48 @@ export const TraditionalDeliver = () => {
     particularSubject,
     setParticularSubject,
   } = useContext(PostManState);
-  const {parcels} = useParcels();
+  const { parcels } = useParcels();
   const findParcel = downloadedBook.find(
     (parcel) => parcel._id === currentParcels[0]._id
   );
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      navigate("/ML");
+      setInput("");
+      window.location.reload();
+    };
+  });
   const [openList, setOpenList] = useState(false);
   const [showSubjects, setShowSubjects] = useState(false);
   const [choosen, setChoosen] = useState("");
   const [addresseesData, setAddresseesData] = useState(false);
   const [showParticularSubject, setShowParticularSubject] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const {mutate: changeStatus} = useMutation({
-    mutationKey: ['changeStatus'],
+  const { mutate: changeStatus } = useMutation({
     mutationFn: addDeliveredStatus,
-  })
+    mutationKey: ["parcels"],
+    onSuccess: () => {
+      window.location.reload();
+    },
+  });
   const handleList = () => {
     setOpenList(!openList);
   };
   useEffect(() => {
     window.onpopstate = () => {
-      setInput('');
+      if (currentParcels.length === 0) {
+        window.location.reload();
+      }
       setDownloadedBook(
         downloadedBook.map((parcel) => {
           if (parcel.isMarked) {
             return {
               ...parcel,
-              deliveryInput: '',
+              deliveryInput: "",
               isMarked: false,
             };
           }
@@ -68,7 +84,6 @@ export const TraditionalDeliver = () => {
         navigate("/deliverOption");
       }
     };
-    
   }, []);
 
   const handleConfirmButton = () => {
@@ -81,17 +96,30 @@ export const TraditionalDeliver = () => {
 
       return;
     }
-    if (chooseSubject !== "Addressee" && input === "") {
+    if (
+      currentParcels[0].noAddressee &&
+      particularSubject !== "Parcel left in place set with addressee" &&
+      input === ""
+    ) {
       alert("Type name and surname delivery's subject");
 
       return;
     }
-    if (findParcel.isSignature && findParcel.signature && !currentParcels[0].noAddressee) {
+    if (!currentParcels[0].noAddressee && input === "") {
+      alert("Type name and surname delivery's subject");
+
+      return;
+    }
+    if (
+      findParcel.isSignature &&
+      findParcel.signature &&
+      !currentParcels[0].noAddressee
+    ) {
       changeStatus({
+        nameOfStatus: "DELIVERED",
         id: findParcel._id,
         subject: chooseSubject,
-        details: '',
-        nameOfStatus: "DELIVERED",
+        details: "",
         signature: savePoints,
         isDeliveryCode: false,
         isSignature: true,
@@ -100,7 +128,12 @@ export const TraditionalDeliver = () => {
         reasonOfAdvice: "",
         officeOfAdvice: "",
         placeOfNotification: "",
-      })
+        isBooked: true,
+        numberOfBook: findParcel.numberOfBook,
+        isDownloaded: true,
+        username: findParcel.forUser,
+        createdAt: date,
+      });
       setDownloadedBook(
         downloadedBook.map((parcel) => {
           if (findParcel._id === parcel._id) {
@@ -130,7 +163,12 @@ export const TraditionalDeliver = () => {
       );
       navigate("/deliverOption");
       setCurrentParcels([]);
-    } else if (findParcel.isSignature && findParcel.signature && currentParcels[0].noAddressee) {
+      setInput("");
+    } else if (
+      findParcel.isSignature &&
+      findParcel.signature &&
+      currentParcels[0].noAddressee
+    ) {
       changeStatus({
         id: findParcel._id,
         subject: chooseSubject,
@@ -140,11 +178,19 @@ export const TraditionalDeliver = () => {
         isDeliveryCode: false,
         isSignature: true,
         noAddressee: true,
-        deliveryInput: particularSubject === "Parcel left in place set with addressee" ? input.toString() : "",
+        deliveryInput:
+          particularSubject === "Parcel left in place set with addressee"
+            ? input.toString()
+            : "",
         reasonOfAdvice: "",
         officeOfAdvice: "",
         placeOfNotification: "",
-      })
+        isBooked: true,
+        numberOfBook: findParcel.numberOfBook,
+        username: findParcel.forUser,
+        createdAt: date,
+        isDownloaded: true,
+      });
       setDownloadedBook(
         downloadedBook.map((parcel) => {
           if (findParcel._id === parcel._id) {
@@ -174,8 +220,8 @@ export const TraditionalDeliver = () => {
       );
       setCurrentParcels([]);
       navigate("/deliverOption");
-    }
-    else if (!findParcel.isSignature) {
+      setInput("");
+    } else if (!findParcel.isSignature) {
       alert("Please do signature");
     }
   };
@@ -188,9 +234,16 @@ export const TraditionalDeliver = () => {
   console.log(chooseSubject);
   console.log(addresseesData);
   console.log(parcels);
-  console.log(currentParcels[0].noAddressee)
+  console.log(currentParcels[0].noAddressee);
+  console.log(particularSubject);
   return (
     <>
+      {loading && (
+        <>
+          <div className="trail__confirmBook"></div>
+          <Loading message={loadingText} />
+        </>
+      )}
       <div className="td__content">
         {showSubjects && (
           <>
@@ -217,15 +270,14 @@ export const TraditionalDeliver = () => {
 
                   setInput(
                     `${
-                      subject === "Addressee" 
+                      subject === "Addressee"
                         ? `${currentParcels[0].name} ${currentParcels[0].surname}`
                         : ""
                     }`
                   );
-                  setAddresseesData(subject === "Addressee" ? true : false)
+                  setAddresseesData(subject === "Addressee" ? true : false);
                   setShowSubjects(false);
                   setChooseSubject(subject);
-                  
                 };
                 console.log(id);
                 return (
@@ -437,7 +489,9 @@ export const TraditionalDeliver = () => {
                   disabled={chooseSubject !== "Addressee"}
                   onClick={() => {
                     if (chooseSubject === "Addressee") {
-                      setInput(`${currentParcels[0].name} ${currentParcels[0].surname}`)
+                      setInput(
+                        `${currentParcels[0].name} ${currentParcels[0].surname}`
+                      );
                     }
                     setAddresseesData(!addresseesData);
                     setInput(
@@ -450,7 +504,7 @@ export const TraditionalDeliver = () => {
                         if (parcel._id === currentParcels[0]._id) {
                           return {
                             ...parcel,
-                            deliveryInput: '',
+                            deliveryInput: "",
                             isSignature: false,
                             signature: null,
                           };
@@ -477,7 +531,7 @@ export const TraditionalDeliver = () => {
                       if (parcel._id === currentParcels[0]._id) {
                         return {
                           ...parcel,
-                          deliveryInput: '',
+                          deliveryInput: "",
                           isSignature: false,
                           signature: null,
                         };
@@ -529,21 +583,30 @@ export const TraditionalDeliver = () => {
                 className="td__signbutton"
                 onClick={() => {
                   setAddresseesData(false);
-                  setDownloadedBook(downloadedBook.map(parcel => {
-                    if (parcel._id === currentParcels[0]._id) {
-                      return {
-                        ...parcel,
-                        noAddressee: !parcel.noAddressee,
+                  setDownloadedBook(
+                    downloadedBook.map((parcel) => {
+                      if (parcel._id === currentParcels[0]._id) {
+                        return {
+                          ...parcel,
+                          noAddressee: !parcel.noAddressee,
+                        };
                       }
-                    }
 
-                    return parcel;
-                  }))
-                  currentParcels[0].noAddressee = !currentParcels[0].noAddressee;
-                  setInput(!currentParcels[0].noAddressee ? `${currentParcels[0].name} ${currentParcels[0].surname}` :  "");
+                      return parcel;
+                    })
+                  );
+                  currentParcels[0].noAddressee =
+                    !currentParcels[0].noAddressee;
+                  setInput(
+                    !currentParcels[0].noAddressee
+                      ? `${currentParcels[0].name} ${currentParcels[0].surname}`
+                      : ""
+                  );
                 }}
                 style={{
-                  transform: `translateX(${currentParcels[0].noAddressee ? "45px" : "0"})`,
+                  transform: `translateX(${
+                    currentParcels[0].noAddressee ? "45px" : "0"
+                  })`,
                   transition: "0.3s ease transform",
                 }}
               >
@@ -566,7 +629,15 @@ export const TraditionalDeliver = () => {
             className={classNames("td__button", {
               "td__button--is-signed": findParcel.isSignature,
             })}
-            to={`${input === "" ? "" : "/signatureScreen"}`}
+            to={`${
+              currentParcels[0].noAddressee
+                ? input === "" &&
+                  particularSubject ===
+                    "Parcel left in place set with addressee"
+                  ? ""
+                  : "/signatureScreen"
+                : `${input === "" ? "" : "/signatureScreen"}`
+            }`}
             onClick={() => handleSignatureButton()}
           >
             Signature

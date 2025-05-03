@@ -2,10 +2,10 @@ import useAuth from "../../hooks/useAuth";
 import "./DeliverOption.scss";
 import classnames from "classnames";
 import { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
-import { navigate } from "../../api/navigation";
 import { navOptionsButtons } from "../../utils/DataProvider";
+import useParcels from "../../hooks/useParcels";
 
 export const DeliverOption = () => {
   const {
@@ -14,38 +14,46 @@ export const DeliverOption = () => {
     downloadedBook,
     currentParcels,
     currentUser,
+    settled,
   } = useContext(PostManState);
+  const { parcels } = useParcels();
 
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      setDownloadedBook(downloadedBook.map(parcel => {
+  useEffect(() => {
+    setDownloadedBook(
+      downloadedBook.map((parcel) => {
         if (parcel.isMarked) {
           return {
             ...parcel,
             isMarked: false,
-            deliveryInput: '',
-          }
+            deliveryInput: "",
+          };
         }
 
         return parcel;
-      }))
-      window.onpopstate = () => {
-        if (currentParcels.length === 0) {
-          navigate("/deliverOption")
-        }
-        setCurrentParcels([]);
+      })
+    );
+    window.onpopstate = () => {
+      if (currentParcels.length === 0) {
+        navigate("/ML");
       }
-    }, []);
+      setCurrentParcels([]);
+    };
+  }, []);
   const [searchInput, setSearchInput] = useState("");
 
-  const parcelsInDelivery = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "IN DELIVERY"
+  const parcelsInDelivery = parcels.filter(
+    (parcel) => parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
+    parcel.forUser === currentUser.username
   );
-  const advicedParcels = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "ADVICED"
+  const advicedParcels = parcels.filter(
+    (parcel) => parcel.status[parcel.status.length - 1].name === "ADVICED" &&
+    parcel.forUser === currentUser.username
   );
-  const otherParcels = downloadedBook.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "OTHER"
+  const otherParcels = parcels.filter(
+    (parcel) => parcel.status[parcel.status.length - 1].name === "OTHER" &&
+    parcel.forUser === currentUser.username
   );
 
   const [chosenOption, setChosenOption] = useState(0);
@@ -94,11 +102,11 @@ export const DeliverOption = () => {
       case 1:
         return alert("Mark more than one position");
     }
-  }
+  };
 
   const handleLink = () => {
     if (currentParcels.length === 1 && currentParcels[0].amountOfTrials === 3) {
-      return  "/traditionalDeliver";
+      return "/traditionalDeliver";
     }
     if (currentParcels.length === 1) {
       return "/deliveryCodeScreen";
@@ -112,19 +120,23 @@ export const DeliverOption = () => {
     } else if (currentParcels.length > 1) {
       return "/multiDeliveryVerification";
     }
-  }
+  };
 
   const searchPosition = (positions) => {
     const filterPosition = positions.filter((position) => {
       const searchedText = `${position.name}${position.surname}${position.city}${position.numberOfParcel}${position.adress}${position.postCode}`;
-      return searchedText.toLowerCase().trim().includes(searchInput.toLowerCase().trim());
+      return searchedText
+        .toLowerCase()
+        .trim()
+        .includes(searchInput.toLowerCase().trim());
     });
 
     return filterPosition;
   };
 
   console.log(currentParcels);
-  console.log(downloadedBook)
+  console.log(downloadedBook);
+  console.log(parcels);
   return (
     <div className="deliver__content">
       <nav className="deliver__nav">
@@ -196,73 +208,90 @@ export const DeliverOption = () => {
             }}
           >
             <div className="deliver__todeliverblock">TO DELIVERY</div>
-            {searchPosition(parcelsInDelivery).map((parcel) => {
-              return (
-                <div className="deliver__position" key={parcel._id}>
-                  <div className="deliver__positioncontent">
-                    <p className="deliver__number">{parcel.numberOfParcel}</p>
-                    <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                    <p className="deliver__info">{parcel.adress}</p>
-                    <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-                  </div>
-                  <div className="deliver__inputcash">
-                  <input
-                    type="checkbox"
-                    className="deliver__checkbox"
-                    onClick={() => changeCheckbox(parcel._id)}
-                  />
-                  {parcel.amount !== 0 && 
-                  (
-                    <p className="deliver__cash">{!parcel.amount.toString().includes(".") ? `${parcel.amount}.00` : `${parcel.amount}`}</p>
-                  )}
-                  </div>
-                </div>
-              );
-            })}
+            {settled
+              ? ""
+              : searchPosition(parcelsInDelivery).map((parcel) => {
+                  return (
+                    <div className="deliver__position" key={parcel._id}>
+                      <div className="deliver__positioncontent">
+                        <p className="deliver__number">
+                          {parcel.numberOfParcel}
+                        </p>
+                        <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                        <p className="deliver__info">{parcel.adress}</p>
+                        <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                      </div>
+                      <div className="deliver__inputcash">
+                        <input
+                          type="checkbox"
+                          className="deliver__checkbox"
+                          onClick={() => changeCheckbox(parcel._id)}
+                        />
+                        {parcel.amount !== 0 && (
+                          <p className="deliver__cash">
+                            {!parcel.amount.toString().includes(".")
+                              ? `${parcel.amount}.00`
+                              : `${parcel.amount}`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             <div className="deliver__advicedblock">ADVICED</div>
-            {searchPosition(advicedParcels).map((parcel) => (
-              <div className="deliver__position" key={parcel._id}>
-              <div className="deliver__positioncontent">
-                <p className="deliver__number">{parcel.numberOfParcel}</p>
-                <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                <p className="deliver__info">{parcel.adress}</p>
-                <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-              </div>
-              <div className="deliver__inputcash">
-              <input
-                type="checkbox"
-                className="deliver__checkbox"
-                onClick={() => changeCheckbox(parcel._id)}
-              />
-              {parcel.amount !== 0 && 
-              (
-                <p className="deliver__cash">{!currentParcels[0].amount.toString().includes(".") ? `${currentParcels[0].amount}.00` : currentParcels[0].amount}</p>
-              )}
-              </div>
-            </div>
-            ))}
+            {settled
+              ? ""
+              : searchPosition(advicedParcels).map((parcel) => (
+                  <div className="deliver__position" key={parcel._id}>
+                    <div className="deliver__positioncontent">
+                      <p className="deliver__number">{parcel.numberOfParcel}</p>
+                      <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                      <p className="deliver__info">{parcel.adress}</p>
+                      <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                    </div>
+                    <div className="deliver__inputcash">
+                      <input
+                        type="checkbox"
+                        className="deliver__checkbox"
+                        onClick={() => changeCheckbox(parcel._id)}
+                      />
+                      {parcel.amount !== 0 && currentParcels.length > 0 && (
+                        <p className="deliver__cash">
+                          {!currentParcels[0].amount.toString().includes(".")
+                            ? `${currentParcels[0].amount}.00`
+                            : currentParcels[0].amount}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
             <div className="deliver__othersblock">OTHERS</div>
-            {searchPosition(otherParcels).map((parcel) => (
-              <div className="deliver__position" key={parcel._id}>
-              <div className="deliver__positioncontent">
-                <p className="deliver__number">{parcel.numberOfParcel}</p>
-                <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                <p className="deliver__info">{parcel.adress}</p>
-                <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-              </div>
-              <div className="deliver__inputcash">
-              <input
-                type="checkbox"
-                className="deliver__checkbox"
-                onClick={() => changeCheckbox(parcel._id)}
-              />
-              {parcel.amount !== 0 && 
-              (
-                <p className="deliver__cash">{!parcel.amount.toString().includes(".") ? `${parcel.amount}.00` : `${parcel.amount}`}</p>
-              )}
-              </div>
-            </div>
-            ))}
+            {settled
+              ? ""
+              : searchPosition(otherParcels).map((parcel) => (
+                  <div className="deliver__position" key={parcel._id}>
+                    <div className="deliver__positioncontent">
+                      <p className="deliver__number">{parcel.numberOfParcel}</p>
+                      <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
+                      <p className="deliver__info">{parcel.adress}</p>
+                      <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
+                    </div>
+                    <div className="deliver__inputcash">
+                      <input
+                        type="checkbox"
+                        className="deliver__checkbox"
+                        onClick={() => changeCheckbox(parcel._id)}
+                      />
+                      {parcel.amount !== 0 && (
+                        <p className="deliver__cash">
+                          {!parcel.amount.toString().includes(".")
+                            ? `${parcel.amount}.00`
+                            : `${parcel.amount}`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
           </div>
           <div
             className="deliver__buttons"
@@ -280,10 +309,11 @@ export const DeliverOption = () => {
               <img src="src/image/hand.svg" alt="" className="deliver__img" />
               <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
             </Link>
-            <Link 
-            className="deliver__button"
-            to={handleMultiDeliveryLink()}
-            onClick={() => handleMultiDeliveryAlerts()}>
+            <Link
+              className="deliver__button"
+              to={handleMultiDeliveryLink()}
+              onClick={() => handleMultiDeliveryAlerts()}
+            >
               <p className="deliver__buttontext">Multi-delivery</p>
               <img src="src/image/boxes.svg" alt="" className="deliver__img" />
             </Link>

@@ -1,12 +1,7 @@
 import "../AdvicingScreen/AdvicingScreen.scss";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { PostManState } from "../../PostGlobalProvider";
-import {
-  placeOfAdvice,
-  placeOfNotification,
-  reasonOfAdvice,
-  resultOfDelivery,
-} from "../../utils/DataProvider";
+import { resultOfDelivery } from "../../utils/DataProvider";
 import { date } from "../../utils/currentDate";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
@@ -19,6 +14,18 @@ export const OtherOptionScreen = () => {
   const { mutate: otherResult } = useMutation({
     mutationKey: ["advicedParcel"],
     mutationFn: addOtherResult,
+    onSuccess: () => {
+      window.location.reload();
+    },
+  });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      navigate("/ML");
+      setInput("");
+    };
   });
   const [chooseResult, setChooseResult] = useState("Parcel postponed");
   const [showResult, setShowResult] = useState(false);
@@ -26,7 +33,6 @@ export const OtherOptionScreen = () => {
   const [chooseDetails, setChooseDetails] = useState(
     "Addressee ordered delivery again"
   );
-  const navigate = useNavigate();
 
   const onResult = () => {
     setShowResult(!showResult);
@@ -50,19 +56,25 @@ export const OtherOptionScreen = () => {
       downloadedBook.map((parcel) => {
         if (parcel._id === currentParcels[0]._id) {
           otherResult({
-            id: currentParcels[0]._id,
+            nameOfStatus: "OTHER",
+            id: parcel._id,
             subject: chooseResult,
             details: chooseDetails,
-            nameOfStatus: "OTHER",
-            signature: null,
+            signature: "",
             isDeliveryCode: false,
             isSignature: false,
             noAddressee: false,
             deliveryInput: input,
             reasonOfAdvice: "",
-            DetailsOfAdvice: "",
+            officeOfAdvice: "",
             placeOfNotification: "",
+            isBooked: true,
+            numberOfBook: parcel.numberOfBook,
+            isDownloaded: true,
+            username: parcel.forUser,
+            createdAt: date,
           });
+          setInput("");
           return {
             ...parcel,
             status: [
@@ -90,7 +102,10 @@ export const OtherOptionScreen = () => {
       alert("No reason is typed");
       return;
     }
-    if (chooseDetails === "Parcel left in shop, ORLEN, ParcelPoint" && input === "") {
+    if (
+      chooseDetails === "Parcel left in shop, ORLEN, ParcelPoint" &&
+      input === ""
+    ) {
       alert("No name and surname is typed");
       return;
     }
@@ -246,7 +261,9 @@ export const OtherOptionScreen = () => {
           )}
           {chooseDetails === "Parcel left in shop, ORLEN, ParcelPoint" && (
             <>
-              <p className="advice__reason">Name and surname receiving person:</p>
+              <p className="advice__reason">
+                Name and surname receiving person:
+              </p>
               <input
                 type="text"
                 className="advice__input"

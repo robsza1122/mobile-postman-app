@@ -1,11 +1,9 @@
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useLocaleStorage } from "./hooks/useLocaleStorage";
-import { date } from "./utils/currentDate";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
 import useAuth from "./hooks/useAuth";
-import { addDeliveredStatus } from "./api/api";
+import { deleteAllDates } from "./api/api";
 import showCurrentUsers from "./hooks/showAllUsers";
 
 export const PostManState = createContext({
@@ -26,7 +24,6 @@ export const PostManState = createContext({
   chooseSubject: "Addressee",
   setChooseSubject: () => {},
   clearBook: () => {},
-  onDeliveryCode: () => {},
   savePoints: [],
   setSavePoints: () => {},
   saveSignature: () => {},
@@ -53,7 +50,7 @@ export const PostManState = createContext({
 
 export const PostGlobalProvider = ({ children }) => {
   const { user } = useAuth();
-  const {showUsers} = showCurrentUsers();
+  const { showUsers } = showCurrentUsers();
   const [downloadedBook, setDownloadedBook] = useLocaleStorage(
     "downloadedBook",
     []
@@ -105,112 +102,22 @@ export const PostGlobalProvider = ({ children }) => {
   const navigate = useNavigate();
   const signatureRef = useRef({});
 
-  const { mutate: changeStatus } = useMutation({
-    mutationKey: ["changeStatus"],
-    mutationFn: addDeliveredStatus,
-  });
-
   useEffect(() => {
     if (user) {
       setCurrentUser(user);
     }
-  }, []);
+  }, [user, setCurrentUser]);
 
   useEffect(() => {
     if (showUsers) {
       setShowAllCurrentUsers(showUsers);
     }
-  }, [])
-
-
-  const onDeliveryCode = (clickedParcel) => {
-    setDownloadedBook(
-      downloadedBook.map((parcel) => {
-        console.log(parcel.amountOfTrials);
-        if (
-          clickedParcel[0]._id === parcel._id &&
-          deliveryCode !== clickedParcel[0].deliveryCode &&
-          deliveryCode !== "" &&
-          deliveryCode.length === 6
-        ) {
-          switch (parcel.amountOfTrials) {
-            case 0:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              return {
-                ...parcel,
-                amountOfTrials: 1,
-              };
-            case 1:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              return {
-                ...parcel,
-                amountOfTrials: 2,
-              };
-            case 2:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              alert("DELIVERY CODE IS BLOCKED");
-              navigate("/traditionalDeliver");
-              return {
-                ...parcel,
-                amountOfTrials: 3,
-              };
-          }
-        }
-
-        if (deliveryCode === parcel.deliveryCode) {
-          navigate("/deliverOption");
-          changeStatus({
-            nameOfStatus: "DELIVERED",
-            id: parcel._id,
-            signature: null,
-            isSignature: false,
-            isDeliveryCode: true,
-            noAddressee: false,
-            deliveryInput: "",
-            reasonOfAdvice: "",
-            officeOfAdvice: "",
-            placeOfNotification: "",
-            subject: "",
-            details: "",
-          });
-          return {
-            ...parcel,
-            isMarked: false,
-            isDeliveryCode: true,
-            status: [
-              ...parcel.status,
-              {
-                name: "DELIVERED",
-                createdAt: date,
-              },
-            ],
-          };
-        }
-        return parcel;
-      })
-    );
-
-    if (deliveryCode === "") {
-      setDeliveryCode("");
-      alert("No delivery code is typed");
-
-      return;
-    }
-
-    if (deliveryCode.length !== 6) {
-      setDeliveryCode("");
-      alert("Delivery code has 6 characters");
-
-      return;
-    }
-  };
+  }, []);
 
   const clearBook = () => {
     setDownloadedBook([]);
     localStorage.clear();
+    deleteAllDates();
     setSettled(false);
   };
 
@@ -239,7 +146,10 @@ export const PostGlobalProvider = ({ children }) => {
   const handleSignatureButton = () => {
     setSavePoints([]);
 
-    if (input === "") {
+    if (
+      input === "" && particularSubject === "Parcel left in place set with addressee"
+      
+    ) {
       alert("Type name and surname delivery's subject");
 
       return;
@@ -297,7 +207,6 @@ export const PostGlobalProvider = ({ children }) => {
         setDayIsFinished,
         setSettled,
         settled,
-        onDeliveryCode,
         clearBook,
         saveSignature,
         clearSignature,

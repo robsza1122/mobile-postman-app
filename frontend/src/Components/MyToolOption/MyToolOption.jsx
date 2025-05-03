@@ -1,8 +1,8 @@
 import "./MyToolOption.scss";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { logoutUser } from "../../api/api";
+import { deleteAllDates, logoutUser } from "../../api/api";
 import { useContext, useState } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
@@ -18,6 +18,19 @@ export const MyToolOption = (option) => {
       });
     },
   });
+
+  const {mutate: deleteDates} = useMutation({
+    mutationFn: deleteAllDates,
+    onSuccess: () => {
+      navigate("/", {
+        replace: true,
+      });
+      window.location.reload()
+    },
+    onMutate: () => {
+      window.location.reload()
+    }
+  })
 
   const [finishedWindow, setFinishedWindow] = useState(false);
 
@@ -42,6 +55,9 @@ export const MyToolOption = (option) => {
   };
 
   const handleFinishingDay = () => {
+    deleteDates();
+    setDownloadedBook([]);
+    localStorage.clear();
     setFinishedWindow(false);
     setSettled(false);
     setDayIsFinished(true);
@@ -95,7 +111,9 @@ export const MyToolOption = (option) => {
                   <div className="trail__confirmedbuttons">
                     <button
                       className="trail__confirmedbutton trail__confirmedbuttonYES"
-                      onClick={() => handleFinishingDay()}
+                      onClick={() => {
+                        handleFinishingDay();
+                      }}
                       
                     >
                       Yes
