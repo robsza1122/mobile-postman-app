@@ -97,7 +97,6 @@ export const createNewUser = async (data: CreateNewUserType) => {
   const newUser = await UserModel.create({
     username: data.username,
     password: data.password,
-    downloadedParcels: [],
     EMINumber: result,
   });
 
@@ -287,17 +286,24 @@ export const assignParcels = async ({ numberOfBook, username }: AssignType) => {
   };
 };
 
-export const deleteBook = async ({numberOfBook, username}: AssignType) => {
-  await parcelModel.updateMany({numberOfBook, forUser: username, isDownloaded: false}, {
-    $set: {isBooked: false, forUser: "", numberOfBook: ""}
-  })
+type DeleteBookType = {
+  numberOfBook: string;
+}
 
-  const updatedParcels = parcelModel.find({});
+export const deleteBook = async ( {numberOfBook}: DeleteBookType) => {
+  await parcelModel.updateMany(
+    { numberOfBook, isDownloaded: false },
+    {
+      $set: { isBooked: false, forUser: "", numberOfBook: "" },
+    }
+  );
+
+  const updatedParcels = await parcelModel.find({});
 
   return {
     updatedParcels,
-  }
-}
+  };
+};
 
 export const addInDeliveryStatus = async ({
   numberOfBook,
@@ -320,26 +326,21 @@ export const addInDeliveryStatus = async ({
   };
 
   await parcelModel.updateMany(
-    {numberOfBook },
+    { numberOfBook },
     {
       $push: { status: addStatus },
-      $set: { isDownloaded: true },
+      $set: { isDownloaded: true, forUser: username },
     }
   );
 
-  const updatedParcels = await parcelModel.find({ forUser: username, isDownloaded: true });
-
-  const assignParcelsToUser = await UserModel.findOneAndUpdate(
-    { username },
-    {
-      $set: { parcels: updatedParcels },
-    }
-  );
+  const assignParcelsToUser = await UserModel.find({}, {
+    isDownloaded: true, forUser: username
+  });
 
   return {
     assignParcelsToUser,
   };
-}; 
+};
 
 type MarkParcelType = {
   id: string;
@@ -406,18 +407,26 @@ export const deliveredStatus = async ({
     reasonOfAdvice,
     officeOfAdvice,
     placeOfNotification,
-  }
-
+  };
 
   const updateParcel = await parcelModel.findOneAndUpdate(
-    {_id: id},
+    { _id: id },
     {
-      $set: { isBooked, numberOfBook, isMarked: false, forUser: username, isDeliveryCode },
+      $set: {
+        isBooked,
+        numberOfBook,
+        isMarked: false,
+        forUser: username,
+        isDeliveryCode,
+      },
       $push: { status: addStatus },
     }
   );
 
-  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
+  const updateParcelsForUser = await parcelModel.find({
+    isDownloaded,
+    forUser: username,
+  });
 
   const updatedUser = await UserModel.findOneAndUpdate(
     { username },
@@ -426,7 +435,7 @@ export const deliveredStatus = async ({
     }
   );
 
-  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+  appAssert(updatedUser, NOT_FOUND, "Can not update user");
 
   const url = `${APP_ORIGIN}/checkStatus/${id}`;
 
@@ -477,14 +486,17 @@ export const advicedStatus = async ({
   };
 
   const updateParcel = await parcelModel.findOneAndUpdate(
-    {_id: id},
+    { _id: id },
     {
       $set: { isBooked, numberOfBook, isMarked: false },
       $push: { status: addStatus },
     }
   );
 
-  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
+  const updateParcelsForUser = await parcelModel.find({
+    isDownloaded,
+    forUser: username,
+  });
 
   const updatedUser = await UserModel.findOneAndUpdate(
     { username },
@@ -493,7 +505,7 @@ export const advicedStatus = async ({
     }
   );
 
-  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+  appAssert(updatedUser, NOT_FOUND, "Can not update user");
 
   appAssert(updateParcel, NOT_FOUND, "Wrong id");
   const url = `${APP_ORIGIN}/checkStatus/${updateParcel._id}`;
@@ -505,7 +517,7 @@ export const advicedStatus = async ({
 
   return {
     updatedUser,
-  }
+  };
 };
 
 export const otherStatus = async ({
@@ -541,14 +553,17 @@ export const otherStatus = async ({
   };
 
   const updateParcel = await parcelModel.findOneAndUpdate(
-    {_id: id},
+    { _id: id },
     {
       $set: { isBooked, numberOfBook, isMarked: false },
       $push: { status: addStatus },
     }
   );
 
-  const updateParcelsForUser = await parcelModel.find({isDownloaded, forUser: username})
+  const updateParcelsForUser = await parcelModel.find({
+    isDownloaded,
+    forUser: username,
+  });
 
   const updatedUser = await UserModel.findOneAndUpdate(
     { username },
@@ -557,7 +572,7 @@ export const otherStatus = async ({
     }
   );
 
-  appAssert(updatedUser, NOT_FOUND, "Can not update user")
+  appAssert(updatedUser, NOT_FOUND, "Can not update user");
 
   appAssert(updateParcel, NOT_FOUND, "Wrong id");
   const url = `${APP_ORIGIN}/checkStatus/${updateParcel._id}`;
@@ -569,5 +584,5 @@ export const otherStatus = async ({
 
   return {
     updatedUser,
-  }
+  };
 };

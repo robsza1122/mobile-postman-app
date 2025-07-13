@@ -19,18 +19,18 @@ export const MyToolOption = (option) => {
     },
   });
 
-  const {mutate: deleteDates} = useMutation({
+  const { mutate: deleteDates } = useMutation({
     mutationFn: deleteAllDates,
     onSuccess: () => {
       navigate("/", {
         replace: true,
       });
-      window.location.reload()
+      window.location.reload();
     },
     onMutate: () => {
-      window.location.reload()
-    }
-  })
+      window.location.reload();
+    },
+  });
 
   const [finishedWindow, setFinishedWindow] = useState(false);
 
@@ -43,14 +43,14 @@ export const MyToolOption = (option) => {
           signOut().then((data) => {
             data = undefined;
           });
-      case "FINISH WORK": 
-      return () => {
-        if (settled) {
-          setFinishedWindow(true);
-        }
+      case "FINISH WORK":
+        return () => {
+          if (settled) {
+            setFinishedWindow(true);
+          }
 
-        return;
-      }
+          return;
+        };
     }
   };
 
@@ -63,8 +63,8 @@ export const MyToolOption = (option) => {
     setDayIsFinished(true);
     signOut().then((data) => {
       data = undefined;
-    })
-  }
+    });
+  };
 
   const handleLinkOptions = (optionsHeader) => {
     switch (optionsHeader) {
@@ -81,54 +81,51 @@ export const MyToolOption = (option) => {
 
   return (
     <>
-    <Link
-      className={classNames("mytooloption__content", {
-        "mytooloption__content--disabled": !settled && header === "FINISH WORK",
-      })}
-      onClick={handleToolOptions(header)}
-      to={handleLinkOptions(header)}
-    >
-      <h1 className="mytooloption__title">{header}</h1>
-      <img src={img} alt={id} className="mytooloption__image" />
-    </Link>
-    {finishedWindow && (
-      <>
-      <div className="mytooloption__background"></div>
-      <div className="trail__confirmwindow">
-                <div className="trail__redblock">
-                  <p className="trail__downloaderror">
-                    FINISH AND LOGOUT
-                  </p>
-                </div>
-                <div className="trail__infocontent trail__infocontent-confirm">
-                  <div className="trail__infos">
-                    <p className="trail__info">
-                    </p>
-                    <p className="trail__info">
-                      Do you want to finish your work day and close application?
-                    </p>
-                  </div>
-                  <div className="trail__confirmedbuttons">
-                    <button
-                      className="trail__confirmedbutton trail__confirmedbuttonYES"
-                      onClick={() => {
-                        handleFinishingDay();
-                      }}
-                      
-                    >
-                      Yes
-                    </button>
-                    <button
-                      className="trail__confirmedbutton trail__confirmedbuttonNO"
-                      onClick={() => setFinishedWindow(false)}
-                    >
-                      No
-                    </button>
-                  </div>
-                </div>
+      <Link
+        className={classNames("mytooloption__content", {
+          "mytooloption__content--disabled":
+            !settled && header === "FINISH WORK",
+        })}
+        onClick={handleToolOptions(header)}
+        to={handleLinkOptions(header)}
+      >
+        <h1 className="mytooloption__title">{header}</h1>
+        <img src={img} alt={id} className="mytooloption__image" />
+      </Link>
+      {finishedWindow && (
+        <>
+          <div className="mytooloption__background"></div>
+          <div className="trail__confirmwindow">
+            <div className="trail__redblock">
+              <p className="trail__downloaderror">FINISH AND LOGOUT</p>
+            </div>
+            <div className="trail__infocontent trail__infocontent-confirm">
+              <div className="trail__infos">
+                <p className="trail__info"></p>
+                <p className="trail__info">
+                  Do you want to finish your work day and close application?
+                </p>
               </div>
-     </>
-    )}
+              <div className="trail__confirmedbuttons">
+                <button
+                  className="trail__confirmedbutton trail__confirmedbuttonYES"
+                  onClick={() => {
+                    handleFinishingDay();
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  className="trail__confirmedbutton trail__confirmedbuttonNO"
+                  onClick={() => setFinishedWindow(false)}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

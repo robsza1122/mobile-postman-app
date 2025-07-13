@@ -1,5 +1,5 @@
-export let navigate = () => {}
+export let navigate = () => {};
 
 export const setNavigate = (fn) => {
-    navigate = fn;
-}
+  navigate = fn;
+};

@@ -37,7 +37,7 @@ import { parcelSchima } from "./parcel.schimas";
 import { statusSchima } from "./status.schima";
 import { loginShema, registerSchima } from "./user.schima";
 import { usersParcelSchima } from "./usersparcel.schima";
-import { assignParcelSchima } from "./assignparcels.schima";
+import { assignParcelSchima, deleteDeliveryBookSchima } from "./assignparcels.schima";
 import { markParcelSchima } from "./markparcel.schima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
@@ -233,7 +233,6 @@ export const showUsersHandler = catchErrors(async (req, res) => {
       username: 1,
       password: 1,
       EMINumber: 1,
-      parcels: 1,
     },
     {
       sort: { createdAt: -1 },
@@ -291,7 +290,7 @@ export const markingOnFalseHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteBookHandler = catchErrors(async (req, res) => {
-  const request = assignParcelSchima.parse({
+  const request = deleteDeliveryBookSchima.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -327,13 +326,6 @@ export const clearDatesHandler = catchErrors(async (req, res) => {
         numberOfBook: "",
         isMarked: false,
       },
-    }
-  );
-
-  await UserModel.updateMany(
-    {},
-    {
-      $set: { parcels: [] },
     }
   );
 

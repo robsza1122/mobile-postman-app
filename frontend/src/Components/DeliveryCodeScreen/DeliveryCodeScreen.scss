@@ -1,75 +1,75 @@
 @import "../../utils/main/main.scss";
 
 .dsc {
-    &__body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+  &__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  &__content {
+    height: 100vh;
+    background-color: rgb(228, 222, 222);
+  }
+  &__nav {
+    height: 50px;
+    width: 100%;
+    background-color: $post-color;
+  }
+  &__number {
+    text-align: center;
+    font-family: Post, sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+  }
+  &__text {
+    margin: 0;
+    margin-left: 10px;
+    font-family: Post, sans-serif;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+  }
+  &__deliverytext {
+    font-family: Post, sans-serif;
+    font-size: 20px;
+    text-align: center;
+  }
+  &__cashondelivery {
+    margin: 5px auto;
+    font-weight: 600;
+    font-size: 22px;
+    font-family: Post, sans-serif;
+    text-align: center;
+  }
+  &__trials {
+    font-family: Post, sans-serif;
+    font-size: 20px;
+    text-align: center;
+  }
+  &__user {
+    margin: 0;
+    margin-left: 10px;
+    font-family: Post, sans-serif;
+    color: white;
+    font-size: 16px;
+  }
+  &__buttons {
+    display: flex;
+    gap: 10px;
+    margin: 30px auto;
+    width: 80%;
+  }
+  &__button {
+    background-color: $post-color;
+    border: none;
+    font-family: Post, sans-serif;
+    color: white;
+    font-weight: 500;
+    width: 70%;
+    height: 50px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
     }
-    &__content {
-        height: 100vh;
-        background-color: rgb(228, 222, 222);
-    }
-    &__nav {
-        height: 50px;
-        width: 100%;
-        background-color: $post-color;
-    }
-    &__number {
-        text-align: center;
-        font-family: Post, sans-serif;
-        font-size: 26px;
-        font-weight: 600;
-    }
-    &__text {
-        margin: 0;
-        margin-left: 10px;
-        font-family: Post, sans-serif;
-        color: white;
-        font-weight: 600;
-        font-size: 18px;
-    }
-    &__deliverytext {
-        font-family: Post, sans-serif;
-        font-size: 20px;
-        text-align: center;
-    }
-    &__cashondelivery {
-        margin: 5px auto;
-        font-weight: 600;
-        font-size: 22px;
-        font-family: Post, sans-serif;
-        text-align: center;
-    }
-    &__trials {
-        font-family: Post, sans-serif;
-        font-size: 20px;
-        text-align: center;
-    }
-    &__user {
-        margin: 0;
-        margin-left: 10px;
-        font-family: Post, sans-serif;
-        color: white;
-        font-size: 16px;
-    }
-    &__buttons {
-        display: flex;
-        gap: 10px;
-        margin: 30px auto;
-        width: 80%;
-    }
-    &__button {
-        background-color: $post-color;
-        border: none;
-        font-family: Post, sans-serif;
-        color: white;
-        font-weight: 500;
-        width: 70%;
-        height: 50px;
-        cursor: pointer;
-        &:hover {
-            opacity: 0.8;
-        }
-    }
+  }
 }

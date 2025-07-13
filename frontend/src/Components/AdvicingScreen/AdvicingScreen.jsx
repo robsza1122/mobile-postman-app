@@ -33,13 +33,13 @@ export const AdvicingScreen = () => {
     };
   });
   const [chooseReason, setChooseReason] = useState(
-    "No one at home / closed company"
+    "No one at home / closed company",
   );
   const [showReason, setShowReason] = useState(false);
   const [showOffice, setShowOffice] = useState(false);
   const [showNotifiedPlace, setShowNotifiedPlace] = useState(false);
   const [chooseNotifiedPlace, setChooseNotifiedPlace] = useState(
-    "Post box of addressee"
+    "Post box of addressee",
   );
   const [chooseOffice, setChooseOffice] = useState("Pocztowa 1 UP 1");
 
@@ -107,7 +107,7 @@ export const AdvicingScreen = () => {
           };
         }
         return parcel;
-      })
+      }),
     );
     navigate("/advicedOption");
   };

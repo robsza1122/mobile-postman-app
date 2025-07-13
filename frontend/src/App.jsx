@@ -5,7 +5,7 @@ import { MainPage } from "./Pages/MainPage/MainPage.jsx";
 import { PostmanContainer } from "./Components/PostmanContainer.jsx";
 import { TrailOption } from "./Components/TrailOption/TrailOption.jsx";
 import { setNavigate } from "./api/navigation.js";
-import { LoginPage } from "./Pages/LoginPage/LoginPage.jsx"
+import { LoginPage } from "./Pages/LoginPage/LoginPage.jsx";
 import { BookList } from "./Components/BookList/BookList.jsx";
 import { DeliverOption } from "./Components/DeliverOption/DeliverOption.jsx";
 import { DeliveryCodeScreen } from "./Components/DeliveryCodeScreen/DeliveryCodeScreen.jsx";
@@ -24,31 +24,34 @@ import { MultiDeliveryVerification } from "./Components/MultiDeliveryVerificatio
 
 export const App = () => {
   const navigate = useNavigate();
-setNavigate(navigate);
+  setNavigate(navigate);
 
   return (
     <PostGlobalProvider>
-    <Routes>
-      <Route path="/checkStatus/:id" element={<CheckStatus />} />
-      <Route path="/ML" element={<PostmanContainer/>} />
-      <Route path="/" element={<MainPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/startTrail" element={<TrailOption />} />
-      <Route path="/booklist" element={<BookList />} />
-      <Route path="/workPage" element={<WorkPage />} />
-      <Route path="/deliverOption" element={<DeliverOption />} />
-      <Route path="/advicedOption" element={<AdvicedOption />} />
-      <Route path="/deliveryCodeScreen" element={<DeliveryCodeScreen />} />
-      <Route path="/traditionalDeliver" element={<TraditionalDeliver />} />
-      <Route path="/signatureScreen" element={<SignatureScreen />} />
-      <Route path="/advicingScreen" element={<AdvicingScreen />} />
-      <Route path="/otherOption" element={<OtherOption />} />
-      <Route path="/otherOptionScreen" element={<OtherOptionScreen />} />
-      <Route path="/settle" element={<SettleWork />} />
-      <Route path="/reorderList" element={<ReorderList />} />
-      <Route path="/createBook" element={<CreateBook />} />
-      <Route path="/multiDeliveryVerification" element={<MultiDeliveryVerification />} />
-    </Routes>
+      <Routes>
+        <Route path="/checkStatus/:id" element={<CheckStatus />} />
+        <Route path="/ML" element={<PostmanContainer />} />
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/startTrail" element={<TrailOption />} />
+        <Route path="/booklist" element={<BookList />} />
+        <Route path="/workPage" element={<WorkPage />} />
+        <Route path="/deliverOption" element={<DeliverOption />} />
+        <Route path="/advicedOption" element={<AdvicedOption />} />
+        <Route path="/deliveryCodeScreen" element={<DeliveryCodeScreen />} />
+        <Route path="/traditionalDeliver" element={<TraditionalDeliver />} />
+        <Route path="/signatureScreen" element={<SignatureScreen />} />
+        <Route path="/advicingScreen" element={<AdvicingScreen />} />
+        <Route path="/otherOption" element={<OtherOption />} />
+        <Route path="/otherOptionScreen" element={<OtherOptionScreen />} />
+        <Route path="/settle" element={<SettleWork />} />
+        <Route path="/reorderList" element={<ReorderList />} />
+        <Route path="/createBook" element={<CreateBook />} />
+        <Route
+          path="/multiDeliveryVerification"
+          element={<MultiDeliveryVerification />}
+        />
+      </Routes>
     </PostGlobalProvider>
-  ); 
+  );
 };

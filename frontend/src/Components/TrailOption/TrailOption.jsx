@@ -6,7 +6,7 @@ import classnames from "classnames";
 import { Link } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider.jsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {  getInDeliveryStatus, sendInDeliveryEmail } from "../../api/api.js";
+import { getInDeliveryStatus, sendInDeliveryEmail } from "../../api/api.js";
 import useAuth from "../../hooks/useAuth.js";
 import { date } from "../../utils/currentDate.js";
 import { USER } from "../../hooks/useAuth.js";
@@ -50,14 +50,14 @@ export const TrailOption = () => {
 
   const onSubmit = () => {
     const typedParcel = parcels.find(
-      (parcel) => parcel.numberOfParcel === parcelsNumber
+      (parcel) => parcel.numberOfParcel === parcelsNumber,
     );
     const typedParcelBookNumber = parcels.find(
-      (parcel) => parcel.numberOfParcel === parcelsNumber
+      (parcel) => parcel.numberOfParcel === parcelsNumber,
     ).numberOfBook;
 
     const downloadedParcels = parcels.filter(
-      (parcel) => parcel.numberOfBook === typedParcelBookNumber
+      (parcel) => parcel.numberOfBook === typedParcelBookNumber,
     );
 
     console.log(typedParcelBookNumber);
@@ -123,7 +123,7 @@ export const TrailOption = () => {
 
     if (
       downloadedBook.filter(
-        (parcel) => parcel.numberOfBook === typedParcelBookNumber
+        (parcel) => parcel.numberOfBook === typedParcelBookNumber,
       ).length !== 0
     ) {
       alert("Book is already downloaded");
@@ -139,7 +139,7 @@ export const TrailOption = () => {
 
     if (
       parcelsInDatabase.find(
-        (parcel) => parcel.numberOfParcel === parcelsNumber && !parcel.isBooked
+        (parcel) => parcel.numberOfParcel === parcelsNumber && !parcel.isBooked,
       )
     ) {
       alert("Parcel is not added to any book.");
@@ -150,7 +150,7 @@ export const TrailOption = () => {
 
     if (
       parcelsInDatabase.filter(
-        (parcel) => parcel.numberOfParcel !== parcelsNumber
+        (parcel) => parcel.numberOfParcel !== parcelsNumber,
       ).length === parcelsInDatabase.length
     ) {
       alert("Wrong number of parcel");
@@ -161,7 +161,7 @@ export const TrailOption = () => {
 
     if (
       parcelsInDatabase.find(
-        (parcel) => parcel.numberOfParcel === parcelsNumber && parcel.isBooked
+        (parcel) => parcel.numberOfParcel === parcelsNumber && parcel.isBooked,
       )
     ) {
       setOpenBook(true);
@@ -356,7 +356,7 @@ export const TrailOption = () => {
                     Delivery Book{" "}
                     {
                       parcelsInDatabase.find(
-                        (parcel) => parcel.numberOfParcel === parcelsNumber
+                        (parcel) => parcel.numberOfParcel === parcelsNumber,
                       ).numberOfBook
                     }
                   </p>
@@ -374,8 +374,8 @@ export const TrailOption = () => {
                             book.number ===
                             parcelsInDatabase.find(
                               (parcel) =>
-                                parcel.numberOfParcel === parcelsNumber
-                            ).numberOfBook
+                                parcel.numberOfParcel === parcelsNumber,
+                            ).numberOfBook,
                         ).parcels.length
                       }
                     </p>

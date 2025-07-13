@@ -33,7 +33,7 @@ export const TraditionalDeliver = () => {
   } = useContext(PostManState);
   const { parcels } = useParcels();
   const findParcel = downloadedBook.find(
-    (parcel) => parcel._id === currentParcels[0]._id
+    (parcel) => parcel._id === currentParcels[0]._id,
   );
 
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ export const TraditionalDeliver = () => {
           }
 
           return parcel;
-        })
+        }),
       );
       if (currentParcels[0].amountOfTrials === 3) {
         navigate("/deliverOption");
@@ -159,7 +159,7 @@ export const TraditionalDeliver = () => {
           }
 
           return parcel;
-        })
+        }),
       );
       navigate("/deliverOption");
       setCurrentParcels([]);
@@ -216,7 +216,7 @@ export const TraditionalDeliver = () => {
           }
 
           return parcel;
-        })
+        }),
       );
       setCurrentParcels([]);
       navigate("/deliverOption");
@@ -265,7 +265,7 @@ export const TraditionalDeliver = () => {
                       }
 
                       return parcel;
-                    })
+                    }),
                   );
 
                   setInput(
@@ -273,7 +273,7 @@ export const TraditionalDeliver = () => {
                       subject === "Addressee"
                         ? `${currentParcels[0].name} ${currentParcels[0].surname}`
                         : ""
-                    }`
+                    }`,
                   );
                   setAddresseesData(subject === "Addressee" ? true : false);
                   setShowSubjects(false);
@@ -314,7 +314,7 @@ export const TraditionalDeliver = () => {
                       chooseSubject === "Addressee" && !addresseesData
                         ? `${currentParcels[0].name} ${currentParcels[0].surname}`
                         : ""
-                    }`
+                    }`,
                   );
                   setDownloadedBook(
                     downloadedBook.map((parcel) => {
@@ -327,14 +327,14 @@ export const TraditionalDeliver = () => {
                       }
 
                       return parcel;
-                    })
+                    }),
                   );
                   if (currentParcels[0].noAddressee) {
                     setInput(
                       particularSubject ===
                         "Parcel left in place set with addressee"
                         ? ""
-                        : input
+                        : input,
                     );
                   }
                   if (
@@ -441,7 +441,7 @@ export const TraditionalDeliver = () => {
                   }
 
                   return parcel;
-                })
+                }),
               );
             }}
             disabled={currentParcels[0].noAddressee}
@@ -475,7 +475,7 @@ export const TraditionalDeliver = () => {
                       }
 
                       return parcel;
-                    })
+                    }),
                   );
                 }}
                 placeholder="Write name and surname"
@@ -490,14 +490,14 @@ export const TraditionalDeliver = () => {
                   onClick={() => {
                     if (chooseSubject === "Addressee") {
                       setInput(
-                        `${currentParcels[0].name} ${currentParcels[0].surname}`
+                        `${currentParcels[0].name} ${currentParcels[0].surname}`,
                       );
                     }
                     setAddresseesData(!addresseesData);
                     setInput(
                       addresseesData && chooseSubject === "Addressee"
                         ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                        : ""
+                        : "",
                     );
                     setDownloadedBook(
                       downloadedBook.map((parcel) => {
@@ -511,7 +511,7 @@ export const TraditionalDeliver = () => {
                         }
 
                         return parcel;
-                      })
+                      }),
                     );
                   }}
                 />
@@ -538,7 +538,7 @@ export const TraditionalDeliver = () => {
                       }
 
                       return parcel;
-                    })
+                    }),
                   );
                 }}
                 placeholder="Type place of delivery..."
@@ -569,7 +569,7 @@ export const TraditionalDeliver = () => {
                     }
 
                     return parcel;
-                  })
+                  }),
                 );
               }}
             >
@@ -593,14 +593,14 @@ export const TraditionalDeliver = () => {
                       }
 
                       return parcel;
-                    })
+                    }),
                   );
                   currentParcels[0].noAddressee =
                     !currentParcels[0].noAddressee;
                   setInput(
                     !currentParcels[0].noAddressee
                       ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                      : ""
+                      : "",
                   );
                 }}
                 style={{

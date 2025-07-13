@@ -1,6 +1,6 @@
 .reorder__list {
-    font-family: Post, sans-serif;
-    display: flex;
+  font-family: Post, sans-serif;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
@@ -10,14 +10,14 @@
   margin: auto;
 }
 .reorder__listitem {
-    padding: 0.3rem;
+  padding: 0.3rem;
   white-space: nowrap;
   cursor: pointer;
   height: 70px;
   border: 1px solid gray;
 }
 .reorder__listitem.reorder__dropzone {
-    background-color: #ccc;
+  background-color: #ccc;
   transition-property: height padding;
   transition-duration: 250ms;
   transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -25,23 +25,23 @@
 }
 
 .reorder__floating {
-    position: absolute;
+  position: absolute;
 }
 
 .reorder__listitem.reorder__dropzone.hidden {
-    height: 0px;
-    padding: 0px;
+  height: 0px;
+  padding: 0px;
 }
 
 .reorder__listitem > p {
-    margin: 0px;
+  margin: 0px;
 }
 
 .reorder__data {
-    text-align: left;
-    font-weight: 350;
+  text-align: left;
+  font-weight: 350;
 }
 
 .reorder__item {
-    text-align: left;
+  text-align: left;
 }

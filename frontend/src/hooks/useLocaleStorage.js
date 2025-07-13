@@ -1,9 +1,6 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-export function useLocaleStorage(
-  key,
-  initialValue
-) {
+export function useLocaleStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);

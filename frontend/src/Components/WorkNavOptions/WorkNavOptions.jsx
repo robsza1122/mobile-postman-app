@@ -5,11 +5,12 @@ import classnames from "classnames";
 import { PostManState } from "../../PostGlobalProvider";
 
 export const WorkNavOptions = () => {
-  const {setChosenOption, setSlideOptions, chosenOption} = useContext(PostManState);
+  const { setChosenOption, setSlideOptions, chosenOption } =
+    useContext(PostManState);
   const getChosenOption = (id) => {
     setChosenOption(id);
     setSlideOptions((id - 1) * -100);
-  }
+  };
 
   return (
     <div className="worknavopt__menu">
@@ -24,12 +25,13 @@ export const WorkNavOptions = () => {
           {button.name}
         </button>
       ))}
-      <div 
-      className="worknavopt__line"
-      style={{
-        transform: `translateX(${(chosenOption - 1) * 100}%)`,
-        transition: '0.1s ease transform',
-      }}></div>
+      <div
+        className="worknavopt__line"
+        style={{
+          transform: `translateX(${(chosenOption - 1) * 100}%)`,
+          transition: "0.1s ease transform",
+        }}
+      ></div>
     </div>
   );
 };

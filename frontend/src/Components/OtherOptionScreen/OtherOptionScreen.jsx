@@ -31,7 +31,7 @@ export const OtherOptionScreen = () => {
   const [showResult, setShowResult] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [chooseDetails, setChooseDetails] = useState(
-    "Addressee ordered delivery again"
+    "Addressee ordered delivery again",
   );
 
   const onResult = () => {
@@ -90,7 +90,7 @@ export const OtherOptionScreen = () => {
           };
         }
         return parcel;
-      })
+      }),
     );
 
     if (chooseDetails === "Parcel returned from other reason" && input === "") {

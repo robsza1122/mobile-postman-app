@@ -2,7 +2,8 @@ import API from "../config/apiClient.js";
 
 export const getParcelInfos = () => API.post("/orderParcel");
 export const getCheckStatus = async (id) => API.post(`/checkStatus/${id}`);
-export const getInDeliveryStatus = async (data) => API.post("/addInDeliveryStatus", data);
+export const getInDeliveryStatus = async (data) =>
+  API.post("/addInDeliveryStatus", data);
 export const getParcels = async () => API.get("/getParcels");
 export const loginUser = async (data) => API.post("/login", data);
 export const logoutUser = async () => API.get("/logout");
@@ -18,7 +19,7 @@ export const assignParcelsToUser = async (data) =>
   API.post("/assignParcelsToUser", data);
 export const deleteAllDates = async () => API.post("/deleteAllDates");
 export const markParcel = async (data) => API.post("/markParcel", data);
-export const deleteDeliveryBook = async (data) => API.post("/deleteBook", data)
+export const deleteDeliveryBook = async (data) => API.post("/deleteBook", data);
 export const markAllOnTrue = async () => API.post("/markAllParcelsOnTrue");
 export const markAllOnFalse = async () => API.post("/markAllParcelsOnFalse");
 //protected routes

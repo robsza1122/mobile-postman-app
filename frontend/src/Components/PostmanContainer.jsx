@@ -6,11 +6,11 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { PostManState } from "../PostGlobalProvider";
 
 export const PostmanContainer = () => {
-  const {setCurrentUser} = useContext(PostManState);
+  const { setCurrentUser } = useContext(PostManState);
   const { user, isLoading } = useAuth();
   useEffect(() => {
     if (user) {
-      setCurrentUser(user)
+      setCurrentUser(user);
     }
   }, []);
 
@@ -21,7 +21,7 @@ export const PostmanContainer = () => {
       ) : user ? (
         <>
           <WorkPage>
-          <Outlet />
+            <Outlet />
           </WorkPage>
         </>
       ) : (

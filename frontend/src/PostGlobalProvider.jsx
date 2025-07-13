@@ -11,12 +11,8 @@ export const PostManState = createContext({
   setSlideOptions: () => {},
   chosenOption: 1,
   setChosenOption: () => {},
-  downloadedBook: [],
-  setDownloadedBook: () => {},
   currentUser: {},
   setCurrentUser: () => {},
-  currentParcels: [],
-  setCurrentParcels: () => {},
   checkedParcel: {},
   setCheckedParcel: () => {},
   deliveryCode: "",
@@ -36,12 +32,10 @@ export const PostManState = createContext({
   setParticularSubject: () => {},
   settled: false,
   setSettled: () => {},
-  listOfPositions: [],
-  setListOfPositions: () => {},
   deliveryBooks: [],
   setDeliveryBooks: () => {},
-  parcelsInDatabase: [],
-  setParcelsInDatabase: () => {},
+  listOfPositions: [],
+  setListOfPositions: () => {},
   showAllCurrentUsers: [],
   setShowAllCurrentUsers: () => {},
   dayIsFinished: false,
@@ -51,52 +45,36 @@ export const PostManState = createContext({
 export const PostGlobalProvider = ({ children }) => {
   const { user } = useAuth();
   const { showUsers } = showCurrentUsers();
-  const [downloadedBook, setDownloadedBook] = useLocaleStorage(
-    "downloadedBook",
-    []
-  );
   const [slideOptions, setSlideOptions] = useLocaleStorage("slideOptions", 0);
   const [chosenOption, setChosenOption] = useLocaleStorage("chosenOption", 1);
   const [currentUser, setCurrentUser] = useLocaleStorage("currentUser", {});
-  const [currentParcels, setCurrentParcels] = useLocaleStorage(
-    "currentParcels",
-    []
-  );
-  const [checkedParcel, setCheckedParcel] = useLocaleStorage(
-    "checkedParcel",
-    {}
-  );
   const [deliveryCode, setDeliveryCode] = useLocaleStorage("deliveryCode", "");
   const [savePoints, setSavePoints] = useLocaleStorage("savePoints", null);
+  const [deliveryBooks, setDeliveryBooks] = useLocaleStorage(
+    "deliveryBooks",
+    [],
+  );
   const [chooseSubject, setChooseSubject] = useLocaleStorage(
     "chooseSubject",
-    "Addressee"
+    "Addressee",
   );
   const [input, setInput] = useLocaleStorage("input", "");
   const [particularSubject, setParticularSubject] = useLocaleStorage(
     "particularSubject",
-    "Addressee refused doing readable signature"
+    "Addressee refused doing readable signature",
   );
   const [settled, setSettled] = useState(false);
   const [listOfPositions, setListOfPositions] = useLocaleStorage(
     "listOfPositions",
-    []
-  );
-  const [deliveryBooks, setDeliveryBooks] = useLocaleStorage(
-    "deliveryBooks",
-    []
-  );
-  const [parcelsInDatabase, setParcelsInDatabase] = useLocaleStorage(
-    "parcelsInDatabase",
-    []
+    [],
   );
   const [dayIsFinished, setDayIsFinished] = useLocaleStorage(
     "dayIsFinished",
-    false
+    false,
   );
   const [showAllCurrentUsers, setShowAllCurrentUsers] = useLocaleStorage(
     "showAllCurrentUsers",
-    []
+    [],
   );
 
   const navigate = useNavigate();
@@ -115,9 +93,9 @@ export const PostGlobalProvider = ({ children }) => {
   }, []);
 
   const clearBook = () => {
-    setDownloadedBook([]);
     localStorage.clear();
     deleteAllDates();
+    setDeliveryBooks([]);
     setSettled(false);
   };
 
@@ -126,65 +104,30 @@ export const PostGlobalProvider = ({ children }) => {
     signatureRef.current?.clear();
   };
 
-  const saveSignature = () => {
-    setDownloadedBook(
-      downloadedBook.map((parcel) => {
-        if (currentParcels[0]._id === parcel._id) {
-          return {
-            ...parcel,
-            isSignature: true,
-            signature: savePoints,
-          };
-        }
-
-        return parcel;
-      })
-    );
-    navigate("/traditionalDeliver");
-  };
+  const saveSignature = () => {};
 
   const handleSignatureButton = () => {
     setSavePoints([]);
 
     if (
-      input === "" && particularSubject === "Parcel left in place set with addressee"
-      
+      input === "" &&
+      particularSubject === "Parcel left in place set with addressee"
     ) {
       alert("Type name and surname delivery's subject");
 
       return;
     }
-
-    setDownloadedBook(
-      downloadedBook.map((parcel) => {
-        if (currentParcels[0]._id === parcel._id) {
-          return {
-            ...parcel,
-            isSignature: false,
-            signature: null,
-          };
-        }
-
-        return parcel;
-      })
-    );
   };
 
   return (
     <PostManState.Provider
       value={{
-        downloadedBook,
-        setDownloadedBook,
         slideOptions,
         chosenOption,
         setChosenOption,
         setSlideOptions,
         currentUser,
         setCurrentUser,
-        currentParcels,
-        setCurrentParcels,
-        checkedParcel,
-        setCheckedParcel,
         deliveryCode,
         setDeliveryCode,
         setSavePoints,
@@ -197,14 +140,12 @@ export const PostGlobalProvider = ({ children }) => {
         setParticularSubject,
         listOfPositions,
         setListOfPositions,
-        deliveryBooks,
-        setDeliveryBooks,
-        parcelsInDatabase,
-        setParcelsInDatabase,
         showAllCurrentUsers,
         setShowAllCurrentUsers,
         dayIsFinished,
         setDayIsFinished,
+        deliveryBooks,
+        setDeliveryBooks,
         setSettled,
         settled,
         clearBook,

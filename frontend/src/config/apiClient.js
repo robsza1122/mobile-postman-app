@@ -5,7 +5,7 @@ import { navigate } from "../api/navigation";
 
 const options = {
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, 
+  withCredentials: true,
 };
 
 // create a separate client for refreshing the access token
@@ -39,7 +39,7 @@ API.interceptors.response.use(
     }
 
     return Promise.reject({ status, ...data });
-  }
+  },
 );
 
 export default API;

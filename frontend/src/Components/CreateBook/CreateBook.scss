@@ -1,213 +1,216 @@
 @import "../../utils/main/main.scss";
 
 .createbook {
-    &__nav {
-        width: 100%;
-        height: 50px;
-        background-color: $post-color;
+  &__nav {
+    width: 100%;
+    height: 50px;
+    background-color: $post-color;
+  }
+  &__username {
+    font-family: Post, sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: white;
+    margin: 0;
+    margin-left: 12px;
+  }
+  &__text {
+    font-family: Post, sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: white;
+    margin: 0;
+    margin-left: 12px;
+  }
+  &__maintitle {
+    font-family: Post, sans-serif;
+  }
+  &__button {
+    width: 20%;
+    font-family: Post, sans-serif;
+    margin: 15px 0;
+    background-color: white;
+    border: 1px solid gray;
+    &:hover {
+      background-color: lightgray;
     }
-    &__username {
-        font-family: Post, sans-serif;
-        font-weight: 600;
-        font-size: 18px;
-        color: white;
-        margin: 0;
-        margin-left: 12px;
+  }
+  &__select {
+    height: 40px;
+    margin: auto 0;
+  }
+  &__buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  &__option {
+    font-family: Post, sans-serif;
+    background-color: white;
+    border: 0;
+    padding: 15px 0;
+    width: 100%;
+    font-weight: 550;
+    font-size: 20px;
+    &:hover {
+      background-color: lightgray;
     }
-    &__text {
-        font-family: Post, sans-serif;
-        font-weight: 400;
-        font-size: 18px;
-        color: white;
-        margin: 0;
-        margin-left: 12px;
+  }
+  &__choosenUser {
+    font-family: Post, sans-serif;
+    font-size: 16px;
+    font-weight: 550;
+    background-color: white;
+    border: 1px solid black;
+    margin: auto 0;
+    height: 35px;
+    &:hover {
+      background-color: lightgray;
     }
-    &__maintitle {
-        font-family: Post, sans-serif;
-    }
-    &__button {
-        width: 20%;
-        font-family: Post, sans-serif;
-        margin: 15px 0;
-        background-color: white;
-        border: 1px solid gray;
-        &:hover {
-            background-color: lightgray;
-        }
-    }
-    &__select {
-        height: 40px;
-        margin: auto 0;
-    }
-    &__buttons {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-    }
-    &__option {
-        font-family: Post, sans-serif;
-        background-color: white;
-        border: 0;
-        padding: 15px 0;
-        width: 100%;
-        font-weight: 550;
-        font-size: 20px;
-        &:hover {
-            background-color: lightgray;
-        }
-    }
-    &__choosenUser {
-        font-family: Post, sans-serif;
-        font-size: 16px;
-        font-weight: 550;
-        background-color: white;
-        border: 1px solid black;
-        margin: auto 0;
-        height: 35px;
-        &:hover {
-            background-color: lightgray;
-        }
+  }
+  &__useroptions {
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+  }
+  &__userinfo {
+    font-family: Post, sans-serif;
+    margin: 0;
+  }
+  &__mainwindow {
+    width: 85%;
+    margin: 0 auto;
+  }
+  &__add {
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  &__addedtext {
+    font-family: Post, sans-serif;
+    font-size: 14px;
+  }
+  &__checkbox {
+    display: grid;
+    place-content: center;
+    align-self: center;
+    appearance: none;
+    background-color: #fff;
+    margin: 0;
+    color: black;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    transform: translateY(-0.075em);
 
+    &--checked {
+      content: "";
+      width: 20px;
+      height: 20px;
+      box-shadow: inset 13px 13px $post-color;
     }
-    &__useroptions {
-        width: 55%;
-        display: flex;
-        flex-direction: column;
+  }
+  &__newbooks {
+    margin-bottom: 40px;
+  }
+  &__bookcontent {
+    display: flex;
+    height: 35px;
+  }
+  &__openedbookcontent {
+    border: 1px solid gray;
+  }
+  &__container {
+    display: flex;
+    margin-bottom: 40px;
+    justify-content: space-between;
+  }
+  &__xbutton {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  &__info {
+    font-family: Post, sans-serif;
+    font-weight: 550;
+    margin: 0;
+    color: green;
+  }
+  &__newbook {
+    font-family: Post, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    border: 2px solid gray;
+    background-color: rgb(242, 237, 237);
+    cursor: help;
+    &:hover {
+      background-color: lightgray;
     }
-    &__userinfo {
-        font-family: Post, sans-serif;
-        margin: 0;
+    &text {
+      line-height: 30px;
     }
-    &__mainwindow {
-        width: 85%;
-        margin: 0 auto;
+    &number {
+      font-size: 20px;
+      line-height: 20px;
+      font-weight: 700;
     }
-    &__add {
-        width: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    &__addedtext {
-        font-family: Post,sans-serif;
-        font-size: 14px;
-    }
-    &__checkbox {
-        display: grid;
-        place-content: center;
-        align-self: center;
-        appearance: none;
-        background-color: #fff;
-        margin: 0;
-        color: black;
-        width: 20px;
-        height: 20px;
-        border: 1px solid black;
-        transform: translateY(-0.075em);
-        
-        &--checked {
-            content: "";
-            width: 20px;
-            height: 20px;
-            box-shadow: inset 13px 13px $post-color;
-        }
-    }
-    &__newbooks {
-        margin-bottom: 40px;
-    }
-    &__bookcontent {
-        display: flex;
-        height: 35px;
+  }
+  &__removebook {
+    margin-left: auto;
+    margin-right: 20px;
+    color: $post-color;
+    border: 0;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  &__find {
+    font-family: Post, sans-serif;
+    font-size: 16px;
+    outline: 0;
+    width: 99%;
+    height: 40px;
 
-    }
-    &__openedbookcontent {
-        border: 1px solid gray;
-    }
-    &__container {
-        display: flex;
-        margin-bottom: 40px;
-    }
-    &__info {
-        font-family: Post, sans-serif;
-        font-weight: 550;
-        margin: 0;
-        color: green;
-    }
-    &__newbook {
-        
-        font-family: Post, sans-serif;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
-        border: 2px solid gray;
-        background-color: rgb(242, 237, 237);
-        cursor:help;
-        &:hover {
-            background-color: lightgray;
-        }
-        &text {
-            line-height: 30px;
-        }
-        &number {
-            font-size: 20px;
-            line-height: 20px;
-          font-weight:  700;
-        }
-    }
-    &__removebook {
-        margin-left: auto;
-        margin-right: 20px;
-        color: $post-color;
-        border: 0;
-        font-size: 24px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-    &__find {
-        font-family: Post, sans-serif;
-        font-size: 16px;
-        outline: 0;
-        width: 99%;
-        height: 40px;
-
-        text-indent: 20px;
-      border: 0;
-      border-bottom: 1px solid lightgray;
-    }
-    &__glass {
-        position: relative;
-        bottom: 30px;
-        left: 90%;
-        height: 20px;
-        width: 20px;
-    }
-    &__background {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 0;
-        width: 200vh;
-        height: 140%;
-        background-color: black;
-        opacity: 0.3;
-        z-index: 2;
-      }
-      &__window {
-        position: absolute;
-        top: 31%;
-        left: 20%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid black;
-        border-radius: 12px;
-        background-color: white !important;
-        opacity: 1;
-        width: 60%;
-        height: 40%;
-        z-index: 3;
-      }
+    text-indent: 20px;
+    border: 0;
+    border-bottom: 1px solid lightgray;
+  }
+  &__glass {
+    position: relative;
+    bottom: 30px;
+    left: 90%;
+    height: 20px;
+    width: 20px;
+  }
+  &__background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    width: 200vh;
+    height: 140%;
+    background-color: black;
+    opacity: 0.3;
+    z-index: 2;
+  }
+  &__window {
+    position: absolute;
+    top: 31%;
+    left: 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 12px;
+    background-color: white !important;
+    opacity: 1;
+    width: 60%;
+    height: 40%;
+    z-index: 3;
+  }
 }

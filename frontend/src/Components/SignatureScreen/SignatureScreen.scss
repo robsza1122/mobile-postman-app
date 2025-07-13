@@ -1,80 +1,80 @@
 @import "../../utils/main/main.scss";
 
 .sign {
-    &__nav {
-        height: 50px;
-        width: 100%;
-        background-color: $post-color;
-    }
-    &__user {
-        margin: 0;
-        margin-left: 10px;
-        font-family: Post, sans-serif;
-        color: white;
-        font-size: 16px;
-    }
-    &__info {
-        margin: 0;
+  &__nav {
+    height: 50px;
+    width: 100%;
+    background-color: $post-color;
+  }
+  &__user {
+    margin: 0;
+    margin-left: 10px;
+    font-family: Post, sans-serif;
+    color: white;
+    font-size: 16px;
+  }
+  &__info {
+    margin: 0;
     margin-left: 10px;
     font-family: Post, sans-serif;
     color: white;
     font-weight: 600;
     font-size: 18px;
-    }
-    &__signature {
-        background-color: white;
-        margin: 0 auto;
-        width: 90% !important;
-        height: 80% !important;
-    }
-    &__signatureblock {
-        display: flex;
-        flex-direction: column;
-        margin: 0 auto;
-      width: 95%;
-      height: 500px;
-      background-color: $post-color;
-    }
-    &__options {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: row;
-        padding: 25px 10px;
-    }
-    &__signinfo {
-        font-family: Post, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 70%;
-        height: 40px;
-        background-color: white;
-        color: gray;
-        text-align: center;
-        font-size: 16px;
-    }
-    &__signatureinfo {
-        font-family: Post, sans-serif;
-        font-size: 16px;
-        margin: 0;
-        padding: 20px 0;
-        background-color: white;
-        color: gray;
-    }
-    &__button {
-        width: 70px;
-        height: 40px;
-        border-radius: 5px;
-        font-family: Post, sans-serif;
-        background-color: $post-color;
-        border: 2px solid gray;
-        font-weight: 600;
-        color: white;
-        font-size: 16px;
+  }
+  &__signature {
+    background-color: white;
+    margin: 0 auto;
+    width: 90% !important;
+    height: 80% !important;
+  }
+  &__signatureblock {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    width: 95%;
+    height: 500px;
+    background-color: $post-color;
+  }
+  &__options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 25px 10px;
+  }
+  &__signinfo {
+    font-family: Post, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    height: 40px;
+    background-color: white;
+    color: gray;
+    text-align: center;
+    font-size: 16px;
+  }
+  &__signatureinfo {
+    font-family: Post, sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 20px 0;
+    background-color: white;
+    color: gray;
+  }
+  &__button {
+    width: 70px;
+    height: 40px;
+    border-radius: 5px;
+    font-family: Post, sans-serif;
+    background-color: $post-color;
+    border: 2px solid gray;
+    font-weight: 600;
+    color: white;
+    font-size: 16px;
 
-        &--disabled {
-            background-color: lightgray;
-        }
+    &--disabled {
+      background-color: lightgray;
     }
+  }
 }

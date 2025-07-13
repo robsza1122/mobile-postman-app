@@ -1,33 +1,33 @@
 .worknavopt {
-    &__menu {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        height: 35px;
+  &__menu {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    height: 35px;
+  }
+  &__option {
+    height: 35px;
+    width: 100%;
+    border: 0;
+    border-right: 2px solid white;
+    font-family: Post, sans-serif;
+    line-height: 32px;
+    font-weight: 500;
+    color: white;
+    background-color: rgb(106, 100, 100);
+    text-align: center;
+    box-shadow: 5px 15px 14px gray;
+    &--active {
+      background-color: rgba(43, 41, 41, 0.842);
     }
-    &__option {
-        height: 35px;
-        width: 100%;
-        border: 0;
-        border-right: 2px solid white;
-        font-family: Post, sans-serif;
-        line-height: 32px;
-        font-weight: 500;
-        color: white;
-        background-color: rgb(106, 100, 100);
-        text-align: center;
-        box-shadow: 5px 15px 14px gray;
-        &--active {
-            background-color: rgba(43, 41, 41, 0.842);
-        }
-    }
-    &__line {
-        position:absolute;
-        top: 82px;
-        width: 25%;
-        height: 2px;
-        border-top: 1px solid red;
-        border-bottom: 1px solid red;
-        background-color: red;
-    }
+  }
+  &__line {
+    position: absolute;
+    top: 82px;
+    width: 25%;
+    height: 2px;
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
+    background-color: red;
+  }
 }

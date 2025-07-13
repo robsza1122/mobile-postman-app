@@ -32,7 +32,7 @@ export const DeliverOption = () => {
         }
 
         return parcel;
-      })
+      }),
     );
     window.onpopstate = () => {
       if (currentParcels.length === 0) {
@@ -44,16 +44,19 @@ export const DeliverOption = () => {
   const [searchInput, setSearchInput] = useState("");
 
   const parcelsInDelivery = parcels.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
-    parcel.forUser === currentUser.username
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
+      parcel.forUser === currentUser.username,
   );
   const advicedParcels = parcels.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "ADVICED" &&
-    parcel.forUser === currentUser.username
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "ADVICED" &&
+      parcel.forUser === currentUser.username,
   );
   const otherParcels = parcels.filter(
-    (parcel) => parcel.status[parcel.status.length - 1].name === "OTHER" &&
-    parcel.forUser === currentUser.username
+    (parcel) =>
+      parcel.status[parcel.status.length - 1].name === "OTHER" &&
+      parcel.forUser === currentUser.username,
   );
 
   const [chosenOption, setChosenOption] = useState(0);

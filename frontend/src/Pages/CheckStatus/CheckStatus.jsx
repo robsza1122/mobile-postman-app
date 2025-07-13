@@ -95,15 +95,15 @@ export const CheckStatus = () => {
                     };
 
                     const handleOtherResultText = () => {
-                      switch(status.details) {
+                      switch (status.details) {
                         case "Parcel returned from other reason":
                           return "Reason:";
                         case "Parcel left in shop, ORLEN, ParcelPoint":
                           return "Subject of delivery:";
-                          default: 
+                        default:
                           return "";
                       }
-                    }
+                    };
 
                     const handleShowStatuses = () => {
                       if (status.name === "DELIVERED") {
@@ -183,9 +183,7 @@ export const CheckStatus = () => {
                                   Subject of delivery
                                 </span>
                                 <p className="status__signatureperson">
-                                  {
-                                    status.subject
-                                  }
+                                  {status.subject}
                                 </p>
                                 {status.noAddressee && (
                                   <>
@@ -193,9 +191,7 @@ export const CheckStatus = () => {
                                       Reason of not doing signature by addressee
                                     </span>
                                     <p className="status__signatureperson">
-                                      {
-                                        status.details
-                                      }
+                                      {status.details}
                                     </p>
                                   </>
                                 )}
@@ -274,26 +270,22 @@ export const CheckStatus = () => {
                               <td className="status__signaturewindow">
                                 <span className="status__info">Result:</span>
                                 <p className="status__signatureperson">
-                                  {
-                                    status.subject
-                                  }
+                                  {status.subject}
                                 </p>
                                 <span className="status__info">
                                   Details of result:
                                 </span>
                                 <p className="status__signatureperson">
-                                  {
-                                    status.details
-                                  }
-                                </p>                           
-                                      <span className="status__info">
-                                        {handleOtherResultText()}
-                                      </span>
-                                      {status.deliveryInput && (
-                                      <p className="status__signatureperson">
-                                        {status.deliveryInput}
-                                      </p>
-                                  )}
+                                  {status.details}
+                                </p>
+                                <span className="status__info">
+                                  {handleOtherResultText()}
+                                </span>
+                                {status.deliveryInput && (
+                                  <p className="status__signatureperson">
+                                    {status.deliveryInput}
+                                  </p>
+                                )}
                               </td>
                             </tr>
                           )}

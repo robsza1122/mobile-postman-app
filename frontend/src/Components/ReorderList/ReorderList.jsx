@@ -20,13 +20,14 @@ export const ReorderList = () => {
       if (dragged !== null) {
         event.preventDefault();
         setDragged(null);
-        setDownloadedBook(parcel => reorderList(parcel, dragged, closestDropZone))
+        setDownloadedBook((parcel) =>
+          reorderList(parcel, dragged, closestDropZone),
+        );
       }
     };
 
     document.addEventListener("mouseup", handleMouseMove);
-    return () => 
-      document.removeEventListener("mouseup", handleMouseMove);
+    return () => document.removeEventListener("mouseup", handleMouseMove);
   });
 
   useEffect(() => {
@@ -40,28 +41,26 @@ export const ReorderList = () => {
   useEffect(() => {
     if (dragged !== null) {
       const elements = Array.from(
-        document.getElementsByClassName("reorder__dropzone")
+        document.getElementsByClassName("reorder__dropzone"),
       );
       const positions = elements.map((e) => e.getBoundingClientRect().top);
       const absDifferences = positions.map((v) => Math.abs(v - mouse[1]));
       let result = absDifferences.indexOf(Math.min(...absDifferences));
 
-      if (result > dragged) 
-        result += 1;
-      
+      if (result > dragged) result += 1;
+
       setClosestDropZone(result);
     }
   }, [dragged, mouse]);
 
-
-  console.log(dragged)
-  console.log(closestDropZone)
+  console.log(dragged);
+  console.log(closestDropZone);
 
   return (
     <>
-    <nav className="booklist__nav">
-      <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-      <p className="booklist__text">REORDER PARCELS</p>
+      <nav className="booklist__nav">
+        <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
+        <p className="booklist__text">REORDER PARCELS</p>
       </nav>
       <div className="booklist__content">
         {dragged !== null && (
@@ -70,58 +69,61 @@ export const ReorderList = () => {
             style={{
               top: `${mouse[1]}px`,
               left: `${mouse[0]}px`,
-              
             }}
           >
-            <p className="reorder__item">{downloadedBook[dragged].numberOfParcel}</p>
+            <p className="reorder__item">
+              {downloadedBook[dragged].numberOfParcel}
+            </p>
             <p className="reorder__data">{`${downloadedBook[dragged].name} ${downloadedBook[dragged].surname}`}</p>
             <p className="reorder__data">{`${downloadedBook[dragged].city} ${downloadedBook[dragged].postCode}`}</p>
           </div>
         )}
         <div className="reorder__list">
-        <div
-        key={`0-dropzone`}
-          className={`reorder__listitem reorder__dropzone ${
-            dragged === null || closestDropZone !== 0 ? "hidden" : "" 
-          }`}
-        />
-        {downloadedBook.map((parcel, i) => {
-          return (
-            <>
-              {dragged !== i && (
-                <>
-                  <div
-                    key={parcel._id}
-                    className="reorder__listitem"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      setDragged(i);
-                      setClosestDropZone(i);
-                    }}
-                  >
-                    <p className="reorder__item">{parcel.numberOfParcel}</p>
-                    <p className="reorder__data">{`${parcel.name} ${parcel.surname}`}</p>
-                    <p className="reorder__data">{`${parcel.city} ${parcel.postCode}`}</p>
-                  </div>
-                  <div
-                    key={`${parcel._id}-drop-zone`}
-                    className={`reorder__listitem reorder__dropzone ${
-                      dragged === null || closestDropZone !== i + 1 ? "hidden" : "" 
-                    }`}
-                    onMouseUp={(e) => {
-                      e.preventDefault();
-                    if (dragged !== null) {
-                      setDragged(null);
-                    }
-                    }}
-                  ></div>
-                </>
-              )}
-            </>
-          );
-        })}
+          <div
+            key={`0-dropzone`}
+            className={`reorder__listitem reorder__dropzone ${
+              dragged === null || closestDropZone !== 0 ? "hidden" : ""
+            }`}
+          />
+          {downloadedBook.map((parcel, i) => {
+            return (
+              <>
+                {dragged !== i && (
+                  <>
+                    <div
+                      key={parcel._id}
+                      className="reorder__listitem"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setDragged(i);
+                        setClosestDropZone(i);
+                      }}
+                    >
+                      <p className="reorder__item">{parcel.numberOfParcel}</p>
+                      <p className="reorder__data">{`${parcel.name} ${parcel.surname}`}</p>
+                      <p className="reorder__data">{`${parcel.city} ${parcel.postCode}`}</p>
+                    </div>
+                    <div
+                      key={`${parcel._id}-drop-zone`}
+                      className={`reorder__listitem reorder__dropzone ${
+                        dragged === null || closestDropZone !== i + 1
+                          ? "hidden"
+                          : ""
+                      }`}
+                      onMouseUp={(e) => {
+                        e.preventDefault();
+                        if (dragged !== null) {
+                          setDragged(null);
+                        }
+                      }}
+                    ></div>
+                  </>
+                )}
+              </>
+            );
+          })}
         </div>
       </div>
-      </>
+    </>
   );
 };

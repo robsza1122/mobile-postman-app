@@ -32,7 +32,7 @@ export const AdvicedOption = () => {
         }
 
         return parcel;
-      })
+      }),
     );
     window.onpopstate = () => {
       if (user) {
@@ -47,17 +47,17 @@ export const AdvicedOption = () => {
   const parcelsToDeliver = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   );
   const advicedParcels = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "ADVICED" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   );
   const otherParcels = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "OTHER" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   );
 
   const [slideOptions, setSlideOptions] = useState(0);

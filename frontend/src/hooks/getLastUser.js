@@ -1,7 +1,7 @@
-import useAuth from "./useAuth"
+import useAuth from "./useAuth";
 
 const getLastUser = () => {
-    const {user} = useAuth();
+  const { user } = useAuth();
   const lastLogged = user.toObject().username;
 
   return lastLogged;

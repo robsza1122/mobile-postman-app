@@ -6,10 +6,9 @@ import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
 import { useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
-import useAuth from "../../hooks/useAuth";
 
 export const LoginPage = () => {
-  const {currentUser, setCurrentUser} = useContext(PostManState);
+  const { currentUser } = useContext(PostManState);
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
@@ -25,59 +24,61 @@ export const LoginPage = () => {
       navigate("/ML", {
         replace: true,
       });
-    }
+    },
   });
-  console.log(currentUser)
+  console.log(currentUser);
 
   return (
     <>
       {isPending && <Loading message="Loading ditionaries..." />}
-        <>
-          <Navigation />
-          <div className="login__content">
-            <h1 className="login__title">Poczta Polska ADFS</h1>
-            <p className="login__logintext">Login using your organisation account</p>
-          {isError && <p className="login__errortext">Invalid email or password</p>}
-            <div className="login__field">
-              <input
-                type="text"
-                className="login__input"
-                onChange={(e) => setUsername(e.target.value)}
-                value={username}
-                autoComplete="username"
-                placeholder="your.username..."
-              />
-            </div>
-        
-            <div className="login__field">
-              <input
-                type="password"
-                className="login__input"
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                placeholder="password..."
-              />
-            </div>
-            <div className="login__buttonblock">
+      <>
+        <Navigation />
+        <div className="login__content">
+          <h1 className="login__title">Poczta Polska ADFS</h1>
+          <p className="login__logintext">
+            Login using your organisation account
+          </p>
+          {isError && (
+            <p className="login__errortext">Invalid email or password</p>
+          )}
+          <div className="login__field">
+            <input
+              type="text"
+              className="login__input"
+              onChange={(e) => setUsername(e.target.value)}
+              value={username}
+              autoComplete="username"
+              placeholder="your.username..."
+            />
+          </div>
+
+          <div className="login__field">
+            <input
+              type="password"
+              className="login__input"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              placeholder="password..."
+            />
+          </div>
+          <div className="login__buttonblock">
             <button
               className="login__submit"
               onMouseDown={() => setClickedButton(true)}
               onMouseUp={() => setClickedButton(false)}
               onMouseLeave={() => setClickedButton(false)}
               style={{
-                backgroundColor: `${
-                  clickedButton ? "gray" : "blue"
-                }`,
+                backgroundColor: `${clickedButton ? "gray" : "blue"}`,
               }}
               onClick={() => {
-                signIn({ username, password })
+                signIn({ username, password });
               }}
             >
               Login
             </button>
-            </div>
           </div>
-        </>
+        </div>
+      </>
     </>
   );
 };

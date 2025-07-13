@@ -29,10 +29,6 @@ const userSchima = new mongoose.Schema<UserDocument>({
         type: String,
         required: true,
     },
-    parcels: {
-        type: [Object],
-        default: [],
-    }
 },
 {
     timestamps: true,

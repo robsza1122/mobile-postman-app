@@ -32,7 +32,7 @@ export const SignatureScreen = () => {
             }
 
             return parcel;
-          })
+          }),
         );
       }
       navigate("/ML");

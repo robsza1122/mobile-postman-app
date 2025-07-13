@@ -17,37 +17,37 @@ export const SettleWork = () => {
   const parcelsInDelivery = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   ).length;
   const parcelsDelivered = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "DELIVERED" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   ).length;
   const parcelsAdviced = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "ADVICED" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   ).length;
   const otherResults = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "OTHER" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   ).length;
   const deliveredToZDO = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].subject === "Delivered to ZDO" &&
-      parcel.forUser === currentUser.username
+      parcel.forUser === currentUser.username,
   ).length;
   const undeliveredToZDO = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].subject ===
-        "Parcel undelivered to ZDO" && parcel.forUser === currentUser.username
+        "Parcel undelivered to ZDO" && parcel.forUser === currentUser.username,
   ).length;
 
   console.log(parcelsInDelivery);
   console.log(currentUser);
-  console.log(settled)
+  console.log(settled);
 
   const {} = useContext(PostManState);
 
