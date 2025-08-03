@@ -3,10 +3,10 @@ import { PostManState } from "../../PostGlobalProvider";
 import "./CreateBook.scss";
 import useParcels from "../../hooks/useParcels";
 import { AppNavigation } from "../AppNavigation/AppNavigation";
-import { CreateBookPanel } from "../CreateBookPanel/CreateBookPanel";
-import { ListOfDateBaseParcels } from "../ListOfParcelsFromBase/ListOfParcelsFromBase";
-import { ListOfDeliveryBooks } from "../ListOfDeliveryBooks/ListOfDeliveryBooks";
-import { DataBaseBackground } from "../DataBaseBackground/DataBaseBackground";
+import { CreateBookPanel } from "./CreateBookPanel";
+import { ListOfDateBaseParcels } from "./ListOfParcelsFromBase";
+import { ListOfDeliveryBooks }  from "./ListOfDeliveryBooks";
+import { DataBaseBackground } from "./DataBaseBackground";
 
 export const CreateBook = () => {
   const { parcels } = useParcels();

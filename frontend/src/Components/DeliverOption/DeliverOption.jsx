@@ -8,39 +8,13 @@ import { navOptionsButtons } from "../../utils/DataProvider";
 import useParcels from "../../hooks/useParcels";
 
 export const DeliverOption = () => {
-  const {
-    setDownloadedBook,
-    setCurrentParcels,
-    downloadedBook,
-    currentParcels,
-    currentUser,
-    settled,
-  } = useContext(PostManState);
+  const { currentUser, settled } = useContext(PostManState);
   const { parcels } = useParcels();
+  const usersParcels = parcels.filter(
+    (parcel) => parcel.forUser === currentUser.username && parcel.isDownloaded,
+  );
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setDownloadedBook(
-      downloadedBook.map((parcel) => {
-        if (parcel.isMarked) {
-          return {
-            ...parcel,
-            isMarked: false,
-            deliveryInput: "",
-          };
-        }
-
-        return parcel;
-      }),
-    );
-    window.onpopstate = () => {
-      if (currentParcels.length === 0) {
-        navigate("/ML");
-      }
-      setCurrentParcels([]);
-    };
-  }, []);
   const [searchInput, setSearchInput] = useState("");
 
   const parcelsInDelivery = parcels.filter(
@@ -82,7 +56,7 @@ export const DeliverOption = () => {
   };
 
   const handleOneDeliveryAlerts = () => {
-    const parcelIsMarked = currentParcels.length;
+    const parcelIsMarked = usersParcels.length;
     switch (parcelIsMarked) {
       case 0:
         return alert("No position is marked");
@@ -92,13 +66,13 @@ export const DeliverOption = () => {
         return alert("More than one position is marked");
     }
 
-    if (currentParcels[0].amountOfTrials === 3) {
+    if (usersParcels[0].amountOfTrials === 3) {
       navigate("/traditionalDeliver");
     }
   };
 
   const handleMultiDeliveryAlerts = () => {
-    const parcelIsMarked = currentParcels.length;
+    const parcelIsMarked = usersParcels.length;
     switch (parcelIsMarked) {
       case 0:
         return alert("No position is marked");
@@ -108,19 +82,19 @@ export const DeliverOption = () => {
   };
 
   const handleLink = () => {
-    if (currentParcels.length === 1 && currentParcels[0].amountOfTrials === 3) {
+    if (usersParcels.length === 1 && usersParcels[0].amountOfTrials === 3) {
       return "/traditionalDeliver";
     }
-    if (currentParcels.length === 1) {
+    if (usersParcels.length === 1) {
       return "/deliveryCodeScreen";
     }
     return "";
   };
 
   const handleMultiDeliveryLink = () => {
-    if (currentParcels.length === 0 || currentParcels.length === 1) {
+    if (usersParcels.length === 0 || usersParcels.length === 1) {
       return "";
-    } else if (currentParcels.length > 1) {
+    } else if (usersParcels.length > 1) {
       return "/multiDeliveryVerification";
     }
   };
@@ -137,9 +111,6 @@ export const DeliverOption = () => {
     return filterPosition;
   };
 
-  console.log(currentParcels);
-  console.log(downloadedBook);
-  console.log(parcels);
   return (
     <div className="deliver__content">
       <nav className="deliver__nav">
@@ -258,11 +229,11 @@ export const DeliverOption = () => {
                         className="deliver__checkbox"
                         onClick={() => changeCheckbox(parcel._id)}
                       />
-                      {parcel.amount !== 0 && currentParcels.length > 0 && (
+                      {parcel.amount !== 0 && usersParcels.length > 0 && (
                         <p className="deliver__cash">
-                          {!currentParcels[0].amount.toString().includes(".")
-                            ? `${currentParcels[0].amount}.00`
-                            : currentParcels[0].amount}
+                          {!usersParcels[0].amount.toString().includes(".")
+                            ? `${usersParcels[0].amount}.00`
+                            : usersParcels[0].amount}
                         </p>
                       )}
                     </div>

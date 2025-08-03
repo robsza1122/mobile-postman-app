@@ -16,12 +16,14 @@ export const BookList = () => {
     };
   });
 
+  const usersParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && parcel.isDownloaded);
+
   return (
     <nav className="booklist__nav">
       <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       <p className="booklist__text">BOOK LIST</p>
       <div className="booklist__content">
-        {currentUser.parcels.map((parcel) => {
+        {usersParcels.map((parcel) => {
           return (
             <div
               className={classNames("booklist__position", {

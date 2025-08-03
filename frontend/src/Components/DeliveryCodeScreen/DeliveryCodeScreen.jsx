@@ -11,7 +11,7 @@ import { date } from "../../utils/currentDate";
 export const DeliveryCodeScreen = () => {
   const navigate = useNavigate();
   const {
-    currentParcels,
+    usersParcels,
     setDownloadedBook,
     downloadedBook,
     setDeliveryCode,
@@ -135,12 +135,12 @@ export const DeliveryCodeScreen = () => {
     }
   };
 
-  console.log(currentParcels);
+  console.log(usersParcels);
   console.log(downloadedBook);
   console.log(parcels);
 
   const codeTrials = downloadedBook.find(
-    (parcel) => parcel._id === currentParcels[0]._id,
+    (parcel) => parcel._id === usersParcels[0]._id,
   );
 
   return (
@@ -150,13 +150,13 @@ export const DeliveryCodeScreen = () => {
         <p className="dsc__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
       <div className="dsc__body">
-        <p className="dsc__number">{currentParcels[0].numberOfParcel}</p>
+        <p className="dsc__number">{usersParcels[0].numberOfParcel}</p>
         <p className="dsc__deliverytext">TYPE DELIVERY CODE</p>
         <p className="dsc__cashondelivery">
           Cash on delivery{" "}
-          {!currentParcels[0].amount.toString().includes(".")
-            ? `${currentParcels[0].amount}.00`
-            : currentParcels[0].amount}
+          {!usersParcels[0].amount.toString().includes(".")
+            ? `${usersParcels[0].amount}.00`
+            : usersParcels[0].amount}
         </p>
         <p className="dsc__trials">
           Amount of trials {codeTrials.amountOfTrials} / 3
@@ -182,7 +182,7 @@ export const DeliveryCodeScreen = () => {
           </button>
           <button
             className="dsc__button"
-            onClick={() => onDeliveryCode(currentParcels)}
+            onClick={() => onDeliveryCode(usersParcels)}
           >
             Confirm
           </button>

@@ -16,7 +16,7 @@ export const WorkPage = () => {
   const { parcels } = useParcels();
   const { slideOptions, downloadedBook, currentUser, settled } =
     useContext(PostManState);
-  console.log(downloadedBook);
+  const usersParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && parcel.isDownloaded);
   const parcelsToDeliver = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
@@ -33,15 +33,11 @@ export const WorkPage = () => {
       parcel.forUser === currentUser.username,
   );
 
-  console.log(user);
-  console.log(parcels);
-  console.log(settled);
-
   const myParcelsOptions = [
     {
       id: 1,
       header: "SHOW ALL",
-      amount: currentUser.parcels?.length,
+      amount: usersParcels.length,
       title: "DOWNLOADED",
     },
     {

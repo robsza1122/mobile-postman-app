@@ -76,8 +76,7 @@ export const PostGlobalProvider = ({ children }) => {
     "showAllCurrentUsers",
     [],
   );
-
-  const navigate = useNavigate();
+  
   const signatureRef = useRef({});
 
   useEffect(() => {

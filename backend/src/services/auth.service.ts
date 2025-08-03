@@ -334,7 +334,8 @@ export const addInDeliveryStatus = async ({
   );
 
   const assignParcelsToUser = await UserModel.find({}, {
-    isDownloaded: true, forUser: username
+    isDownloaded: true,
+    forUser: username,
   });
 
   return {

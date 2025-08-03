@@ -1,28 +1,28 @@
 import "./TrailOption.scss";
-import useParcels from "../../hooks/useParcels";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { useContext, useState } from "react";
 import { Loading } from "../../Loading/Loading.jsx";
 import classnames from "classnames";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider.jsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getInDeliveryStatus, sendInDeliveryEmail } from "../../api/api.js";
-import useAuth from "../../hooks/useAuth.js";
-import { date } from "../../utils/currentDate.js";
-import { USER } from "../../hooks/useAuth.js";
+import { AppNavigation } from "../AppNavigation/AppNavigation.jsx";
+import { TrailConfirmBook } from "./TrailConfirmBook.jsx";
+import { TrailConfirmBookError } from "./TrailConfirmBookError.jsx";
+import { TrailVerifyBook } from "./TrailVerifyBook.jsx";
+import { TrailNavigation } from "./TrailNavigation.jsx";
+import { TrailInput } from "./TrailInput.jsx";
+import { TrailButtons } from "./TrailButtons.jsx";
 
 export const TrailOption = () => {
   const {
-    downloadedBook,
-    setDownloadedBook,
     clearBook,
     currentUser,
     deliveryBooks,
-    parcelsInDatabase,
     setDayIsFinished,
     setSettled,
   } = useContext(PostManState);
-  const { user } = useAuth();
   const [parcelsNumber, setParcelsNumber] = useState("");
   const [openBook, setOpenBook] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -32,35 +32,45 @@ export const TrailOption = () => {
   const [verifyBook, setVerifyBook] = useState(false);
   const [markedBook, setMarkedBook] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { mutate: inDeliveryStatus } = useMutation({
-    mutationFn: getInDeliveryStatus,
-    mutationKey: ["parcels"],
-    onSuccess: () => {
-      window.location.reload();
-    },
-  });
+      mutationFn: getInDeliveryStatus,
+      mutationKey: [PARCELS],
+      onMutate: async (updatedParcel) => {
+        await queryClient.cancelQueries({ queryKey: [PARCELS] });
+  
+        const previousParcels = queryClient.getQueriesData([PARCELS]);
+  
+        queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
+  
+        return { previousParcels };
+      },
+      onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+    });
 
   const { mutate: inDeliveryEmail } = useMutation({
-    mutationKey: ["parcels"],
-    mutationFn: sendInDeliveryEmail,
-    onSuccess: () => {
-      window.location.reload();
-    },
-  });
+      mutationFn: sendInDeliveryEmail,
+      mutationKey: [PARCELS],
+      onMutate: async (updatedParcel) => {
+        await queryClient.cancelQueries({ queryKey: [PARCELS] });
+  
+        const previousParcels = queryClient.getQueriesData([PARCELS]);
+  
+        queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
+  
+        return { previousParcels };
+      },
+      onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+    });
 
-  const onSubmit = () => {
-    const typedParcel = parcels.find(
+      const typedParcelBookNumber = parcels.find(
       (parcel) => parcel.numberOfParcel === parcelsNumber,
-    );
-    const typedParcelBookNumber = parcels.find(
-      (parcel) => parcel.numberOfParcel === parcelsNumber,
-    ).numberOfBook;
+    )?.numberOfBook;
 
-    const downloadedParcels = parcels.filter(
-      (parcel) => parcel.numberOfBook === typedParcelBookNumber,
-    );
+    const deliveryBookLength = parcels.filter(parcel => parcel.numberOfBook === typedParcelBookNumber).length;
+    const typedParcel = parcels.find(parcel => parcel.numberOfParcel === parcelsNumber);
 
-    console.log(typedParcelBookNumber);
+          const onSubmit = () => {
 
     setLoading(true);
     setLoadingText("Looking for books...");
@@ -69,42 +79,10 @@ export const TrailOption = () => {
       setLoadingText("");
     }, 1000);
 
-    if (markedBook && verifyBook) {
-      const downloadedParcelsWithEmail = downloadedParcels.map((parcel) => {
-        const inDeliveryStatus = {
-          name: "IN DELIVERY",
-          createdAt: date,
-          subject: "",
-          details: "",
-          signature: "",
-          isSignature: false,
-          noAddressee: false,
-          deliveryInput: "",
-          reasonOfAdvice: "",
-          officeOfAdvice: "",
-          placeOfNotification: "",
-        };
-        inDeliveryEmail(parcel._id);
-        return {
-          ...parcel,
-          forUser: currentUser.username,
-          status: [...parcel.status, inDeliveryStatus],
-        };
-      });
-      setDayIsFinished(false);
-      setSettled(false);
-      setDownloadedBook([...downloadedBook, ...downloadedParcelsWithEmail]);
-      inDeliveryStatus({
-        numberOfBook: typedParcelBookNumber,
-        username: currentUser.username,
-        createdAt: date,
-      });
-      setLoading(true);
-      setLoadingText("downloading book...");
-      setTimeout(() => {
-        setLoading(false);
-        setLoadingText("");
-      }, 1000);
+    if (parcelsNumber.trim() === "") {
+      alert("Please enter a parcel number");
+      setLoading(false);
+      return;
     }
 
     if (typedParcel.forUser === "") {
@@ -121,11 +99,7 @@ export const TrailOption = () => {
       return;
     }
 
-    if (
-      downloadedBook.filter(
-        (parcel) => parcel.numberOfBook === typedParcelBookNumber,
-      ).length !== 0
-    ) {
+    if (typedParcel.isDownloaded) {
       alert("Book is already downloaded");
       setParcelsNumber("");
 
@@ -137,8 +111,18 @@ export const TrailOption = () => {
       return;
     }
 
+    if (markedBook) {
+      inDeliveryEmail(typedParcel._id);
+      inDeliveryStatus({
+        numberOfBook: typedParcelBookNumber,
+        username: typedParcel.forUser,
+        createdAt: new Date().toString(),
+      })
+      navigate("/booklist");
+    }
+
     if (
-      parcelsInDatabase.find(
+      parcels.find(
         (parcel) => parcel.numberOfParcel === parcelsNumber && !parcel.isBooked,
       )
     ) {
@@ -148,11 +132,7 @@ export const TrailOption = () => {
       return;
     }
 
-    if (
-      parcelsInDatabase.filter(
-        (parcel) => parcel.numberOfParcel !== parcelsNumber,
-      ).length === parcelsInDatabase.length
-    ) {
+    if (typedParcel === undefined) {
       alert("Wrong number of parcel");
       setParcelsNumber("");
 
@@ -160,15 +140,15 @@ export const TrailOption = () => {
     }
 
     if (
-      parcelsInDatabase.find(
-        (parcel) => parcel.numberOfParcel === parcelsNumber && parcel.isBooked,
+      parcels.find(
+        (parcel) => parcel.numberOfParcel === parcelsNumber,
       )
     ) {
       setOpenBook(true);
     }
   };
 
-  const onReset = () => {
+    const onReset = () => {
     if (verifyBook) {
       setLoading(true);
       setLoadingText("Removing book...");
@@ -181,134 +161,34 @@ export const TrailOption = () => {
       setMarkedBook(false);
       setParcelsNumber("");
     }
-    setDownloadedBook([]);
     setOpenBook(false);
     setParcelsNumber("");
   };
 
-  const onConfirmationFalse = () => {
-    setLoadingText("Loading books...");
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setLoadingText("");
-    }, 1000);
-  };
-
-  const onConfirmationSuccess = () => {
-    setLoadingText("downloading book...");
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    setVerifyBook(true);
-    setOpenBook(false);
-  };
-
-  console.log(downloadedBook);
-  console.log(user);
-  console.log(verifyBook);
-  console.log(markedBook);
   console.log(parcels);
-  console.log(deliveryBooks);
 
   return (
     <>
       <div className="trail__body">
-        <nav className="trail__nav">
-          <div className="trail__navcontent">
-            <div className="trail__navinfos">
-              <p className="trail__navtext">DOWNLOAD BOOK</p>
-              <p className="trail__userinfo">{`${currentUser.username} [90${currentUser.EMINumber}]`}</p>
-            </div>
-            <div className="trail__icons">
-              <div className="trail__icondownload">
-                <img
-                  className="trail__barcode"
-                  src="src/image/barcode.svg"
-                  alt="barcode"
-                />
-                <img
-                  src="src/image/magni-glass-white.svg"
-                  alt=""
-                  className="trail__magniglass"
-                />
-              </div>
-              <div className="trail__iconbarcode">
-                <img
-                  className="trail__code"
-                  src="src/image/code-white.svg"
-                  alt=""
-                />
-                <img
-                  src="src/image/magni-glass-white.svg"
-                  alt=""
-                  className="trail__magniglasscode"
-                />
-              </div>
-              <div className="trail__dots">
-                <div className="trail__dot"></div>
-                <div className="trail__dot"></div>
-                <div className="trail__dot"></div>
-              </div>
-            </div>
-          </div>
-          <div></div>
-        </nav>
+      <TrailNavigation />
         {isLoading && <Loading message="Loading parcels..." />}
 
         <div className="trail__content">
-          <div className="trail__inputkeyboard">
-            <input
-              type="text"
-              className="trail__input"
-              placeholder="Parcel's number..."
-              value={parcelsNumber}
-              onChange={(e) => setParcelsNumber(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  onSubmit();
-                }
-              }}
-            />
-            <img
-              src="src/image/keyboard.svg"
-              alt=""
-              className="trail__keyboard"
-            />
-          </div>
+        <TrailInput 
+        parcelsNumber={parcelsNumber}
+        setParcelsNumber={setParcelsNumber}
+        onSubmit={onSubmit}
+        />
           <button onClick={() => clearBook()}>Clear book</button>
           <Link to="/createBook" className="trail__createbook">
             Add parcels to book
           </Link>
           {verifyBook && (
-            <div className="trail__verifywindow">
-              <div className="trail__verifyinfos">
-                <p className="trail__verifyinfo">
-                  EMInumber of courier: {currentUser.EMINumber}{" "}
-                </p>
-                <p className="trail__verifyinfo">
-                  Amount of parcel to deliver: {downloadedBook.length}/
-                  {parcels.length}
-                </p>
-                <p className="trail__verifyinfo">
-                  parcels to deliver to ZDO: 0
-                </p>
-                <p className="trail__verifyinfo">
-                  parcels with Pocztex Procedure: 0
-                </p>
-                <p className="trail__verifyinfo">
-                  parcels with limited responsiblity: 0
-                </p>
-              </div>
-              <input
-                type="checkbox"
-                className="trail__checkbox"
-                onClick={() => setMarkedBook(!markedBook)}
-                checked={markedBook}
-              />
-            </div>
+            <TrailVerifyBook 
+            deliveryBookLength={deliveryBookLength}
+            setMarkedBook={setMarkedBook}
+            markedBook={markedBook}
+            />
           )}
           {!openBook && !verifyBook && (
             <>
@@ -316,93 +196,32 @@ export const TrailOption = () => {
               <div className="trail__line"></div>
             </>
           )}
-          <div className="trail__buttons">
-            <Link
-              className={classnames("trail__button", {
-                "trail__button-opacity": openBook || showError,
-              })}
-              onClick={() => onSubmit()}
-              to={verifyBook && markedBook ? "/booklist" : ""}
-            >
-              <p className="trail__buttontext">Accept Book</p>
-              <img
-                src="src/image/circle-check.svg"
-                alt=""
-                className="trail__img"
-              />
-            </Link>
-            <Link
-              className={classnames("trail__button", {
-                "trail__button-opacity": openBook || showError,
-              })}
-              onClick={() => onReset()}
-            >
-              <p className="trail__buttontext">Decline Book</p>
-              <img
-                src="src/image/circle-cross.svg"
-                alt=""
-                className="trail__img"
-              />
-            </Link>
-          </div>
+           <TrailButtons 
+           openBook={openBook}
+           showError={showError}
+           verifyBook={verifyBook}
+           markedBook={markedBook}
+           setLoading={setLoading}
+           onSubmit={onSubmit}
+           onReset={onReset}
+           setLoadingText={setLoadingText}
+           typedParcel={typedParcel}
+           setParcelsNumber={setParcelsNumber}
+           parcelsNumber={parcelsNumber}
+           setOpenBook={setOpenBook}
+           />
         </div>
         <>
           {!loading && openBook && (
-            <>
-              <div className="trail__confirmBook"></div>
-              <div className="trail__confirmwindow">
-                <div className="trail__redblock">
-                  <p className="trail__downloaderror">
-                    Delivery Book{" "}
-                    {
-                      parcelsInDatabase.find(
-                        (parcel) => parcel.numberOfParcel === parcelsNumber,
-                      ).numberOfBook
-                    }
-                  </p>
-                </div>
-                <div className="trail__infocontent trail__infocontent-confirm">
-                  <div className="trail__infos">
-                    <p className="trail__info">
-                      Delivery book with number {parcelsNumber} was found:
-                    </p>
-                    <p className="trail__info">
-                      Number of parcel in this book:{" "}
-                      {
-                        deliveryBooks.find(
-                          (book) =>
-                            book.number ===
-                            parcelsInDatabase.find(
-                              (parcel) =>
-                                parcel.numberOfParcel === parcelsNumber,
-                            ).numberOfBook,
-                        ).parcels.length
-                      }
-                    </p>
-                    <p className="trail__info">
-                      Do you want to download delivery book?
-                    </p>
-                  </div>
-                  <div className="trail__confirmedbuttons">
-                    <button
-                      className="trail__confirmedbutton trail__confirmedbuttonYES"
-                      onClick={() => onConfirmationSuccess()}
-                    >
-                      Yes
-                    </button>
-                    <button
-                      className="trail__confirmedbutton trail__confirmedbuttonNO"
-                      onClick={() => {
-                        setOpenBook(false);
-                        setParcelsNumber("");
-                      }}
-                    >
-                      No
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
+            <TrailConfirmBook 
+            parcelsNumber={parcelsNumber}
+            deliveryBookLength={deliveryBookLength}
+            setOpenBook={setOpenBook}
+            setParcelsNumber={setParcelsNumber}
+            typedParcelBookNumber={typedParcelBookNumber}
+            setLoading={setLoading}
+            setLoadingText={setLoadingText}
+            setVerifyBook={setVerifyBook} />
           )}
         </>
         {loading && (
@@ -412,43 +231,13 @@ export const TrailOption = () => {
           </>
         )}
         {showError && !loading && (
-          <>
-            <div className="trail__confirmBook"></div>
-            <div className="trail__confirmwindow">
-              <div className="trail__redblock">
-                <p className="trail__downloaderror">Download Error</p>
-              </div>
-              <div className="trail__infocontent">
-                <div className="trail__infos">
-                  <p className="trail__info">
-                    Some problem with downloading parcels occured:
-                  </p>
-                  <p className="trail__info">{parcelsNumber}</p>
-                  <p className="trail__info">
-                    Reason: Cannot find book to download: ({parcelsNumber})
-                  </p>
-                  <p className="trail__info">Do you want to try again?</p>
-                </div>
-                <div className="trail__confirmedbuttons">
-                  <button
-                    className="trail__confirmedbutton trail__confirmedbuttonYES"
-                    onClick={() => onConfirmationFalse()}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    className="trail__confirmedbutton trail__confirmedbuttonNO"
-                    onClick={() => {
-                      setShowError(false);
-                      setParcelsNumber("");
-                    }}
-                  >
-                    No
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
+          <TrailConfirmBookError 
+          setShowError={setShowError}
+          setParcelsNumber={setParcelsNumber}
+          parcelsNumber={parcelsNumber}
+          setLoading={setLoading}
+          setLoadingText={setLoadingText}
+          />
         )}
       </div>
     </>
