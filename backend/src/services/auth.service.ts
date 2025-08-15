@@ -52,6 +52,7 @@ export type CreateParcelOrder = {
     officeOfAdvice?: string;
     placeOfNotification?: string;
   }[];
+  isDownloaded?: boolean;
   forUser?: string;
   isBooked?: boolean;
   numberOfBook?: string;
@@ -142,6 +143,7 @@ export const createOrder = async (data: CreateParcelOrder) => {
     clientEmail: data.clientEmail,
     phone: data.phone,
     amountOfTrials: 0,
+    isDownloaded: false,
     isDeliveryCode: false,
     isMarked: false,
     deliveryCode: `${createDeliveryCode()}`,

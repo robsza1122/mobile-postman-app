@@ -39,7 +39,7 @@ export const parcelSchima = z.object({
   cashOnDelivery: z.boolean(),
   amount: z.number().max(100000),
   isBooked: z.boolean().optional(),
-  idDownloaded: z.boolean().optional(),
+  isDownloaded: z.boolean().optional(),
   numberOfBook: z.string().optional(),
     userAgent: z.string().optional(),
     _id: z.unknown().optional(),

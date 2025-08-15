@@ -14,6 +14,7 @@ import { TrailVerifyBook } from "./TrailVerifyBook.jsx";
 import { TrailNavigation } from "./TrailNavigation.jsx";
 import { TrailInput } from "./TrailInput.jsx";
 import { TrailButtons } from "./TrailButtons.jsx";
+import { date } from "../../utils/currentDate.js";
 
 export const TrailOption = () => {
   const {
@@ -116,7 +117,7 @@ export const TrailOption = () => {
       inDeliveryStatus({
         numberOfBook: typedParcelBookNumber,
         username: typedParcel.forUser,
-        createdAt: new Date().toString(),
+        createdAt: date,
       })
       navigate("/booklist");
     }

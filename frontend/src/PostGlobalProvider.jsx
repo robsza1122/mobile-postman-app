@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useLocaleStorage } from "./hooks/useLocaleStorage";
-import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import useAuth from "./hooks/useAuth";
 import { deleteAllDates } from "./api/api";

@@ -4,13 +4,11 @@ import { useState } from "react";
 import { deleteDeliveryBook } from "../../api/api";
 import { useMutation } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
-import useParcels from "../../hooks/useParcels";
 
 export const ListOfDeliveryBooks = () => {
   const { deliveryBooks, setDeliveryBooks, input, setInput } =
     useContext(PostManState);
   const [openBookNumber, setOpenBookNumber] = useState("");
-  const { parcels } = useParcels();
   const queryClient = useQueryClient();
 
   const { mutate: deleteBook } = useMutation({

@@ -4,8 +4,13 @@ import classnames from "classnames";
 import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
-import { navOptionsButtons } from "../../utils/DataProvider";
 import useParcels from "../../hooks/useParcels";
+import { SwitchingModelPanel } from "./SwitchingModelPanel";
+import { StatusPanelNavigation } from "./StatusPanelNavigation";
+import { StatusHandlingInput } from "./StatusHandlingInput";
+import { StatusHandlingList } from "./StatusHandlingList";
+import { StatusHandlingButtons } from "./StatusHandlingButtons";
+import { StatusHandlingZDOButton } from "./StatusHandlingZDOButton";
 
 export const DeliverOption = () => {
   const { currentUser, settled } = useContext(PostManState);
@@ -13,15 +18,17 @@ export const DeliverOption = () => {
   const usersParcels = parcels.filter(
     (parcel) => parcel.forUser === currentUser.username && parcel.isDownloaded,
   );
+  const markedParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && 
+    parcel.isDownloaded && parcel.isMarked)
 
-  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
 
-  const parcelsInDelivery = parcels.filter(
+    const inDeliveryParcels = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
       parcel.forUser === currentUser.username,
   );
+
   const advicedParcels = parcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "ADVICED" &&
@@ -40,65 +47,6 @@ export const DeliverOption = () => {
     setSlideOptions(id);
   };
 
-  const changeCheckbox = (id) => {
-    const changeStatus = downloadedBook.map((currentParcel) => {
-      if (currentParcel._id === id) {
-        return {
-          ...currentParcel,
-          isMarked: !currentParcel.isMarked,
-        };
-      }
-
-      return currentParcel;
-    });
-    setCurrentParcels(changeStatus.filter((parcel) => parcel.isMarked));
-    setDownloadedBook(changeStatus);
-  };
-
-  const handleOneDeliveryAlerts = () => {
-    const parcelIsMarked = usersParcels.length;
-    switch (parcelIsMarked) {
-      case 0:
-        return alert("No position is marked");
-      case 2:
-      case 3:
-      case 4:
-        return alert("More than one position is marked");
-    }
-
-    if (usersParcels[0].amountOfTrials === 3) {
-      navigate("/traditionalDeliver");
-    }
-  };
-
-  const handleMultiDeliveryAlerts = () => {
-    const parcelIsMarked = usersParcels.length;
-    switch (parcelIsMarked) {
-      case 0:
-        return alert("No position is marked");
-      case 1:
-        return alert("Mark more than one position");
-    }
-  };
-
-  const handleLink = () => {
-    if (usersParcels.length === 1 && usersParcels[0].amountOfTrials === 3) {
-      return "/traditionalDeliver";
-    }
-    if (usersParcels.length === 1) {
-      return "/deliveryCodeScreen";
-    }
-    return "";
-  };
-
-  const handleMultiDeliveryLink = () => {
-    if (usersParcels.length === 0 || usersParcels.length === 1) {
-      return "";
-    } else if (usersParcels.length > 1) {
-      return "/multiDeliveryVerification";
-    }
-  };
-
   const searchPosition = (positions) => {
     const filterPosition = positions.filter((position) => {
       const searchedText = `${position.name}${position.surname}${position.city}${position.numberOfParcel}${position.adress}${position.postCode}`;
@@ -113,43 +61,13 @@ export const DeliverOption = () => {
 
   return (
     <div className="deliver__content">
-      <nav className="deliver__nav">
-        <div className="deliver__texts">
-          <p className="deliver__text">DELIVERY OPTION</p>
-          <p className="deliver__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-        </div>
-        <div className="deliver__icons">
-          <div className="deliver__iconbarcode">
-            <img
-              className="deliver__code"
-              src="src/image/code-white.svg"
-              alt=""
-            />
-            <img
-              src="src/image/magni-glass-white.svg"
-              alt=""
-              className="deliver__magniglasscode"
-            />
-          </div>
-          <div className="deliver__dots">
-            <div className="deliver__dot"></div>
-            <div className="deliver__dot"></div>
-            <div className="deliver__dot"></div>
-          </div>
-        </div>
-      </nav>
+      <StatusPanelNavigation />
       <div className="deliver__menu">
-        {navOptionsButtons.map((button, id) => (
-          <button
-            className={classnames("deliver__option", {
-              "deliver__option--active": id === chosenOption,
-            })}
-            onClick={() => getChosenOption(id)}
-            key={id}
-          >
-            {button}
-          </button>
-        ))}
+       <SwitchingModelPanel
+        chosenOption={chosenOption}
+        setChosenOption={setChosenOption} 
+        getChosenOption={getChosenOption} 
+        />
         <div
           className="deliver__lineopt"
           style={{
@@ -158,20 +76,10 @@ export const DeliverOption = () => {
           }}
         ></div>
       </div>
-      <div className="deliver__inputcontent">
-        <input
-          type="text"
-          className="deliver__input"
-          placeholder="search position..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+        <StatusHandlingInput 
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
         />
-        <img
-          src="src/image/magni-glass-black.svg"
-          alt=""
-          className="deliver__magniglassblack"
-        />
-      </div>
       <div className="deliver__blockcontents">
         <div className="deliver__blockcontent">
           <div
@@ -181,143 +89,36 @@ export const DeliverOption = () => {
               transition: "0.1s ease transform",
             }}
           >
-            <div className="deliver__todeliverblock">TO DELIVERY</div>
-            {settled
-              ? ""
-              : searchPosition(parcelsInDelivery).map((parcel) => {
-                  return (
-                    <div className="deliver__position" key={parcel._id}>
-                      <div className="deliver__positioncontent">
-                        <p className="deliver__number">
-                          {parcel.numberOfParcel}
-                        </p>
-                        <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                        <p className="deliver__info">{parcel.adress}</p>
-                        <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-                      </div>
-                      <div className="deliver__inputcash">
-                        <input
-                          type="checkbox"
-                          className="deliver__checkbox"
-                          onClick={() => changeCheckbox(parcel._id)}
-                        />
-                        {parcel.amount !== 0 && (
-                          <p className="deliver__cash">
-                            {!parcel.amount.toString().includes(".")
-                              ? `${parcel.amount}.00`
-                              : `${parcel.amount}`}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-            <div className="deliver__advicedblock">ADVICED</div>
-            {settled
-              ? ""
-              : searchPosition(advicedParcels).map((parcel) => (
-                  <div className="deliver__position" key={parcel._id}>
-                    <div className="deliver__positioncontent">
-                      <p className="deliver__number">{parcel.numberOfParcel}</p>
-                      <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                      <p className="deliver__info">{parcel.adress}</p>
-                      <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-                    </div>
-                    <div className="deliver__inputcash">
-                      <input
-                        type="checkbox"
-                        className="deliver__checkbox"
-                        onClick={() => changeCheckbox(parcel._id)}
-                      />
-                      {parcel.amount !== 0 && usersParcels.length > 0 && (
-                        <p className="deliver__cash">
-                          {!usersParcels[0].amount.toString().includes(".")
-                            ? `${usersParcels[0].amount}.00`
-                            : usersParcels[0].amount}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            <div className="deliver__othersblock">OTHERS</div>
-            {settled
-              ? ""
-              : searchPosition(otherParcels).map((parcel) => (
-                  <div className="deliver__position" key={parcel._id}>
-                    <div className="deliver__positioncontent">
-                      <p className="deliver__number">{parcel.numberOfParcel}</p>
-                      <p className="deliver__info">{`${parcel.name} ${parcel.surname}`}</p>
-                      <p className="deliver__info">{parcel.adress}</p>
-                      <p className="deliver__adress">{`${parcel.city} ${parcel.postCode}`}</p>
-                    </div>
-                    <div className="deliver__inputcash">
-                      <input
-                        type="checkbox"
-                        className="deliver__checkbox"
-                        onClick={() => changeCheckbox(parcel._id)}
-                      />
-                      {parcel.amount !== 0 && (
-                        <p className="deliver__cash">
-                          {!parcel.amount.toString().includes(".")
-                            ? `${parcel.amount}.00`
-                            : `${parcel.amount}`}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+            <StatusHandlingList 
+            title="TO DELIVERY"
+            visibleParcels={inDeliveryParcels}
+            searchPosition={searchPosition}
+            statusType='IN DELIVERY'
+            />
+
+
+            <StatusHandlingList
+            title="ADVICED"
+            visibleParcels={advicedParcels}
+            searchPosition={searchPosition}
+            statusType='ADVICED'
+            />
+            <StatusHandlingList
+            title="OTHERS"
+            visibleParcels={otherParcels}
+            searchPosition={searchPosition}
+            statusType="OTHERS"
+            />
           </div>
-          <div
-            className="deliver__buttons"
-            style={{
-              transform: `translateX(${slideOptions * 100}%)`,
-              transition: "0.1s ease transform",
-            }}
-          >
-            <Link
-              className="deliver__button"
-              to={handleLink()}
-              onClick={() => handleOneDeliveryAlerts()}
-            >
-              <p className="deliver__buttontext">Individual Delivery</p>
-              <img src="src/image/hand.svg" alt="" className="deliver__img" />
-              <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
-            </Link>
-            <Link
-              className="deliver__button"
-              to={handleMultiDeliveryLink()}
-              onClick={() => handleMultiDeliveryAlerts()}
-            >
-              <p className="deliver__buttontext">Multi-delivery</p>
-              <img src="src/image/boxes.svg" alt="" className="deliver__img" />
-            </Link>
-          </div>
+          <StatusHandlingButtons 
+          slideOptions={slideOptions}
+          markedParcels={markedParcels}
+          />
         </div>
         <div className="deliver__blockcontent">
-          <div
-            className="deliver__block"
-            style={{
-              transform: `translateX(${slideOptions * -100}%)`,
-              transition: "0.1s ease transform",
-            }}
-          >
-            <div className="deliver__todeliverblock">TO DELIVERY</div>
-            <div className="deliver__advicedblock">ADVICED</div>
-            <div className="deliver__othersblock">OTHERS</div>
-          </div>
-
-          <Link
-            className="deliver__buttonZDO"
-            to=""
-            style={{
-              transform: `translateX(${slideOptions * -100}%)`,
-              transition: "0.1s ease transform",
-            }}
-          >
-            <p className="deliver__buttontext">Create ZDO to delivery</p>
-            <img src="src/image/hand.svg" alt="" className="deliver__img" />
-            <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
-          </Link>
+          <StatusHandlingZDOButton 
+          slideOptions={slideOptions}
+          />
         </div>
       </div>
     </div>

@@ -1,34 +1,79 @@
-import useParcels from "../../hooks/useParcels";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import "../BookList/BookList.scss";
 import "./ReorderList.scss";
 import { useState } from "react";
-import reorderList from "../../hooks/reorderList.js";
+
+function reorderParcels(parcels, fromIndex, toIndex) {
+  if (
+    fromIndex === null ||
+    toIndex === null ||
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= parcels.length ||
+    toIndex > parcels.length
+  ) {
+    return parcels;
+  }
+  const result = [...parcels];
+  const [removed] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, removed);
+  return result;
+}
 
 export const ReorderList = () => {
-  const { currentUser, downloadedBook, setDownloadedBook } =
-    useContext(PostManState);
-  const { parcels } = useParcels();
-  console.log(parcels);
+  const { currentUser } = useContext(PostManState);
+  const { parcels, refetch } = useParcels();
   const [dragged, setDragged] = useState(null);
   const [mouse, setMouse] = useState([0, 0]);
   const [closestDropZone, setClosestDropZone] = useState(0);
+  const [localParcels, setLocalParcels] = useState(parcels);
+
+  const queryClient = useQueryClient();
+
+  // Mutation to update order in DB
+  const reorderMutation = useMutation(
+    async (newOrder) => {
+      // Replace with your API endpoint and payload structure
+      await fetch("/api/parcels/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parcels: newOrder }),
+      });
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([PARCELS]);
+        refetch && refetch();
+      },
+    }
+  );
+
+  // Keep localParcels in sync with parcels from the server
+  useEffect(() => {
+    setLocalParcels(parcels);
+  }, [parcels]);
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
+    const handleMouseUp = (event) => {
       if (dragged !== null) {
         event.preventDefault();
+        setLocalParcels((prev) => {
+          const newOrder = reorderParcels(prev, dragged, closestDropZone);
+          // Send new order to backend
+          reorderMutation.mutate(newOrder);
+          return newOrder;
+        });
         setDragged(null);
-        setDownloadedBook((parcel) =>
-          reorderList(parcel, dragged, closestDropZone),
-        );
       }
     };
 
-    document.addEventListener("mouseup", handleMouseMove);
-    return () => document.removeEventListener("mouseup", handleMouseMove);
-  });
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, [dragged, closestDropZone, reorderMutation]);
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -53,9 +98,6 @@ export const ReorderList = () => {
     }
   }, [dragged, mouse]);
 
-  console.log(dragged);
-  console.log(closestDropZone);
-
   return (
     <>
       <nav className="booklist__nav">
@@ -72,10 +114,10 @@ export const ReorderList = () => {
             }}
           >
             <p className="reorder__item">
-              {downloadedBook[dragged].numberOfParcel}
+              {localParcels[dragged].numberOfParcel}
             </p>
-            <p className="reorder__data">{`${downloadedBook[dragged].name} ${downloadedBook[dragged].surname}`}</p>
-            <p className="reorder__data">{`${downloadedBook[dragged].city} ${downloadedBook[dragged].postCode}`}</p>
+            <p className="reorder__data">{`${localParcels[dragged].name} ${localParcels[dragged].surname}`}</p>
+            <p className="reorder__data">{`${localParcels[dragged].city} ${localParcels[dragged].postCode}`}</p>
           </div>
         )}
         <div className="reorder__list">
@@ -85,7 +127,7 @@ export const ReorderList = () => {
               dragged === null || closestDropZone !== 0 ? "hidden" : ""
             }`}
           />
-          {downloadedBook.map((parcel, i) => {
+          {localParcels.map((parcel, i) => {
             return (
               <>
                 {dragged !== i && (

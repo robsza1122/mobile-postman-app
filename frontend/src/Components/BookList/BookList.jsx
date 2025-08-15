@@ -5,10 +5,9 @@ import classNames from "classnames";
 import useParcels from "../../hooks/useParcels";
 
 export const BookList = () => {
-  const { downloadedBook, currentUser } = useContext(PostManState);
+  const { currentUser } = useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
-  console.log(downloadedBook);
 
   useEffect(() => {
     window.onpopstate = () => {
@@ -27,6 +26,8 @@ export const BookList = () => {
           return (
             <div
               className={classNames("booklist__position", {
+                                "booklist__position--delivered":
+                  parcel.status[parcel.status.length - 1].name === "IN DELIVERY",
                 "booklist__position--delivered":
                   parcel.status[parcel.status.length - 1].name === "DELIVERED",
                 "booklist__position--adviced":

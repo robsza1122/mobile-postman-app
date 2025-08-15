@@ -46,7 +46,7 @@ export const orderedParcelHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
   const { parcel } = await createOrder(request);
-  const url = `${APP_ORIGIN}/getCheckStatus/${parcel._id}`;
+  const url = `${APP_ORIGIN}/checkStatus/${parcel._id}`;
 
   await sendEmail({
     ...getDeliveryEmailTemplate(parcel, url),
@@ -81,6 +81,7 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       isMarked: 1,
       deliveryCode: 1,
       amountOfTrials: 1,
+      isDownloaded: 1,
       isDeliveryCode: 1,
       status: 1,
       isBooked: 1,
