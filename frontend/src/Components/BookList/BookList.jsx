@@ -3,26 +3,28 @@ import "./BookList.scss";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
 import useParcels from "../../hooks/useParcels";
+import { useNavigate } from "react-router-dom";
 
 export const BookList = () => {
-  const { currentUser } = useContext(PostManState);
+  const { currentUser, downloadedParcels } = useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.onpopstate = () => {
       navigate("/trailOption");
     };
   });
+  console.log(downloadedParcels);
 
-  const usersParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && parcel.isDownloaded);
 
   return (
     <nav className="booklist__nav">
       <p className="booklist__username">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       <p className="booklist__text">BOOK LIST</p>
       <div className="booklist__content">
-        {usersParcels.map((parcel) => {
+        {downloadedParcels.map((parcel) => {
           return (
             <div
               className={classNames("booklist__position", {

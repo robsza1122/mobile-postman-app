@@ -7,7 +7,7 @@ import { TrailOption } from "./Components/TrailOption/TrailOption.jsx";
 import { setNavigate } from "./api/navigation.js";
 import { LoginPage } from "./Pages/LoginPage/LoginPage.jsx";
 import { BookList } from "./Components/BookList/BookList.jsx";
-import { DeliverOption } from "./Components/DeliverOption/DeliverOption.jsx";
+import { StatusHandler } from "./Components/StatusHandler/StatusHandler.jsx";
 import { DeliveryCodeScreen } from "./Components/DeliveryCodeScreen/DeliveryCodeScreen.jsx";
 import { WorkPage } from "./Components/WorkPage/WorkPage.jsx";
 import { PostGlobalProvider } from "./PostGlobalProvider.jsx";
@@ -15,6 +15,7 @@ import { TraditionalDeliver } from "./Components/TraditionalDeliver/TraditionalD
 import { SignatureScreen } from "./Components/SignatureScreen/SignatureScreen.jsx";
 import { AdvicedOption } from "./Components/AdvicedOption/AdvicedOption.jsx";
 import { AdvicingScreen } from "./Components/AdvicingScreen/AdvicingScreen.jsx";
+import { DeliverOption } from "./Components/DeliverOption/DeliverOption.jsx";
 import { OtherOption } from "./Components/OtherOption/OtherOption.jsx";
 import { OtherOptionScreen } from "./Components/OtherOptionScreen/OtherOptionScreen.jsx";
 import { SettleWork } from "./Components/SettleWork/SettleWork.jsx";
@@ -30,12 +31,13 @@ export const App = () => {
     <PostGlobalProvider>
       <Routes>
         <Route path="/checkStatus/:id" element={<CheckStatus />} />
-        <Route path="/ML" element={<PostmanContainer />} />
-        <Route path="/" element={<MainPage />} />
+        <Route path="/" element={<PostmanContainer />} />
+        <Route path="/mainPage" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/startTrail" element={<TrailOption />} />
         <Route path="/booklist" element={<BookList />} />
         <Route path="/workPage" element={<WorkPage />} />
+        <Route path="/statusHandler" element={<StatusHandler />} />
         <Route path="/deliverOption" element={<DeliverOption />} />
         <Route path="/advicedOption" element={<AdvicedOption />} />
         <Route path="/deliveryCodeScreen" element={<DeliveryCodeScreen />} />

@@ -3,21 +3,38 @@ import { WorkNav } from "../WorkNav/WorkNav.jsx";
 import { myToolsOptions } from "../../utils/DataProvider.js";
 import { MyToolOption } from "../MyToolOption/MyToolOption.jsx";
 import { useContext } from "react";
+import { useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider.jsx";
 import { APMOption } from "../APMOption/APMOption.jsx";
 import { MyParcelOption } from "../MyParcelOption/MyParcelOption.jsx";
 import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
-import { useNavigate } from "react-router-dom";
 import useParcels from "../../hooks/useParcels.js";
 import useAuth from "../../hooks/useAuth.js";
 
 export const WorkPage = () => {
-  const { user } = useAuth();
   const { parcels } = useParcels();
-  const { slideOptions, downloadedBook, currentUser, settled } =
+
+  const { slideOptions, downloadedParcels, setDownloadedParcels, currentUser } =
     useContext(PostManState);
-  const usersParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && parcel.isDownloaded);
-  const parcelsToDeliver = parcels.filter(
+
+  useEffect(() => {
+    const handlePop = (e) => {
+      if (currentUser && currentUser.username) {
+        alert("Click LOGOUT button, if you want move to LoginPage");
+        window.history.pushState(null, document.title, window.location.href);
+      }
+    };
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", handlePop);
+
+    return () => {
+      window.removeEventListener("popstate", handlePop);
+    };
+  }, [currentUser]);
+  const usersParcels = parcels.filter(
+    (parcel) => parcel.forUser === currentUser.username && parcel.isDownloaded,
+  );
+  const parcelsToDeliver = downloadedParcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
       parcel.forUser === currentUser.username,
@@ -59,6 +76,9 @@ export const WorkPage = () => {
       title: "ADVICED",
     },
   ];
+
+  console.log(parcels);
+  console.log(downloadedParcels);
 
   return (
     <>

@@ -3,6 +3,7 @@ import { PostManState } from "../../PostGlobalProvider";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { markParcel } from "../../api/api";
+import classNames from "classnames";
 
 export const StatusHandlingList = ({
     title,
@@ -11,7 +12,7 @@ export const StatusHandlingList = ({
     statusType,
 }) => {
     const {parcels} = useParcels();
-    const {settled} = useContext(PostManState);
+    const {settled, setDownloadedParcels, downloadedParcels} = useContext(PostManState);
         const queryClient = useQueryClient();
   const { mutate: markClickedParcel } = useMutation({
     mutationFn: markParcel,
@@ -50,6 +51,23 @@ export const StatusHandlingList = ({
         return 'rgba(21, 120, 250, 0.866)';
     }
   }
+
+  const handleMarkParcel = (id, isMarked) => {
+    markClickedParcel({id, markParcel: isMarked});
+    const updateParcels = downloadedParcels.map(parcel => {
+      if (parcel._id === id) {
+        return {
+          ...parcel,
+          isMarked,
+        }
+      }
+
+      return parcel;
+    })
+    setDownloadedParcels(updateParcels)
+  }
+
+  console.log(downloadedParcels)
     return (
         <>
                     <div className="deliver__titlepanelblock" style={{
@@ -58,6 +76,7 @@ export const StatusHandlingList = ({
             {settled
               ? ""
               : listOfParcels.map((parcel) => {
+                console.log(parcel.isMarked)
                   return (
                     <div className="deliver__position" key={parcel._id}>
                       <div className="deliver__positioncontent">
@@ -71,8 +90,11 @@ export const StatusHandlingList = ({
                       <div className="deliver__inputcash">
                         <input
                           type="checkbox"
-                          className="deliver__checkbox"
-                          onClick={() => markClickedParcel({id: parcel._id, markParcel: !parcel.isMarked})}
+                          className={classNames('deliver__checkbox', {
+                            'deliver__checkbox--is-checked': parcel.isMarked,
+                          })}
+                          checked={parcel.isMarked}
+                          onClick={() => handleMarkParcel(parcel._id, !parcel.isMarked)}
                         />
                         {parcel.amount !== 0 && (
                           <p className="deliver__cash">

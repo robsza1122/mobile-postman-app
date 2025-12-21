@@ -2,7 +2,7 @@ import { z } from "zod";
 import { date } from "../services/auth.service";
 
 export const dataSchima = z.string().min(3).max(255);
-export const numberSchima = z.string().length(12).optional();
+export const numberSchima = z.string().length(14).optional();
 
 export const parcelSchima = z.object({
   senderName: dataSchima,

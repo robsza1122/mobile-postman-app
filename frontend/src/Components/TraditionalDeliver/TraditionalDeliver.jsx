@@ -2,25 +2,27 @@ import { useContext, useEffect, useState } from "react";
 import "./TraditionalDeliver.scss";
 import { PostManState } from "../../PostGlobalProvider";
 import { useNavigate } from "react-router-dom";
-import {
-  particularDeliveryInfo,
-  reasonOfAdvice,
-  subjectsOption,
-} from "../../utils/DataProvider";
+import { subjectsOption } from "../../utils/DataProvider";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
+import { PARCELS } from "../../hooks/useParcels";
 import { date } from "../../utils/currentDate";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDeliveredStatus } from "../../api/api";
 import useParcels from "../../hooks/useParcels";
 import { Loading } from "../../Loading/Loading.jsx";
+import { TDSubjectWindow } from "./TDSubjectWindow.jsx";
+import { TDParticularWindow } from "./TDParticularWindow.jsx";
+import { TDList } from "./TDList.jsx";
+import { TDSubjectOfDelivery } from "./TDSubjectOfDelivery.jsx";
+import { TDInputs } from "./TDInputs.jsx";
+import { TDNoAddresseeDelivery } from "./TDNoAddresseeDelivery.jsx";
+import { TDButtons } from "./TDButtons.jsx";
 
 export const TraditionalDeliver = () => {
   const {
-    currentParcels,
-    setCurrentParcels,
-    downloadedBook,
-    setDownloadedBook,
+    downloadedParcels,
+    setDownloadedParcels,
     currentUser,
     handleSignatureButton,
     chooseSubject,
@@ -28,67 +30,62 @@ export const TraditionalDeliver = () => {
     input,
     setInput,
     savePoints,
+    setSavePoints,
     particularSubject,
     setParticularSubject,
   } = useContext(PostManState);
   const { parcels } = useParcels();
-  const findParcel = downloadedBook.find(
-    (parcel) => parcel._id === currentParcels[0]._id,
-  );
+  const queryClient = useQueryClient();
+  const findParcel = downloadedParcels.filter((parcel) => parcel.isMarked);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    window.onpopstate = () => {
-      navigate("/ML");
-      setInput("");
-      window.location.reload();
-    };
-  });
   const [openList, setOpenList] = useState(false);
   const [showSubjects, setShowSubjects] = useState(false);
   const [choosen, setChoosen] = useState("");
   const [addresseesData, setAddresseesData] = useState(false);
+  const [noAddressee, setNoAddressee] = useState(false);
   const [showParticularSubject, setShowParticularSubject] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { mutate: changeStatus } = useMutation({
     mutationFn: addDeliveredStatus,
-    mutationKey: ["parcels"],
-    onSuccess: () => {
-      window.location.reload();
+    mutationKey: [PARCELS],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: [PARCELS] });
+
+      const previousParcels = queryClient.getQueriesData([PARCELS]);
+
+      queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
+
+      return { previousParcels };
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
   });
   const handleList = () => {
     setOpenList(!openList);
   };
   useEffect(() => {
-    window.onpopstate = () => {
-      if (currentParcels.length === 0) {
-        window.location.reload();
-      }
-      setDownloadedBook(
-        downloadedBook.map((parcel) => {
-          if (parcel.isMarked) {
-            return {
-              ...parcel,
-              deliveryInput: "",
-              isMarked: false,
-            };
-          }
-
-          return parcel;
-        }),
-      );
-      if (currentParcels[0].amountOfTrials === 3) {
+    const handlePop = () => {
+      const marked = (downloadedParcels || []).filter((p) => p.isMarked);
+      if (!marked || marked.length === 0) {
         navigate("/deliverOption");
+      } else {
+        navigate("/workPage");
       }
     };
-  }, []);
+
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", handlePop);
+
+    return () => {
+      window.removeEventListener("popstate", handlePop);
+    };
+  }, [downloadedParcels, navigate]);
 
   const handleConfirmButton = () => {
     if (
-      currentParcels[0].noAddressee &&
+      findParcel[0].noAddressee &&
       particularSubject === "Parcel left in place set with addressee" &&
       input === ""
     ) {
@@ -97,7 +94,7 @@ export const TraditionalDeliver = () => {
       return;
     }
     if (
-      currentParcels[0].noAddressee &&
+      findParcel[0].noAddressee &&
       particularSubject !== "Parcel left in place set with addressee" &&
       input === ""
     ) {
@@ -105,19 +102,15 @@ export const TraditionalDeliver = () => {
 
       return;
     }
-    if (!currentParcels[0].noAddressee && input === "") {
+    if (!findParcel[0].noAddressee && input === "") {
       alert("Type name and surname delivery's subject");
 
       return;
     }
-    if (
-      findParcel.isSignature &&
-      findParcel.signature &&
-      !currentParcels[0].noAddressee
-    ) {
+    if (savePoints && !findParcel[0].noAddressee) {
       changeStatus({
         nameOfStatus: "DELIVERED",
-        id: findParcel._id,
+        id: findParcel[0]._id,
         subject: chooseSubject,
         details: "",
         signature: savePoints,
@@ -129,14 +122,14 @@ export const TraditionalDeliver = () => {
         officeOfAdvice: "",
         placeOfNotification: "",
         isBooked: true,
-        numberOfBook: findParcel.numberOfBook,
+        numberOfBook: findParcel[0].numberOfBook,
         isDownloaded: true,
-        username: findParcel.forUser,
+        username: findParcel[0].forUser,
         createdAt: date,
       });
-      setDownloadedBook(
-        downloadedBook.map((parcel) => {
-          if (findParcel._id === parcel._id) {
+      setDownloadedParcels(
+        downloadedParcels.map((parcel) => {
+          if (findParcel[0]._id === parcel._id) {
             return {
               ...parcel,
               isMarked: false,
@@ -147,7 +140,6 @@ export const TraditionalDeliver = () => {
                   createdAt: date,
                   subject: chooseSubject,
                   details: particularSubject,
-                  noAddressee: false,
                   deliveryInput:
                     particularSubject ===
                     "Parcel left in place set with addressee"
@@ -161,39 +153,35 @@ export const TraditionalDeliver = () => {
           return parcel;
         }),
       );
-      navigate("/deliverOption");
-      setCurrentParcels([]);
+      navigate("/statusHandler");
       setInput("");
-    } else if (
-      findParcel.isSignature &&
-      findParcel.signature &&
-      currentParcels[0].noAddressee
-    ) {
+      setSavePoints(null);
+    } else if (findParcel[0].noAddressee) {
       changeStatus({
-        id: findParcel._id,
+        nameOfStatus: "DELIVERED",
+        id: findParcel[0]._id,
         subject: chooseSubject,
         details: particularSubject,
-        nameOfStatus: "DELIVERED",
         signature: savePoints,
         isDeliveryCode: false,
         isSignature: true,
         noAddressee: true,
         deliveryInput:
           particularSubject === "Parcel left in place set with addressee"
-            ? input.toString()
+            ? input
             : "",
         reasonOfAdvice: "",
         officeOfAdvice: "",
         placeOfNotification: "",
         isBooked: true,
-        numberOfBook: findParcel.numberOfBook,
-        username: findParcel.forUser,
+        numberOfBook: findParcel[0].numberOfBook,
+        username: findParcel[0].forUser,
         createdAt: date,
         isDownloaded: true,
       });
-      setDownloadedBook(
-        downloadedBook.map((parcel) => {
-          if (findParcel._id === parcel._id) {
+      setDownloadedParcels(
+        downloadedParcels.map((parcel) => {
+          if (findParcel[0]._id === parcel._id) {
             return {
               ...parcel,
               isMarked: false,
@@ -218,24 +206,21 @@ export const TraditionalDeliver = () => {
           return parcel;
         }),
       );
-      setCurrentParcels([]);
-      navigate("/deliverOption");
+      navigate("/statusHandler");
       setInput("");
-    } else if (!findParcel.isSignature) {
+    } else if (!savePoints) {
       alert("Please do signature");
     }
   };
 
   console.log(currentUser);
-  console.log(findParcel);
   console.log(input);
   console.log(showParticularSubject);
-  console.log(downloadedBook);
+  console.log(downloadedParcels);
   console.log(chooseSubject);
-  console.log(addresseesData);
   console.log(parcels);
-  console.log(currentParcels[0].noAddressee);
   console.log(particularSubject);
+  console.log(findParcel[0].noAddressee);
   return (
     <>
       {loading && (
@@ -246,403 +231,77 @@ export const TraditionalDeliver = () => {
       )}
       <div className="td__content">
         {showSubjects && (
-          <>
-            <div
-              className="td__background"
-              onClick={() => showSubjects(false)}
-            ></div>
-            <div className="td__window">
-              {subjectsOption.map((subject, id) => {
-                const handleButtonSubject = () => {
-                  setDownloadedBook(
-                    downloadedBook.map((parcel) => {
-                      if (parcel._id === currentParcels[0]._id) {
-                        return {
-                          ...parcel,
-                          isSignature: false,
-                          signature: null,
-                        };
-                      }
-
-                      return parcel;
-                    }),
-                  );
-
-                  setInput(
-                    `${
-                      subject === "Addressee"
-                        ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                        : ""
-                    }`,
-                  );
-                  setAddresseesData(subject === "Addressee" ? true : false);
-                  setShowSubjects(false);
-                  setChooseSubject(subject);
-                };
-                console.log(id);
-                return (
-                  <button
-                    className="td__subjectposition"
-                    onMouseDown={() => setChoosen(subject)}
-                    onMouseUp={() => setChoosen("")}
-                    onClick={() => handleButtonSubject()}
-                    style={{
-                      backgroundColor: `${
-                        choosen === subject ? "lightgray" : "white"
-                      }`,
-                    }}
-                    key={id}
-                  >
-                    {subject}
-                  </button>
-                );
-              })}
-            </div>
-          </>
+          <TDSubjectWindow
+            showSubjects={showSubjects}
+            subjectsOption={subjectsOption}
+            markedParcel={findParcel[0]}
+            setShowSubjects={setShowSubjects}
+            setChooseSubject={setChooseSubject}
+            setChoosen={setChoosen}
+            choosen={choosen}
+            setAddresseesData={setAddresseesData}
+            setInput={setInput}
+          />
         )}
-        {showParticularSubject && (
-          <>
-            <div
-              className="td__background"
-              onClick={() => showSubjects(false)}
-            ></div>
-            <div className="td__window">
-              {particularDeliveryInfo.map((subject, id) => {
-                const handleButtonSubject = () => {
-                  setInput(
-                    `${
-                      chooseSubject === "Addressee" && !addresseesData
-                        ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                        : ""
-                    }`,
-                  );
-                  setDownloadedBook(
-                    downloadedBook.map((parcel) => {
-                      if (parcel._id === currentParcels[0]._id) {
-                        return {
-                          ...parcel,
-                          isSignature: false,
-                          signature: null,
-                        };
-                      }
 
-                      return parcel;
-                    }),
-                  );
-                  if (currentParcels[0].noAddressee) {
-                    setInput(
-                      particularSubject ===
-                        "Parcel left in place set with addressee"
-                        ? ""
-                        : input,
-                    );
-                  }
-                  if (
-                    particularSubject ===
-                    "Parcel left in place set with addressee"
-                  ) {
-                    setInput("");
-                  }
-                  setShowParticularSubject(false);
-                  setParticularSubject(subject);
-                };
-                console.log(id);
-                return (
-                  <button
-                    className="td__subjectposition"
-                    onMouseDown={() => setChoosen(subject)}
-                    onMouseUp={() => setChoosen("")}
-                    onClick={() => handleButtonSubject()}
-                    style={{
-                      backgroundColor: `${
-                        choosen === subject ? "lightgray" : "white"
-                      }`,
-                    }}
-                    key={id}
-                  >
-                    {subject}
-                  </button>
-                );
-              })}
-            </div>
-          </>
+        {showParticularSubject && (
+          <TDParticularWindow
+            showSubjects={showSubjects}
+            setInput={setInput}
+            input={input}
+            markedParcel={findParcel[0]}
+            chooseSubject={chooseSubject}
+            addresseesData={addresseesData}
+            particularSubject={particularSubject}
+            setChoosen={setChoosen}
+            choosen={choosen}
+            setShowParticularSubject={setShowParticularSubject}
+            setParticularSubject={setParticularSubject}
+          />
         )}
         <nav className="td__nav">
           <p className="td__info">DELIVER WITH SIGNATURE</p>
           <p className="td__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </nav>
-        <div className="td__list">
-          {currentParcels.map((parcel) => {
-            return (
-              <>
-                <button
-                  className="td__listcontent"
-                  key={parcel._id}
-                  onClick={() => handleList()}
-                >
-                  <p
-                    className="td__listarrow"
-                    style={{
-                      transform: `${openList ? "rotate(0.25turn)" : ""}`,
-                    }}
-                  >
-                    {">"}
-                  </p>
-                  <p className="td__listposition">{parcel.numberOfParcel}</p>
-                </button>
-                {openList && (
-                  <div className="td__listinfocontent">
-                    <div className="td__infocontent">
-                      <p className="td__infotext">Cash On Delivery:</p>
-                      <div className="td__datacontent">
-                        <img
-                          src="src/image/coins.svg"
-                          alt=""
-                          className="td__infoimage"
-                        />
-                        <p className="td__infodata">{parcel.amount}</p>
-                      </div>
-                    </div>
-                    <div className="td__infocontent">
-                      <p className="td__infotext">Weight:</p>
-                      <div className="td__datacontent">
-                        <img
-                          src="src/image/weight.svg"
-                          alt=""
-                          className="td__infoimage"
-                        />
-                        <p className="td__infodata">2.00</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            );
-          })}
-        </div>
-        <div
-          className={classNames("td__deliverycontent", {
-            "td__deliverycontent--opened-list": openList,
-          })}
-        >
-          <p className="td__subject">Subject Of Delivery:</p>
-          <button
-            className="td__subjectcontent"
-            onClick={() => {
-              setShowSubjects(true);
-              setDownloadedBook(
-                downloadedBook.map((parcel) => {
-                  if (parcel._id === currentParcels[0]._id) {
-                    return {
-                      ...parcel,
-                      isSignature: false,
-                      signature: null,
-                    };
-                  }
+        <TDList
+          findParcel={findParcel}
+          openList={openList}
+          handleList={handleList}
+        />
 
-                  return parcel;
-                }),
-              );
-            }}
-            disabled={currentParcels[0].noAddressee}
-          >
-            {`${
-              currentParcels[0].noAddressee
-                ? "Person authorized to receive parcel"
-                : chooseSubject
-            }`}
-          </button>
-        </div>
+        <TDSubjectOfDelivery
+          setShowSubjects={setShowSubjects}
+          openList={openList}
+          markedParcel={findParcel[0]}
+          chooseSubject={chooseSubject}
+        />
         <p className="td__receivingperson">Name and surname receiving person</p>
-        <div className="td__inputs">
-          {!currentParcels[0].noAddressee && (
-            <>
-              <input
-                type="text"
-                className="td__input"
-                defaultValue={`${currentParcels[0].name} ${currentParcels[0].surname}`}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  setDownloadedBook(
-                    downloadedBook.map((parcel) => {
-                      if (parcel._id === currentParcels[0]._id) {
-                        return {
-                          ...parcel,
-                          isSignature: false,
-                          signature: null,
-                        };
-                      }
-
-                      return parcel;
-                    }),
-                  );
-                }}
-                placeholder="Write name and surname"
-              />
-              <div className="td__inputcontent">
-                <p className="td__inputinfo">Copy from addressee's data</p>
-                <input
-                  type="checkbox"
-                  className="td__checkbox"
-                  value={addresseesData ? true : false}
-                  disabled={chooseSubject !== "Addressee"}
-                  onClick={() => {
-                    if (chooseSubject === "Addressee") {
-                      setInput(
-                        `${currentParcels[0].name} ${currentParcels[0].surname}`,
-                      );
-                    }
-                    setAddresseesData(!addresseesData);
-                    setInput(
-                      addresseesData && chooseSubject === "Addressee"
-                        ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                        : "",
-                    );
-                    setDownloadedBook(
-                      downloadedBook.map((parcel) => {
-                        if (parcel._id === currentParcels[0]._id) {
-                          return {
-                            ...parcel,
-                            deliveryInput: "",
-                            isSignature: false,
-                            signature: null,
-                          };
-                        }
-
-                        return parcel;
-                      }),
-                    );
-                  }}
-                />
-              </div>
-            </>
-          )}
-          {currentParcels[0].noAddressee &&
-            particularSubject === "Parcel left in place set with addressee" && (
-              <input
-                type="text"
-                className="td__input"
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  setDownloadedBook(
-                    downloadedBook.map((parcel) => {
-                      if (parcel._id === currentParcels[0]._id) {
-                        return {
-                          ...parcel,
-                          deliveryInput: "",
-                          isSignature: false,
-                          signature: null,
-                        };
-                      }
-
-                      return parcel;
-                    }),
-                  );
-                }}
-                placeholder="Type place of delivery..."
-                style={{
-                  width: "100%",
-                }}
-              />
-            )}
-        </div>
+        <TDInputs
+          markedParcel={findParcel[0]}
+          setInput={setInput}
+          input={input}
+          chooseSubject={chooseSubject}
+          setAddresseesData={setAddresseesData}
+          addresseesData={addresseesData}
+          particularSubject={particularSubject}
+        />
         <div className="td__signcontent">
-          {currentParcels[0].noAddressee && (
-            <button
-              className="td__particularcontent"
-              style={{
-                height: `${currentParcels[0].noAddressee && "35px"}`,
-                width: "100%",
-              }}
-              onClick={() => {
-                setShowParticularSubject(true);
-                setDownloadedBook(
-                  downloadedBook.map((parcel) => {
-                    if (parcel._id === currentParcels[0]._id) {
-                      return {
-                        ...parcel,
-                        isSignature: false,
-                        signature: null,
-                      };
-                    }
-
-                    return parcel;
-                  }),
-                );
-              }}
-            >
-              {particularSubject}
-            </button>
-          )}
-          <div className="td__signcontainer">
-            <p className="td__signtext">Addressee's signature</p>
-            <div className="td__crane">
-              <button
-                className="td__signbutton"
-                onClick={() => {
-                  setAddresseesData(false);
-                  setDownloadedBook(
-                    downloadedBook.map((parcel) => {
-                      if (parcel._id === currentParcels[0]._id) {
-                        return {
-                          ...parcel,
-                          noAddressee: !parcel.noAddressee,
-                        };
-                      }
-
-                      return parcel;
-                    }),
-                  );
-                  currentParcels[0].noAddressee =
-                    !currentParcels[0].noAddressee;
-                  setInput(
-                    !currentParcels[0].noAddressee
-                      ? `${currentParcels[0].name} ${currentParcels[0].surname}`
-                      : "",
-                  );
-                }}
-                style={{
-                  transform: `translateX(${
-                    currentParcels[0].noAddressee ? "45px" : "0"
-                  })`,
-                  transition: "0.3s ease transform",
-                }}
-              >
-                {!currentParcels[0].noAddressee ? "YES" : "NO"}
-              </button>
-            </div>
-          </div>
+          <TDNoAddresseeDelivery
+            markedParcel={findParcel[0]}
+            setShowParticularSubject={setShowParticularSubject}
+            particularSubject={particularSubject}
+            setNoAddressee={setNoAddressee}
+            noAddressee={noAddressee}
+            setInput={setInput}
+          />
         </div>
-        <div className="td__buttons">
-          <Link
-            to={findParcel.amountOfTrials === 3 ? "" : "/deliveryCodeScreen"}
-            className={classNames("td__button", {
-              "td__button--disabled": findParcel.amountOfTrials === 3,
-            })}
-            disabled={findParcel.amountOfTrials === 3}
-          >
-            Delivery code
-          </Link>
-          <Link
-            className={classNames("td__button", {
-              "td__button--is-signed": findParcel.isSignature,
-            })}
-            to={`${
-              currentParcels[0].noAddressee
-                ? input === "" &&
-                  particularSubject ===
-                    "Parcel left in place set with addressee"
-                  ? ""
-                  : "/signatureScreen"
-                : `${input === "" ? "" : "/signatureScreen"}`
-            }`}
-            onClick={() => handleSignatureButton()}
-          >
-            Signature
-          </Link>
-        </div>
+        <TDButtons
+          markParcel={findParcel[0]}
+          input={input}
+          particularSubject={particularSubject}
+          savePoints={savePoints}
+          handleSignatureButton={handleSignatureButton}
+        />
         <div className="td__confirmcontent">
           <button
             className="td__confirmbutton"

@@ -335,10 +335,13 @@ export const addInDeliveryStatus = async ({
     }
   );
 
-  const assignParcelsToUser = await UserModel.find({}, {
-    isDownloaded: true,
-    forUser: username,
-  });
+  const assignParcelsToUser = await parcelModel.find({isDownloaded: true,
+    forUser: username});
+
+  await UserModel.updateOne(
+    {username},
+    {$push: {parcels: {...assignParcelsToUser}}}
+  )
 
   return {
     assignParcelsToUser,
@@ -589,3 +592,67 @@ export const otherStatus = async ({
     updatedUser,
   };
 };
+
+type FailedDeliveryCodeType = {
+  id: string;
+  amountOfTrials: number;
+}
+
+export const failedDeliveryCode = async ({id, amountOfTrials}: FailedDeliveryCodeType) => {
+  const updatedParcel = await parcelModel.findByIdAndUpdate(id, {
+    $set: {amountOfTrials}
+  })
+
+  return {
+    updatedParcel,
+  }
+}
+
+type SaveParcelType = {
+  parcels: CreateParcelOrder[],
+  id: string;
+}
+
+export const saveParcelsInUserMemory = async( {parcels, id}: SaveParcelType ) => {
+  const saveParcels = await UserModel.findByIdAndUpdate(id, {
+    $push: {parcels}
+  });
+
+  return { saveParcels };
+}
+
+type MarkAllParcelInListType = {
+  user: string;
+}
+
+export const markAllParcelOnFalseInList = async( {user}: MarkAllParcelInListType ) => {
+  await parcelModel.updateMany(
+  {isBooked: true,
+    forUser: user,
+    isDownloaded: true,
+  },
+  { isMarked: false }
+  );
+
+  const changedParcels = await parcelModel.find({isBooked: true, forUser: user, isDownloaded: true});
+
+  return {
+    changedParcels,
+  }
+}
+
+export const markAllParcelOnTrueInList = async( {user}: MarkAllParcelInListType ) => {
+  await parcelModel.updateMany(
+  {isBooked: true,
+    forUser: user,
+    isDownloaded: true,
+  },
+  { isMarked: true }
+  );
+
+  const changedParcels = await parcelModel.find({isBooked: true, forUser: user, isDownloaded: true});
+
+  return {
+    changedParcels,
+  }
+}

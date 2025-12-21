@@ -13,7 +13,7 @@ import { addAdvicedStatus } from "../../api/api";
 
 export const AdvicingScreen = () => {
   const { currentUser } = useContext(PostManState);
-  const { setDownloadedBook, downloadedBook, currentParcels, setInput } =
+  const { setDownloadedBook, downloadedParcels, currentParcels, setInput } =
     useContext(PostManState);
   const { mutate: changeStatus } = useMutation({
     mutationKey: ["advicedParcel"],
@@ -71,7 +71,7 @@ export const AdvicingScreen = () => {
 
   const handleConfirmButton = () => {
     setDownloadedBook(
-      downloadedBook.map((parcel) => {
+      downloadedParcels.map((parcel) => {
         if (parcel._id === currentParcels[0]._id) {
           changeStatus({
             nameOfStatus: "ADVICED",

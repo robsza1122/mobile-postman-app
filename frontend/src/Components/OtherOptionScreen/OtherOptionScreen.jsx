@@ -9,7 +9,7 @@ import { addOtherResult } from "../../api/api";
 
 export const OtherOptionScreen = () => {
   const { currentUser, setInput, input } = useContext(PostManState);
-  const { setDownloadedBook, downloadedBook, currentParcels } =
+  const { setDownloadedBook, downloadedParcels } =
     useContext(PostManState);
   const { mutate: otherResult } = useMutation({
     mutationKey: ["advicedParcel"],
@@ -53,7 +53,7 @@ export const OtherOptionScreen = () => {
 
   const handleConfirmButton = () => {
     setDownloadedBook(
-      downloadedBook.map((parcel) => {
+      downloadedParcels.map((parcel) => {
         if (parcel._id === currentParcels[0]._id) {
           otherResult({
             nameOfStatus: "OTHER",

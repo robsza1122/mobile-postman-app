@@ -3,11 +3,20 @@ import useParcels from "../../hooks/useParcels";
 
 
 
-export const StatusHandlingButtons = ({slideOptions, markedParcels}) => {
+export const StatusHandlingButtons = ({
+  slideOptions,
+   markedParcels,
+  firstButton,
+  secondButton,
+  firstButtonLink,
+  secondButtonLink,
+}) => {
       const navigate = useNavigate();
       const {parcels} = useParcels();
+      console.log(markedParcels)
+      const parcelIsMarked = markedParcels.length;
       const handleOneDeliveryAlerts = () => {
-    const parcelIsMarked = markedParcels.length;
+    
     switch (parcelIsMarked) {
       case 0:
         return alert("No position is marked");
@@ -32,23 +41,6 @@ export const StatusHandlingButtons = ({slideOptions, markedParcels}) => {
     }
   };
 
-  const handleLink = () => {
-    if (markedParcels.length === 1 && markedParcels.amountOfTrials === 3) {
-      return "/traditionalDeliver";
-    }
-    if (markedParcels.length === 1) {
-      return "/deliveryCodeScreen";
-    }
-    return "";
-  };
-
-  const handleMultiDeliveryLink = () => {
-    if (markedParcels.length === 0 || markedParcels.length === 1) {
-      return "";
-    } else if (markedParcels.length > 1) {
-      return "/multiDeliveryVerification";
-    }
-  };
               return (
                           <div
                             className="deliver__buttons"
@@ -59,19 +51,19 @@ export const StatusHandlingButtons = ({slideOptions, markedParcels}) => {
                           >
                             <Link
                               className="deliver__button"
-                              to={handleLink()}
+                              to={firstButtonLink}
                               onClick={() => handleOneDeliveryAlerts()}
                             >
-                              <p className="deliver__buttontext">Individual Delivery</p>
+                              <p className="deliver__buttontext">{firstButton}</p>
                               <img src="src/image/hand.svg" alt="" className="deliver__img" />
                               <img src="src/image/box.svg" alt="" className="deliver__imgbox" />
                             </Link>
                             <Link
                               className="deliver__button"
-                              to={handleMultiDeliveryLink()}
+                              to={secondButtonLink}
                               onClick={() => handleMultiDeliveryAlerts()}
                             >
-                              <p className="deliver__buttontext">Multi-delivery</p>
+                              <p className="deliver__buttontext">{secondButton}</p>
                               <img src="src/image/boxes.svg" alt="" className="deliver__img" />
                             </Link>
                           </div>

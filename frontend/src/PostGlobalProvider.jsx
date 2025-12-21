@@ -6,6 +6,10 @@ import { deleteAllDates } from "./api/api";
 import showCurrentUsers from "./hooks/showAllUsers";
 
 export const PostManState = createContext({
+  isLoggedOut: true,
+  setIsLoggedOut: () => {},
+  isMainPage: true,
+  setIsMainPage: () => {},
   slideOptions: 0,
   setSlideOptions: () => {},
   chosenOption: 1,
@@ -21,7 +25,6 @@ export const PostManState = createContext({
   clearBook: () => {},
   savePoints: [],
   setSavePoints: () => {},
-  saveSignature: () => {},
   clearSignature: () => {},
   input: "",
   setInput: () => {},
@@ -39,11 +42,16 @@ export const PostManState = createContext({
   setShowAllCurrentUsers: () => {},
   dayIsFinished: false,
   setDayIsFinished: () => {},
+  downloadedParcels: [],
+  setDownloadedParcels: () => {},
 });
 
 export const PostGlobalProvider = ({ children }) => {
   const { user } = useAuth();
   const { showUsers } = showCurrentUsers();
+  const [isLoggedOut, setIsLoggedOut] = useLocaleStorage("isLoggedOut", true);
+  const [isMainPage, setIsMainPage] = useLocaleStorage("isMainPage", true);
+  const [downloadedParcels, setDownloadedParcels] = useLocaleStorage("downloadedParcels", []);
   const [slideOptions, setSlideOptions] = useLocaleStorage("slideOptions", 0);
   const [chosenOption, setChosenOption] = useLocaleStorage("chosenOption", 1);
   const [currentUser, setCurrentUser] = useLocaleStorage("currentUser", {});
@@ -95,6 +103,7 @@ export const PostGlobalProvider = ({ children }) => {
     deleteAllDates();
     setDeliveryBooks([]);
     setSettled(false);
+    setDownloadedParcels([]);
   };
 
   const clearSignature = () => {
@@ -102,10 +111,8 @@ export const PostGlobalProvider = ({ children }) => {
     signatureRef.current?.clear();
   };
 
-  const saveSignature = () => {};
-
   const handleSignatureButton = () => {
-    setSavePoints([]);
+    setSavePoints(null);
 
     if (
       input === "" &&
@@ -120,6 +127,10 @@ export const PostGlobalProvider = ({ children }) => {
   return (
     <PostManState.Provider
       value={{
+        isLoggedOut,
+        setIsLoggedOut,
+        isMainPage,
+        setIsMainPage,
         slideOptions,
         chosenOption,
         setChosenOption,
@@ -147,10 +158,11 @@ export const PostGlobalProvider = ({ children }) => {
         setSettled,
         settled,
         clearBook,
-        saveSignature,
         clearSignature,
         handleSignatureButton,
         signatureRef,
+        downloadedParcels,
+        setDownloadedParcels,
       }}
     >
       {children}

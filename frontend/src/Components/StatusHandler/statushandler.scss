@@ -260,5 +260,13 @@ body {
       transition: 120ms transform ease-in-out;
       box-shadow: inset 13px 13px $post-color;
     }
+    &:--is-checked {
+            content: "";
+      width: 15px;
+      height: 15px;
+      transform: scale(0);
+      transition: 120ms transform ease-in-out;
+      box-shadow: inset 13px 13px $post-color;
+    }
   }
 }

@@ -22,21 +22,21 @@ API.interceptors.response.use(
     const { status, data } = response || {};
 
     // try to refresh the access token behind the scenes
-    if (status === UNAUTHORIZED && data?.errorCode === "InvalidAccessToken") {
-      try {
         // refresh the access token, then retry the original request
+        try {
         await TokenRefreshClient.get("/refresh");
+        navigate('/workPage')
         return TokenRefreshClient(config);
       } catch (error) {
         // handle refresh errors by clearing the query cache & redirecting to login
         queryClient.clear();
-        navigate("/ML", {
+        navigate("/login", {
           state: {
             redirectUrl: window.location.pathname,
           },
         });
       }
-    }
+    
 
     return Promise.reject({ status, ...data });
   },

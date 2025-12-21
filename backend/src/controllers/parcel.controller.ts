@@ -13,7 +13,10 @@ import {
   date,
   deleteBook,
   deliveredStatus,
+  failedDeliveryCode,
   loginUser,
+  markAllParcelOnFalseInList,
+  markAllParcelOnTrueInList,
   markParcel,
   otherStatus,
   refreshUserAccessToken,
@@ -39,6 +42,8 @@ import { loginShema, registerSchima } from "./user.schima";
 import { usersParcelSchima } from "./usersparcel.schima";
 import { assignParcelSchima, deleteDeliveryBookSchima } from "./assignparcels.schima";
 import { markParcelSchima } from "./markparcel.schima";
+import { failedDeliveryCodeSchima } from "./failedDeliveryCodeSchima";
+import { markAllParcelInListSchima } from "./markAllParcelInListSchima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
   const request = parcelSchima.parse({
@@ -187,6 +192,17 @@ export const deliveredStatusHandler = catchErrors(async (req, res) => {
   return res.status(OK).json(updatedUser);
 });
 
+export const failedDeliveryCodeHandler = catchErrors(async (req, res) => {
+  const request = failedDeliveryCodeSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  })
+
+  const {updatedParcel } = await failedDeliveryCode(request);
+
+  return res.status(OK).json(updatedParcel);
+})
+
 export const advicedStatusHandler = catchErrors(async (req, res) => {
   const request = statusSchima.parse({
     ...req.body,
@@ -265,7 +281,7 @@ export const markParcelHandler = catchErrors(async (req, res) => {
   return res.status(OK).json(markedParcel);
 });
 
-export const markingOnTrueHandler = catchErrors(async (req, res) => {
+export const markingOnTrueInBookHandler = catchErrors(async (req, res) => {
   await parcelModel.updateMany(
     { isBooked: false },
     {
@@ -277,7 +293,7 @@ export const markingOnTrueHandler = catchErrors(async (req, res) => {
   res.status(OK).json(updateParcels);
 });
 
-export const markingOnFalseHandler = catchErrors(async (req, res) => {
+export const markingOnFalseInBookHandler = catchErrors(async (req, res) => {
   await parcelModel.updateMany(
     { isBooked: false },
     {
@@ -288,6 +304,26 @@ export const markingOnFalseHandler = catchErrors(async (req, res) => {
   const updateParcels = await parcelModel.find({});
 
   res.status(OK).json(updateParcels);
+});
+
+export const markingOnFalseInListHandler = catchErrors(async (req, res) => {
+    const request = markAllParcelInListSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+  const { changedParcels } = await markAllParcelOnFalseInList(request);
+
+  res.status(OK).json(changedParcels);
+});
+
+export const markingOnTrueInListHandler = catchErrors(async (req, res) => {
+    const request = markAllParcelInListSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+  const { changedParcels } = await markAllParcelOnTrueInList(request);
+
+  res.status(OK).json(changedParcels);
 });
 
 export const deleteBookHandler = catchErrors(async (req, res) => {
@@ -326,9 +362,14 @@ export const clearDatesHandler = catchErrors(async (req, res) => {
         forUser: "",
         numberOfBook: "",
         isMarked: false,
+        amountOfTrials: 0,
       },
     }
   );
+
+    await UserModel.updateMany( {}, {
+      $set: {parcels: []}
+    })
 
   return res.status(OK).json({
     message: "Book is successfully cleared",

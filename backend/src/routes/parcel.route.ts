@@ -14,12 +14,16 @@ import {
   addInDeliveryStatusHandler,
   markParcelHandler,
   deliveredStatusHandler,
-  markingOnTrueHandler,
-  markingOnFalseHandler,
+  markingOnTrueInBookHandler,
+  markingOnFalseInBookHandler,
   deleteBookHandler,
   clearDatesHandler,
   advicedStatusHandler,
+  failedDeliveryCodeHandler,
+  markingOnTrueInListHandler,
+  markingOnFalseInListHandler,
 } from "../controllers/parcel.controller";
+import { saveParcelsToUserHandler } from "../controllers/user.controller";
 
 const postRoutes = Router();
 
@@ -35,12 +39,16 @@ postRoutes.post("/addAdvicedStatus", advicedStatusHandler);
 postRoutes.post("/addOtherStatus", otherResultHandler); 
 postRoutes.post("/sendInDeliveryEmail/:id", inDeliveryEmailHandler);
 postRoutes.get("/showAllUsers", showUsersHandler);
+postRoutes.post("/handleFailedDeliveryCode", failedDeliveryCodeHandler);
 
 postRoutes.post("/assignParcelsToUser", assignParcelsHandler);
+postRoutes.post("/saveParcelsToUser", saveParcelsToUserHandler);
 postRoutes.post("/addInDeliveryStatus", addInDeliveryStatusHandler);
 postRoutes.post("/markParcel", markParcelHandler);
-postRoutes.post("/markAllParcelsOnTrue", markingOnTrueHandler);
-postRoutes.post("/markAllParcelsOnFalse", markingOnFalseHandler);
+postRoutes.post("/markAllParcelsOnTrueForBook", markingOnTrueInBookHandler);
+postRoutes.post("/markAllParcelsOnFalseForBook", markingOnFalseInBookHandler);
+postRoutes.post("/markAllParcelOnTrueInList", markingOnTrueInListHandler);
+postRoutes.post("/markAllParcelOnFalseInList", markingOnFalseInListHandler);
 postRoutes.post("/deleteBook", deleteBookHandler);
 postRoutes.post("/deleteAllDates", clearDatesHandler);
 

@@ -5,9 +5,11 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getCheckStatus } from "../../api/api.js";
 import classNames from "classnames";
+import useParcels from "../../hooks/useParcels.js";
 
 export const CheckStatus = () => {
   const { id } = useParams();
+  const { parcels } = useParcels();
   const {
     isSuccess,
     isError,
@@ -23,6 +25,7 @@ export const CheckStatus = () => {
   const [clickedId, setClickedId] = useState(null);
 
   console.log(checkStatus);
+  console.log(parcels);
 
   return (
     <>

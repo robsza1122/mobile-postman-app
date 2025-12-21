@@ -201,6 +201,12 @@
     &NO {
       border-radius: 0 0 10px 0;
     }
+    &--link {
+      line-height: 50px;
+      font-family: Post;
+      text-decoration: none;
+      text-align: center;
+    }
     &s {
       display: flex;
       width: 100%;

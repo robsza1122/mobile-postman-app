@@ -1,5 +1,5 @@
 import useAuth from "../../hooks/useAuth";
-import "../DeliverOption/DeliverOption.scss";
+import "../StatusHandler/statushandler.scss";
 import classnames from "classnames";
 import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ export const OtherOption = () => {
   const {
     setDownloadedBook,
     setCurrentParcels,
-    downloadedBook,
+    downloadedParcels,
     currentParcels,
     currentUser,
     settled,
@@ -20,7 +20,7 @@ export const OtherOption = () => {
   const { parcels } = useParcels();
   useEffect(() => {
     setDownloadedBook(
-      downloadedBook.map((parcel) => {
+      downloadedParcels.map((parcel) => {
         if (parcel.isMarked) {
           return {
             ...parcel,
@@ -67,7 +67,7 @@ export const OtherOption = () => {
   const { user } = useAuth();
 
   const changeCheckbox = (id) => {
-    const changeStatus = downloadedBook.map((currentParcel) => {
+    const changeStatus = downloadedParcels.map((currentParcel) => {
       if (currentParcel._id === id) {
         return {
           ...currentParcel,
@@ -117,7 +117,7 @@ export const OtherOption = () => {
   };
 
   console.log(currentParcels);
-  console.log(downloadedBook);
+  console.log(downloadedParcels);
   return (
     <div className="deliver__content">
       <nav className="deliver__nav">

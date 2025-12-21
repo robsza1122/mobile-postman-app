@@ -1,33 +1,40 @@
 import "./SignatureScreen.scss";
 import { useContext, useEffect } from "react";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { PostManState } from "../../PostGlobalProvider";
 import SignaturePad from "react-signature-canvas";
 import classNames from "classnames";
+import { useMutation } from "@tanstack/react-query";
+import { addDeliveredStatus } from "../../api/api";
+import { navigate } from "../../api/navigation";
 
 export const SignatureScreen = () => {
   const {
-    currentParcels,
     savePoints,
     setSavePoints,
     clearSignature,
-    saveSignature,
-    setDownloadedBook,
-    downloadedBook,
+    setDownloadedParcels,
+    downloadedParcels,
     currentUser,
     signatureRef,
   } = useContext(PostManState);
 
+
+  const { parcels } = useParcels();
+
+  const markedParcels = parcels.filter((parcel) => parcel.isMarked);
+
   useEffect(() => {
     window.onpopstate = () => {
-      if (currentParcels[0].isSignature) {
+      if (markedParcels[0].isSignature) {
         savePoints([]);
-        setDownloadedBook(
-          downloadedBook.map((parcel) => {
-            if (currentParcels[0]._id === parcel._id) {
+        setDownloadedParcels(
+          downloadedParcels.map((parcel) => {
+            if (markedParcels[0]._id === parcel._id) {
               return {
                 ...parcel,
                 isSignature: false,
-                signature: parcel.signature.filter((sign) => !sign),
+                signature: null,
               };
             }
 
@@ -40,7 +47,11 @@ export const SignatureScreen = () => {
     };
   });
 
-  console.log(downloadedBook);
+  const saveSignature = () => {
+    navigate('/traditionalDeliver');
+  }
+
+  console.log(downloadedParcels);
   console.log(savePoints);
 
   return (
@@ -49,12 +60,12 @@ export const SignatureScreen = () => {
         <p className="sign__info">SIGNATURE SCREEN</p>
         <p className="sign__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
-      <p className="sign__signatureinfo">{`Addressee: ${currentParcels[0].name} ${currentParcels[0].surname} Address: ${currentParcels[0].address} City: ${currentParcels[0].city} PostCode: ${currentParcels[0].postCode}`}</p>
+      <p className="sign__signatureinfo">{`Addressee: ${markedParcels[0].name} ${markedParcels[0].surname} Address: ${markedParcels[0].adress} City: ${markedParcels[0].city} PostCode: ${markedParcels[0].postCode}`}</p>
       <div className="sign__signatureblock">
         <div className="sign__options">
           <button
             className={classNames("sign__button", {
-              "sign__button--disabled": savePoints.length === 0,
+              "sign__button--disabled": !savePoints,
             })}
             onClick={() => clearSignature()}
           >
@@ -65,7 +76,7 @@ export const SignatureScreen = () => {
           </div>
           <button
             className={classNames("sign__button", {
-              "sign__button--disabled": savePoints.length === 0,
+              "sign__button--disabled": !savePoints,
             })}
             onClick={() => saveSignature()}
           >

@@ -7,8 +7,8 @@ import useParcels from "../../hooks/useParcels";
 export const SettleWork = () => {
   const {
     currentUser,
-    downloadedBook,
-    setDownloadedBook,
+    downloadedParcels,
+    setDownloadedParcels,
     settled,
     setSettled,
     dayIsFinished,
@@ -48,8 +48,7 @@ export const SettleWork = () => {
   console.log(parcelsInDelivery);
   console.log(currentUser);
   console.log(settled);
-
-  const {} = useContext(PostManState);
+  console.log(parcels);
 
   const handleSettlingButton = () => {
     if (parcelsInDelivery > 0) {
@@ -57,18 +56,19 @@ export const SettleWork = () => {
       return;
     } else if (parcelsInDelivery === 0) {
       setSettled(true);
-      setDownloadedBook([]);
+      setDownloadedParcels([]);
     }
   };
 
   console.log(dayIsFinished);
+  console.log(downloadedParcels)
   return (
     <div className="settle__content">
       <nav className="settle__nav">
         <p className="settle__info">SETTLE WORK DAY</p>
         <p className="settle__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
-      {currentUser.parcels.length === 0 && (
+      {downloadedParcels.filter(parcel => parcel.status[parcel.status.length - 1].name !== "IN DELIVERY").length === 0 && dayIsFinished && (
         <>
           <div className="settle__noposition">
             There is no positions to settle
@@ -76,7 +76,10 @@ export const SettleWork = () => {
           <div className="settle__line"></div>
         </>
       )}
-      {currentUser.parcels.length > 0 && (
+      {parcels.filter(
+        (parcel) =>
+          currentUser.username === parcel.forUser && parcel.isDownloaded,
+      ).length > 0 && !dayIsFinished && (
         <div
           className={classNames("settle__window", {
             "settle__window--settled": settled,
@@ -115,10 +118,9 @@ export const SettleWork = () => {
 
       <button
         className={classNames("settle__button", {
-          "settle__button--nopositions": downloadedBook.length === 0,
+          "settle__button--nopositions": !downloadedParcels,
         })}
         onClick={() => handleSettlingButton()}
-        disabled={currentUser.parcels.length === 0}
       >
         Settle defaultly
       </button>

@@ -6,9 +6,12 @@ import { loginUser } from "../../api/api";
 import { Loading } from "../../Loading/Loading";
 import { useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
+import useAuth from "../../hooks/useAuth";
+import { MainPage } from "../MainPage/MainPage";
 
 export const LoginPage = () => {
-  const { currentUser } = useContext(PostManState);
+  const { currentUser, setIsMainPage, isMainPage, setIsLoggedOut } = useContext(PostManState);
+  const {user} = useAuth();
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
@@ -21,17 +24,25 @@ export const LoginPage = () => {
   } = useMutation({
     mutationFn: loginUser,
     onSuccess: () => {
-      navigate("/ML", {
+      setIsLoggedOut(false);
+      navigate("/", {
         replace: true,
       });
     },
   });
   console.log(currentUser);
+  console.log(user);
+  console.log(isMainPage);
+
 
   return (
     <>
-      {isPending && <Loading message="Loading ditionaries..." />}
+    {isMainPage ? (
+      <MainPage />
+    ) : (
       <>
+      {isPending && <Loading message="Loading ditionaries..." />}
+      
         <Navigation />
         <div className="login__content">
           <h1 className="login__title">Poczta Polska ADFS</h1>
@@ -70,8 +81,8 @@ export const LoginPage = () => {
               style={{
                 backgroundColor: `${clickedButton ? "gray" : "blue"}`,
               }}
-              onClick={() => {
-                signIn({ username, password });
+              onClick={() => {            
+                  signIn({ username, password });                      
               }}
             >
               Login
@@ -79,6 +90,8 @@ export const LoginPage = () => {
           </div>
         </div>
       </>
+    )}
+      
     </>
   );
 };

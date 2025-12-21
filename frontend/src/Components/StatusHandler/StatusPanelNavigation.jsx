@@ -1,12 +1,12 @@
 import { useContext } from "react"
 import { PostManState } from "../../PostGlobalProvider"
 
-export const StatusPanelNavigation = () => {
+export const StatusPanelNavigation = ({title}) => {
     const {currentUser} = useContext(PostManState);
     return (
               <nav className="deliver__nav">
         <div className="deliver__texts">
-          <p className="deliver__text">DELIVERY OPTION</p>
+          <p className="deliver__text">{title}</p>
           <p className="deliver__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </div>
         <div className="deliver__icons">

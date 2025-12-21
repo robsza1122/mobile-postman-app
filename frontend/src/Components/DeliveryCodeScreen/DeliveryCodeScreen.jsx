@@ -3,122 +3,198 @@ import "./DeliveryCodeScreen.scss";
 import PinInput from "react-pin-input";
 import { PostManState } from "../../PostGlobalProvider";
 import { useNavigate } from "react-router-dom";
-import useParcels from "../../hooks/useParcels";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDeliveredStatus } from "../../api/api";
+import {
+  addDeliveredStatus,
+  handleFailedDeliveryCode,
+  markAllOnFalse,
+} from "../../api/api";
 import { date } from "../../utils/currentDate";
+import { triggerBackspaces } from "../../utils/helpers/triggerBackspaces";
 
 export const DeliveryCodeScreen = () => {
   const navigate = useNavigate();
   const {
-    usersParcels,
-    setDownloadedBook,
-    downloadedBook,
     setDeliveryCode,
     currentUser,
     deliveryCode,
+    downloadedParcels,
+    setDownloadedParcels,
   } = useContext(PostManState);
   const { parcels } = useParcels();
   const queryClient = useQueryClient();
-  const { mutate: changeStatus } = useMutation({
+  const { mutate: deliveredStatus } = useMutation({
     mutationFn: addDeliveredStatus,
-    mutationKey: ["parcels"],
-    onSuccess: () => {
-      window.location.reload();
-    },
-  });
-  useEffect(() => {
-    window.onpopstate = () => {
-      navigate("/ML");
-      setDownloadedBook(
-        downloadedBook.map((parcel) => {
-          if (parcel.isMarked) {
+    mutationKey: [PARCELS],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: [PARCELS] });
+
+      const previousParcels = queryClient.getQueriesData([PARCELS]);
+
+      queryClient.setQueryData([PARCELS], (old) =>
+        old.map((parcel) => {
+          const addStatus = {
+            name: "DELIVERED",
+            createdAt: date,
+            subject: "",
+            details: "",
+            signature: null,
+            isDeliveryCode: true,
+            noAddressee: false,
+            deliveryInput: "",
+            reasonOfAdvice: "",
+            officeOfAdvice: "",
+            placeOfNotification: "",
+          };
+          if (parcel.id === updatedParcel.id) {
             return {
               ...parcel,
+              isBooked: true,
+              numberOfBook: updatedParcel.numberOfBook,
               isMarked: false,
+              forUser: updatedParcel.username,
+              isDeliveryCode: true,
+              status: parcel.status.push(addStatus),
             };
           }
 
           return parcel;
         }),
       );
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+  });
+
+  const { mutate: failedDeliveryCode } = useMutation({
+    mutationFn: handleFailedDeliveryCode,
+    mutationKey: [PARCELS],
+    onMutate: async (updatedParcel) => {
+      await queryClient.cancelQueries({ queryKey: [PARCELS] });
+
+      const previousParcels = queryClient.getQueriesData([PARCELS]);
+
+      queryClient.setQueryData([PARCELS], (old) =>
+        old.map((parcel) => {
+          if (updatedParcel.id === parcel.id) {
+            return {
+              ...parcel,
+              amountOfTrials: parcel.amountOfTrials++,
+            };
+          }
+
+          return parcel;
+        }),
+      );
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+  });
+
+  const markedParcel = parcels.find((parcel) => parcel.isMarked);
+
+  const { mutate: markAllOnFalsy } = useMutation({
+    mutationFn: markAllOnFalse,
+    mutationKey: [PARCELS],
+  });
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      markAllOnFalsy();
     };
   }, []);
 
   const onDeliveryCode = (clickedParcel) => {
-    setDownloadedBook(
-      downloadedBook.map((parcel) => {
-        console.log(parcel.amountOfTrials);
-        if (
-          clickedParcel[0]._id === parcel._id &&
-          deliveryCode !== clickedParcel[0].deliveryCode &&
-          deliveryCode !== "" &&
-          deliveryCode.length === 6
-        ) {
-          switch (parcel.amountOfTrials) {
-            case 0:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              return {
-                ...parcel,
-                amountOfTrials: 1,
-              };
-            case 1:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              return {
-                ...parcel,
-                amountOfTrials: 2,
-              };
-            case 2:
-              setDeliveryCode("");
-              alert("Wrong delivery code");
-              alert("DELIVERY CODE IS BLOCKED");
-              navigate("/traditionalDeliver");
-              return {
-                ...parcel,
-                amountOfTrials: 3,
-              };
-          }
-        }
+    if (
+      clickedParcel.deliveryCode !== deliveryCode &&
+      deliveryCode.length === clickedParcel.deliveryCode.length &&
+      clickedParcel.amountOfTrials === 0
+    ) {
+      failedDeliveryCode({
+        id: clickedParcel._id,
+        amountOfTrials: 1,
+      });
+      alert("Wrong delivery code");
+      setDeliveryCode("");
+      triggerBackspaces(".pincode-input-text")
+    }
 
-        if (deliveryCode === parcel.deliveryCode) {
-          navigate("/deliverOption");
-          changeStatus({
-            nameOfStatus: "DELIVERED",
-            id: parcel._id,
-            subject: "",
-            details: "",
-            signature: null,
-            isDeliveryCode: true,
-            isSignature: false,
-            noAddressee: false,
-            deliveryInput: "",
-            reasonOfAdvice: "",
-            officeOfAdvice: "",
-            placeOfNotification: "",
-            isBooked: true,
-            numberOfBook: parcel.numberOfBook,
-            isDownloaded: true,
-            username: parcel.forUser,
-            createdAt: date,
-          });
-          return {
-            ...parcel,
-            isMarked: false,
-            isDeliveryCode: true,
-            status: [
-              ...parcel.status,
-              {
-                name: "DELIVERED",
-                createdAt: date,
-              },
-            ],
-          };
-        }
-        return parcel;
-      }),
-    );
+    if (
+      clickedParcel.deliveryCode !== deliveryCode &&
+      deliveryCode.length === clickedParcel.deliveryCode.length &&
+      clickedParcel.amountOfTrials === 1
+    ) {
+      failedDeliveryCode({
+        id: clickedParcel._id,
+        amountOfTrials: 2,
+      });
+      alert("Wrong delivery code");
+      triggerBackspaces(".pincode-input-text");
+    }
+
+    if (
+      clickedParcel.deliveryCode !== deliveryCode &&
+      deliveryCode.length === clickedParcel.deliveryCode.length &&
+      clickedParcel.amountOfTrials === 2
+    ) {
+      failedDeliveryCode({
+        id: clickedParcel._id,
+        amountOfTrials: 3,
+      });
+      alert("CODE DELIVERY IS BLOCKED");
+      setDeliveryCode("");
+      navigate("/traditionalDeliver");
+    }
+
+    if (clickedParcel.deliveryCode === deliveryCode) {
+      deliveredStatus({
+        nameOfStatus: "DELIVERED",
+        id: clickedParcel._id,
+        subject: "",
+        details: "",
+        signature: "",
+        isDeliveryCode: true,
+        noAddressee: false,
+        deliveryInput: "",
+        reasonOfAdvice: "",
+        officeOfAdvice: "",
+        placeOfNotification: "",
+        isBooked: true,
+        numberOfBook: clickedParcel.numberOfBook,
+        username: clickedParcel.forUser,
+        isDownloaded: true,
+        createdAt: date,
+      });
+
+      setDownloadedParcels(
+        downloadedParcels.map((parcel) => {
+          if (clickedParcel._id === parcel._id) {
+            return {
+              ...parcel,
+              isMarked: false,
+              status: [
+                ...parcel.status,
+                {
+                  name: "DELIVERED",
+                  createdAt: date,
+                  subject: "",
+                  details: "",
+                  noAddressee: false,
+                  deliveryInput: "",
+                },
+              ],
+            };
+          }
+
+          return parcel;
+        }),
+      );
+
+      navigate("/statusHandler");
+    }
 
     if (deliveryCode === "") {
       setDeliveryCode("");
@@ -135,13 +211,7 @@ export const DeliveryCodeScreen = () => {
     }
   };
 
-  console.log(usersParcels);
-  console.log(downloadedBook);
   console.log(parcels);
-
-  const codeTrials = downloadedBook.find(
-    (parcel) => parcel._id === usersParcels[0]._id,
-  );
 
   return (
     <div className="dsc__content">
@@ -150,16 +220,16 @@ export const DeliveryCodeScreen = () => {
         <p className="dsc__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
       </nav>
       <div className="dsc__body">
-        <p className="dsc__number">{usersParcels[0].numberOfParcel}</p>
+        <p className="dsc__number">{markedParcel?.numberOfParcel}</p>
         <p className="dsc__deliverytext">TYPE DELIVERY CODE</p>
         <p className="dsc__cashondelivery">
           Cash on delivery{" "}
-          {!usersParcels[0].amount.toString().includes(".")
-            ? `${usersParcels[0].amount}.00`
-            : usersParcels[0].amount}
+          {!markedParcel?.amount.toString().includes(".")
+            ? `${markedParcel?.amount}.00`
+            : markedParcel?.amount}
         </p>
         <p className="dsc__trials">
-          Amount of trials {codeTrials.amountOfTrials} / 3
+          Amount of trials {markedParcel?.amountOfTrials} / 3
         </p>
         <PinInput
           className="dsc__pinsquare"
@@ -182,7 +252,7 @@ export const DeliveryCodeScreen = () => {
           </button>
           <button
             className="dsc__button"
-            onClick={() => onDeliveryCode(usersParcels)}
+            onClick={() => onDeliveryCode(markedParcel)}
           >
             Confirm
           </button>

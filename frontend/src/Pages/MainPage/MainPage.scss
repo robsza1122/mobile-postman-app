@@ -19,10 +19,11 @@
   &__login {
     width: 150px;
     display: flex;
-    margin-top: 500px;
+    margin-top: 480px;
+    border-radius: 5px;
     justify-content: center;
     align-items: center;
-    height: 40px;
+    height: 70px;
     background-color: $post-color;
     font-family: Post, sans-serif;
     color: white;

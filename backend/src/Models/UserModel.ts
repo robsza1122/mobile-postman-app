@@ -7,7 +7,7 @@ export interface UserDocument extends mongoose.Document {
     EMINumber: string;
   username: string;
   password: string;
-  parcels: CreateParcelOrder[];
+  parcels?: CreateParcelOrder[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(val: string): Promise<boolean>;
@@ -29,6 +29,10 @@ const userSchima = new mongoose.Schema<UserDocument>({
         type: String,
         required: true,
     },
+    parcels: {
+        type: [mongoose.Schema.Types.Mixed],
+        default: [],
+    }
 },
 {
     timestamps: true,

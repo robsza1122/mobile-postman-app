@@ -1,126 +1,96 @@
-import useAuth from "../../hooks/useAuth";
-import "./DeliverOption.scss";
-import classnames from "classnames";
-import { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
+import { StatusHandler } from "../StatusHandler/StatusHandler";
+import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider";
-import useParcels from "../../hooks/useParcels";
-import { SwitchingModelPanel } from "./SwitchingModelPanel";
-import { StatusPanelNavigation } from "./StatusPanelNavigation";
-import { StatusHandlingInput } from "./StatusHandlingInput";
-import { StatusHandlingList } from "./StatusHandlingList";
-import { StatusHandlingButtons } from "./StatusHandlingButtons";
-import { StatusHandlingZDOButton } from "./StatusHandlingZDOButton";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { markAllParcelOnFalseInList } from "../../api/api";
 
 export const DeliverOption = () => {
-  const { currentUser, settled } = useContext(PostManState);
   const { parcels } = useParcels();
-  const usersParcels = parcels.filter(
-    (parcel) => parcel.forUser === currentUser.username && parcel.isDownloaded,
-  );
-  const markedParcels = parcels.filter(parcel => parcel.forUser === currentUser.username && 
-    parcel.isDownloaded && parcel.isMarked)
+  const markedParcels = parcels.filter((parcel) => parcel.isMarked);
+  const { currentUser, downloadedParcels, setDownloadedParcels } =
+    useContext(PostManState);
+  const queryClient = useQueryClient();
 
-  const [searchInput, setSearchInput] = useState("");
+  const { mutate: markAllOnFalsy } = useMutation({
+    mutationFn: markAllParcelOnFalseInList,
+    mutationKey: [PARCELS],
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
-    const inDeliveryParcels = parcels.filter(
-    (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
-      parcel.forUser === currentUser.username,
-  );
+      const previousParcels = queryClient.getQueriesData([PARCELS]);
 
-  const advicedParcels = parcels.filter(
-    (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "ADVICED" &&
-      parcel.forUser === currentUser.username,
-  );
-  const otherParcels = parcels.filter(
-    (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "OTHER" &&
-      parcel.forUser === currentUser.username,
-  );
+      queryClient.setQueryData([PARCELS], (old) => {
+        if (!old) return old;
 
-  const [chosenOption, setChosenOption] = useState(0);
-  const [slideOptions, setSlideOptions] = useState(0);
-  const getChosenOption = (id) => {
-    setChosenOption(id);
-    setSlideOptions(id);
+        return old.map((parcel) => {
+          if (
+            parcel.isDownloaded === true &&
+            parcel.forUser === currentUser?.username &&
+            parcel.isMarked
+          ) {
+            return {
+              ...parcel,
+              isMarked: false,
+            };
+          }
+
+          return parcel;
+        });
+      });
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+  });
+
+  useEffect(() => {
+    if (!currentUser || !currentUser.username) return;
+
+    // clear marks on server and locally for current user's downloaded parcels
+    markAllOnFalsy({ user: currentUser.username });
+
+    setDownloadedParcels(
+      (downloadedParcels || []).map((parcel) => {
+        if (
+          parcel.isDownloaded === true &&
+          parcel.forUser === currentUser.username &&
+          parcel.isMarked
+        ) {
+          return {
+            ...parcel,
+            isMarked: false,
+          };
+        }
+
+        return parcel;
+      }),
+    );
+  }, [currentUser?.username]);
+  const handleLink = () => {
+    if (markedParcels.length === 1 && markedParcels[0].amountOfTrials === 3) {
+      return "/traditionalDeliver";
+    }
+    if (markedParcels.length === 1) {
+      return "/deliveryCodeScreen";
+    }
+    return;
   };
 
-  const searchPosition = (positions) => {
-    const filterPosition = positions.filter((position) => {
-      const searchedText = `${position.name}${position.surname}${position.city}${position.numberOfParcel}${position.adress}${position.postCode}`;
-      return searchedText
-        .toLowerCase()
-        .trim()
-        .includes(searchInput.toLowerCase().trim());
-    });
-
-    return filterPosition;
+  const handleMultiDeliveryLink = () => {
+    if (markedParcels.length === 0 || markedParcels.length === 1) {
+      return "";
+    } else if (markedParcels.length > 1) {
+      return "/multiDeliveryVerification";
+    }
   };
-
   return (
-    <div className="deliver__content">
-      <StatusPanelNavigation />
-      <div className="deliver__menu">
-       <SwitchingModelPanel
-        chosenOption={chosenOption}
-        setChosenOption={setChosenOption} 
-        getChosenOption={getChosenOption} 
-        />
-        <div
-          className="deliver__lineopt"
-          style={{
-            transform: `translateX(${chosenOption * 100}%)`,
-            transition: "0.1s ease transform",
-          }}
-        ></div>
-      </div>
-        <StatusHandlingInput 
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        />
-      <div className="deliver__blockcontents">
-        <div className="deliver__blockcontent">
-          <div
-            className="deliver__block"
-            style={{
-              transform: `translateX(${slideOptions * -100}%)`,
-              transition: "0.1s ease transform",
-            }}
-          >
-            <StatusHandlingList 
-            title="TO DELIVERY"
-            visibleParcels={inDeliveryParcels}
-            searchPosition={searchPosition}
-            statusType='IN DELIVERY'
-            />
-
-
-            <StatusHandlingList
-            title="ADVICED"
-            visibleParcels={advicedParcels}
-            searchPosition={searchPosition}
-            statusType='ADVICED'
-            />
-            <StatusHandlingList
-            title="OTHERS"
-            visibleParcels={otherParcels}
-            searchPosition={searchPosition}
-            statusType="OTHERS"
-            />
-          </div>
-          <StatusHandlingButtons 
-          slideOptions={slideOptions}
-          markedParcels={markedParcels}
-          />
-        </div>
-        <div className="deliver__blockcontent">
-          <StatusHandlingZDOButton 
-          slideOptions={slideOptions}
-          />
-        </div>
-      </div>
-    </div>
+    <StatusHandler
+      title={"DELIVER OPTION"}
+      firstButton={"Individual Delivery"}
+      secondButton={"Multi Delivery"}
+      firstButtonLink={handleLink()}
+      secondButtonLink={handleMultiDeliveryLink()}
+    />
   );
 };

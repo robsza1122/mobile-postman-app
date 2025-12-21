@@ -3,10 +3,9 @@ import { Navigation } from "../Navigation/Navigation.jsx";
 import "./MainPage.scss";
 import { Link } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider.jsx";
-import useAuth from "../../hooks/useAuth.js";
 
 export const MainPage = () => {
-  const { setCurrentUser, currentUser } = useContext(PostManState);
+  const { setCurrentUser, currentUser, setIsMainPage } = useContext(PostManState);
   const [clickedButton, setClickedButton] = useState(false);
   const userAgent = window.navigator.userAgent;
 
@@ -22,6 +21,7 @@ export const MainPage = () => {
           style={{
             backgroundColor: `${clickedButton ? "gray" : "rgb(219, 29, 29)"}`,
           }}
+          onClick={() => setIsMainPage(false)}
           to="/login"
         >
           Login

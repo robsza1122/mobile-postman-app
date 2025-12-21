@@ -1,13 +1,50 @@
 import { Link } from "react-router-dom";
-
 import "./MyParcelOption.scss";
+import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
+import { markAllParcelOnFalseInList } from "../../api/api";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 
-export const MyParcelOption = (option) => {
-  const { downloadedBook } = useContext(PostManState);
-  const { header, title, amount } = option.option;
-  console.log(option.option.header);
+export const MyParcelOption = ({ option }) => {
+  const { currentUser, downloadedParcels, setDownloadedParcels } =
+    useContext(PostManState);
+  const { parcels } = useParcels();
+  const queryClient = useQueryClient();
+  const { mutate: markAllOnFalsy } = useMutation({
+    mutationFn: markAllParcelOnFalseInList,
+    mutationKey: [PARCELS],
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [PARCELS] });
+
+      const previousParcels = queryClient.getQueriesData([PARCELS]);
+
+      queryClient.setQueryData([PARCELS], (old) => {
+        if (!old) return old;
+
+        return old.map((parcel) => {
+          if (
+            parcel.isDownloaded === true &&
+            parcel.forUser === currentUser.username &&
+            parcel.isMarked
+          ) {
+            return {
+              ...parcel,
+              isMarked: false,
+            };
+          }
+
+          return parcel;
+        });
+      });
+
+      return { previousParcels };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
+  });
+
+  const { header, title, amount } = option;
+  console.log(header);
   const handleRouterLinks = (chosenLink) => {
     switch (chosenLink) {
       case "DELIVER":
@@ -21,10 +58,37 @@ export const MyParcelOption = (option) => {
     }
   };
 
+  const handleMarkParcelOnFalse = async () => {
+    // call server mutation (optimistic update handled in onMutate)
+    markAllOnFalsy({ user: currentUser.username });
+
+    // update local downloadedParcels: only for downloaded parcels belonging to current user
+    setDownloadedParcels(
+      downloadedParcels.map((parcel) => {
+        if (
+          parcel.isDownloaded === true &&
+          parcel.forUser === currentUser.username &&
+          parcel.isMarked
+        ) {
+          return {
+            ...parcel,
+            isMarked: false,
+          };
+        }
+
+        return parcel;
+      }),
+    );
+  };
+
   console.log(handleRouterLinks(header));
 
   return (
-    <Link className="parceloption__content" to={handleRouterLinks(header)}>
+    <Link
+      className="parceloption__content"
+      onClick={() => handleMarkParcelOnFalse()}
+      to={handleRouterLinks(header)}
+    >
       <h1 className="parceloption__header">{header}</h1>
       <p className="parceloption__amount">{amount}</p>
       <p className="parceloption__title">{title}</p>
