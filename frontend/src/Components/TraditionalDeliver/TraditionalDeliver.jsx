@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { PARCELS } from "../../hooks/useParcels";
 import { date } from "../../utils/currentDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDeliveredStatus } from "../../api/api";
+import { addDeliveredStatus, multiDeliveryStatus } from "../../api/api";
 import useParcels from "../../hooks/useParcels";
 import { Loading } from "../../Loading/Loading.jsx";
 import { TDSubjectWindow } from "./TDSubjectWindow.jsx";
@@ -18,6 +18,13 @@ import { TDSubjectOfDelivery } from "./TDSubjectOfDelivery.jsx";
 import { TDInputs } from "./TDInputs.jsx";
 import { TDNoAddresseeDelivery } from "./TDNoAddresseeDelivery.jsx";
 import { TDButtons } from "./TDButtons.jsx";
+import {
+  deliveryStatusLocally,
+  deliveryStatusWithAddressee,
+  deliveryStatusWithNoAddressee,
+  multiDeliveryLocally,
+  multiDeliverStatus,
+} from "../../utils/helpers/statusObjects.js";
 
 export const TraditionalDeliver = () => {
   const {
@@ -25,6 +32,7 @@ export const TraditionalDeliver = () => {
     setDownloadedParcels,
     currentUser,
     handleSignatureButton,
+    handleSignatureLink,
     chooseSubject,
     setChooseSubject,
     input,
@@ -33,22 +41,22 @@ export const TraditionalDeliver = () => {
     setSavePoints,
     particularSubject,
     setParticularSubject,
+    setIsUpdatingParcel,
   } = useContext(PostManState);
   const { parcels } = useParcels();
   const queryClient = useQueryClient();
-  const findParcel = downloadedParcels.filter((parcel) => parcel.isMarked);
+  const findParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
 
   const navigate = useNavigate();
 
-  const [openList, setOpenList] = useState(false);
+  const [openList, setOpenList] = useState("");
   const [showSubjects, setShowSubjects] = useState(false);
   const [choosen, setChoosen] = useState("");
-  const [addresseesData, setAddresseesData] = useState(false);
+  const [addresseesData, setAddresseesData] = useState(true);
   const [noAddressee, setNoAddressee] = useState(false);
   const [showParticularSubject, setShowParticularSubject] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const { mutate: changeStatus } = useMutation({
+  const { mutateAsync: asyncChangeStatus } = useMutation({
     mutationFn: addDeliveredStatus,
     mutationKey: [PARCELS],
     onMutate: async (updatedParcel) => {
@@ -62,8 +70,16 @@ export const TraditionalDeliver = () => {
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
   });
-  const handleList = () => {
-    setOpenList(!openList);
+
+  const { mutateAsync: asyncMultiDelivery } = useMutation({
+    mutationFn: multiDeliveryStatus,
+  });
+  const handleList = (id) => {
+    if (openList !== id) {
+      setOpenList(id);
+    } else {
+      setOpenList("");
+    }
   };
   useEffect(() => {
     const handlePop = () => {
@@ -84,8 +100,9 @@ export const TraditionalDeliver = () => {
   }, [downloadedParcels, navigate]);
 
   const handleConfirmButton = () => {
+    setIsUpdatingParcel(true);
     if (
-      findParcel[0].noAddressee &&
+      findParcels[0].noAddressee &&
       particularSubject === "Parcel left in place set with addressee" &&
       input === ""
     ) {
@@ -94,7 +111,7 @@ export const TraditionalDeliver = () => {
       return;
     }
     if (
-      findParcel[0].noAddressee &&
+      findParcels[0].noAddressee &&
       particularSubject !== "Parcel left in place set with addressee" &&
       input === ""
     ) {
@@ -102,111 +119,138 @@ export const TraditionalDeliver = () => {
 
       return;
     }
-    if (!findParcel[0].noAddressee && input === "") {
+    if (!findParcels[0].noAddressee && input === "") {
       alert("Type name and surname delivery's subject");
-
-      return;
     }
-    if (savePoints && !findParcel[0].noAddressee) {
-      changeStatus({
-        nameOfStatus: "DELIVERED",
-        id: findParcel[0]._id,
-        subject: chooseSubject,
-        details: "",
-        signature: savePoints,
-        isDeliveryCode: false,
-        isSignature: true,
-        noAddressee: false,
-        deliveryInput: input.toString(),
-        reasonOfAdvice: "",
-        officeOfAdvice: "",
-        placeOfNotification: "",
-        isBooked: true,
-        numberOfBook: findParcel[0].numberOfBook,
-        isDownloaded: true,
-        username: findParcel[0].forUser,
-        createdAt: date,
-      });
+    if (findParcels.length > 1 && !findParcels[0].noAddressee) {
+      asyncMultiDelivery(
+        multiDeliverStatus(
+          date,
+          savePoints,
+          findParcels[0].noAddressee,
+          input,
+          currentUser.username,
+          chooseSubject,
+          "",
+        ),
+      )
+        .catch((err) => {
+          console.error("multiDeliveryWithAddressee failed:", err);
+        })
+        .finally(() => {
+          console.log("multiDeliveryWithAddressee settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
       setDownloadedParcels(
-        downloadedParcels.map((parcel) => {
-          if (findParcel[0]._id === parcel._id) {
-            return {
-              ...parcel,
-              isMarked: false,
-              status: [
-                ...parcel.status,
-                {
-                  name: "DELIVERED",
-                  createdAt: date,
-                  subject: chooseSubject,
-                  details: particularSubject,
-                  deliveryInput:
-                    particularSubject ===
-                    "Parcel left in place set with addressee"
-                      ? input
-                      : "",
-                },
-              ],
-            };
-          }
-
-          return parcel;
-        }),
+        multiDeliveryLocally(
+          downloadedParcels,
+          date,
+          chooseSubject,
+          "",
+          findParcels[0].noAddressee,
+          input,
+        ),
       );
-      navigate("/statusHandler");
+      navigate("/workPage");
+      setInput("");
+    } else if (findParcels.length > 1 && findParcels[0].noAddressee) {
+      asyncMultiDelivery(
+        multiDeliverStatus(
+          date,
+          savePoints,
+          findParcels[0].noAddressee,
+          input,
+          currentUser.username,
+          chooseSubject,
+          particularSubject,
+        ),
+      )
+        .catch((err) => {
+          console.error("multiDeliveryNoAddressee failed:", err);
+        })
+        .finally(() => {
+          console.log("multiDeliveryNoAddressee settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+
+      setDownloadedParcels(
+        multiDeliveryLocally(
+          downloadedParcels,
+          date,
+          chooseSubject,
+          particularSubject,
+          findParcels[0].noAddressee,
+          input,
+        ),
+      );
+      navigate("/workPage");
       setInput("");
       setSavePoints(null);
-    } else if (findParcel[0].noAddressee) {
-      changeStatus({
-        nameOfStatus: "DELIVERED",
-        id: findParcel[0]._id,
-        subject: chooseSubject,
-        details: particularSubject,
-        signature: savePoints,
-        isDeliveryCode: false,
-        isSignature: true,
-        noAddressee: true,
-        deliveryInput:
-          particularSubject === "Parcel left in place set with addressee"
-            ? input
-            : "",
-        reasonOfAdvice: "",
-        officeOfAdvice: "",
-        placeOfNotification: "",
-        isBooked: true,
-        numberOfBook: findParcel[0].numberOfBook,
-        username: findParcel[0].forUser,
-        createdAt: date,
-        isDownloaded: true,
-      });
+    } else if (savePoints && !findParcels[0].noAddressee) {
+      asyncChangeStatus(
+        deliveryStatusWithAddressee(
+          findParcels[0],
+          chooseSubject,
+          savePoints,
+          input,
+          date,
+        ),
+      )
+        .catch((err) => {
+          console.error("deliverWithAddressee failed:", err);
+        })
+        .finally(() => {
+          console.log("deliverWithAddressee settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
       setDownloadedParcels(
-        downloadedParcels.map((parcel) => {
-          if (findParcel[0]._id === parcel._id) {
-            return {
-              ...parcel,
-              isMarked: false,
-              status: [
-                ...parcel.status,
-                {
-                  name: "DELIVERED",
-                  createdAt: date,
-                  subject: chooseSubject,
-                  details: particularSubject,
-                  noAddressee: true,
-                  deliveryInput:
-                    particularSubject ===
-                    "Parcel left in place set with addressee"
-                      ? input
-                      : "",
-                },
-              ],
-            };
-          }
-
-          return parcel;
-        }),
+        deliveryStatusLocally(
+          downloadedParcels,
+          findParcels[0],
+          date,
+          chooseSubject,
+          particularSubject,
+          input,
+          false,
+        ),
       );
-      navigate("/statusHandler");
+      navigate("/workPage");
+      setInput("");
+      setSavePoints(null);
+    } else if (findParcels[0].noAddressee) {
+      asyncChangeStatus(
+        deliveryStatusWithNoAddressee(
+          findParcels[0],
+          chooseSubject,
+          particularSubject,
+          savePoints,
+          input,
+          date,
+        ),
+      )
+        .catch((err) => {
+          console.error("deliverWithNoAddressee failed:", err);
+        })
+        .finally(() => {
+          console.log("deliverWithNoAddressee settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+      setDownloadedParcels(
+        deliveryStatusLocally(
+          downloadedParcels,
+          findParcels[0],
+          date,
+          chooseSubject,
+          particularSubject,
+          input,
+          true,
+        ),
+      );
+      navigate("/workPage");
       setInput("");
     } else if (!savePoints) {
       alert("Please do signature");
@@ -220,21 +264,14 @@ export const TraditionalDeliver = () => {
   console.log(chooseSubject);
   console.log(parcels);
   console.log(particularSubject);
-  console.log(findParcel[0].noAddressee);
   return (
     <>
-      {loading && (
-        <>
-          <div className="trail__confirmBook"></div>
-          <Loading message={loadingText} />
-        </>
-      )}
       <div className="td__content">
         {showSubjects && (
           <TDSubjectWindow
             showSubjects={showSubjects}
             subjectsOption={subjectsOption}
-            markedParcel={findParcel[0]}
+            markedParcels={findParcels}
             setShowSubjects={setShowSubjects}
             setChooseSubject={setChooseSubject}
             setChoosen={setChoosen}
@@ -249,7 +286,7 @@ export const TraditionalDeliver = () => {
             showSubjects={showSubjects}
             setInput={setInput}
             input={input}
-            markedParcel={findParcel[0]}
+            markedParcel={findParcels[0]}
             chooseSubject={chooseSubject}
             addresseesData={addresseesData}
             particularSubject={particularSubject}
@@ -264,7 +301,7 @@ export const TraditionalDeliver = () => {
           <p className="td__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </nav>
         <TDList
-          findParcel={findParcel}
+          findParcel={findParcels}
           openList={openList}
           handleList={handleList}
         />
@@ -272,12 +309,12 @@ export const TraditionalDeliver = () => {
         <TDSubjectOfDelivery
           setShowSubjects={setShowSubjects}
           openList={openList}
-          markedParcel={findParcel[0]}
+          markedParcels={findParcels}
           chooseSubject={chooseSubject}
         />
         <p className="td__receivingperson">Name and surname receiving person</p>
         <TDInputs
-          markedParcel={findParcel[0]}
+          markedParcels={findParcels}
           setInput={setInput}
           input={input}
           chooseSubject={chooseSubject}
@@ -287,7 +324,7 @@ export const TraditionalDeliver = () => {
         />
         <div className="td__signcontent">
           <TDNoAddresseeDelivery
-            markedParcel={findParcel[0]}
+            markedParcels={findParcels}
             setShowParticularSubject={setShowParticularSubject}
             particularSubject={particularSubject}
             setNoAddressee={setNoAddressee}
@@ -296,11 +333,12 @@ export const TraditionalDeliver = () => {
           />
         </div>
         <TDButtons
-          markParcel={findParcel[0]}
+          markParcel={findParcels[0]}
           input={input}
           particularSubject={particularSubject}
           savePoints={savePoints}
           handleSignatureButton={handleSignatureButton}
+          handleSignatureLink={handleSignatureLink}
         />
         <div className="td__confirmcontent">
           <button

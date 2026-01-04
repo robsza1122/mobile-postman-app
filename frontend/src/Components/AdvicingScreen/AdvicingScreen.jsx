@@ -8,30 +8,55 @@ import {
 } from "../../utils/DataProvider";
 import { date } from "../../utils/currentDate";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addAdvicedStatus } from "../../api/api";
+import { ShowReasonAdvicedScreen } from "./ShowReasonAdvicedScreen";
+import {
+  advicedStatusLocally,
+  advicedStatusObject,
+} from "../../utils/helpers/statusObjects";
+import { AppNavigation } from "../AppNavigation/AppNavigation";
+import { SettledParcels } from "../OtherOptionScreen/SettledParcels";
+import { AdvicedScreenButtons } from "./AdvicedScreenButtons";
+import { AdvicedConfirmButton } from "./AdvicedConfirmButton";
+import { AdvicedButtons } from "./AdvicedButtons";
+import { Loading } from "../../Loading/Loading";
+import { PARCELS } from "../../hooks/useParcels";
 
 export const AdvicingScreen = () => {
-  const { currentUser } = useContext(PostManState);
-  const { setDownloadedBook, downloadedParcels, currentParcels, setInput } =
-    useContext(PostManState);
-  const { mutate: changeStatus } = useMutation({
+  const {
+    currentUser,
+    setDownloadedParcels,
+    downloadedParcels,
+    setIsUpdatingParcel,
+  } = useContext(PostManState);
+  const currentParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
+  const { mutateAsync: changeStatusAsync, mutate: changeStatus } = useMutation({
     mutationKey: ["advicedParcel"],
     mutationFn: addAdvicedStatus,
-    onSuccess: () => {
-      window.location.reload();
-    },
   });
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.onpopstate = () => {
-      navigate("/ML");
-      setInput("");
-      window.location.reload();
+    const handlePop = () => {
+      const marked = (downloadedParcels || []).filter((p) => p.isMarked);
+      if (!marked || marked.length === 0) {
+        navigate("/advicingOption");
+      } else {
+        navigate("/workPage");
+      }
     };
-  });
+
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", handlePop);
+
+    return () => {
+      window.removeEventListener("popstate", handlePop);
+    };
+  }, [downloadedParcels, navigate]);
+
   const [chooseReason, setChooseReason] = useState(
     "No one at home / closed company",
   );
@@ -70,46 +95,35 @@ export const AdvicingScreen = () => {
   };
 
   const handleConfirmButton = () => {
-    setDownloadedBook(
-      downloadedParcels.map((parcel) => {
-        if (parcel._id === currentParcels[0]._id) {
-          changeStatus({
-            nameOfStatus: "ADVICED",
-            id: parcel._id,
-            subject: "",
-            details: "",
-            signature: "",
-            isDeliveryCode: false,
-            isSignature: false,
-            noAddressee: false,
-            deliveryInput: "",
-            reasonOfAdvice: chooseReason,
-            officeOfAdvice: chooseOffice,
-            placeOfNotification: chooseNotifiedPlace,
-            isBooked: true,
-            numberOfBook: parcel.numberOfBook,
-            isDownloaded: true,
-            username: parcel.forUser,
-            createdAt: date,
-          });
-          return {
-            ...parcel,
-            status: [
-              ...parcel.status,
-              {
-                name: "ADVICED",
-                createdAt: date,
-                reasonOfAdvice: chooseReason,
-                officeOfAdvice: chooseOffice,
-                placeOfNotification: chooseNotifiedPlace,
-              },
-            ],
-          };
-        }
-        return parcel;
-      }),
+    setIsUpdatingParcel(true);
+    changeStatusAsync(
+      advicedStatusObject(
+        currentParcels[0],
+        chooseReason,
+        chooseOffice,
+        chooseNotifiedPlace,
+        date,
+      ),
+    )
+      .catch((err) => {
+        console.error("addAdvicedStatus failed:", err);
+      })
+      .finally(() => {
+        console.log("addAdvicedStatus settled");
+        setIsUpdatingParcel(false);
+        queryClient.invalidateQueries({ queryKey: [PARCELS] });
+      });
+    setDownloadedParcels(
+      advicedStatusLocally(
+        downloadedParcels,
+        currentParcels[0],
+        date,
+        chooseReason,
+        chooseOffice,
+        chooseNotifiedPlace,
+      ),
     );
-    navigate("/advicedOption");
+    navigate("/workPage");
   };
 
   console.log(chooseNotifiedPlace);
@@ -117,104 +131,40 @@ export const AdvicingScreen = () => {
   return (
     <>
       {showReason && (
-        <>
-          <div className="advice__background"></div>
-          <div className="advice__window">
-            {reasonOfAdvice.map((reason) => (
-              <>
-                <button
-                  className="advice__button"
-                  onClick={() => onChooseReason(reason)}
-                >
-                  {reason}
-                </button>
-              </>
-            ))}
-          </div>
-        </>
+        <ShowReasonAdvicedScreen
+          onChooseReason={onChooseReason}
+          reasonOfAdvice={reasonOfAdvice}
+        />
       )}
-      {showOffice && (
-        <>
-          <div className="advice__background"></div>
-          <div className="advice__window">
-            {placeOfAdvice.map((reason) => (
-              <>
-                <button
-                  className="advice__button"
-                  onClick={() => onChooseOffice(reason)}
-                >
-                  {reason}
-                </button>
-              </>
-            ))}
-          </div>
-        </>
-      )}
-      {showNotifiedPlace && (
-        <>
-          <div className="advice__background"></div>
-          <div className="advice__window">
-            {placeOfNotification.map((reason) => (
-              <>
-                <button
-                  className="advice__button"
-                  onClick={() => onChooseNotificationPlace(reason)}
-                >
-                  {reason}
-                </button>
-              </>
-            ))}
-          </div>
-        </>
-      )}
-      {}
+      <AdvicedButtons
+        showOffice={showOffice}
+        showNotifiedPlace={showNotifiedPlace}
+        placeOfAdvice={placeOfAdvice}
+        onChooseNotificationPlace={onChooseNotificationPlace}
+        onChooseOffice={onChooseOffice}
+        placeOfNotification={placeOfNotification}
+      />
+
       <div className="advice">
-        <nav className="advice__nav">
-          <p className="advice__info">ADVICE SCREEN</p>
-          <p className="advice__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-        </nav>
-        <div
-          className="deliver__position"
-          key={currentParcels[0]._id}
-          style={{
-            width: "100%",
-            backgroundColor: "white",
-          }}
-        >
-          <div className="deliver__positioncontent">
-            <p className="deliver__number">
-              {currentParcels[0].numberOfParcel}
-            </p>
-            <p className="deliver__info">{`${currentParcels[0].name} ${currentParcels[0].surname}`}</p>
-            <p className="deliver__info">{currentParcels[0].adress}</p>
-            <p className="deliver__adress">{`${currentParcels[0].city} ${currentParcels[0].postCode}`}</p>
-          </div>
-        </div>
+        <AppNavigation
+          username={currentUser.username}
+          pageName="ADVICE SCREEN"
+          EMINumber={currentUser.EMINumber}
+        />
+        {currentParcels.map((parcel) => {
+          <SettledParcels key={parcel._id} parcel={parcel} />;
+        })}
         <div className="advice__content">
-          <p className="advice__text">Reason of advicing:</p>
-          <button className="advice__selecttext" onClick={() => onReason()}>
-            {chooseReason}
-          </button>
-          <p className="advice__text">Post Office:</p>
-          <button className="advice__selecttext" onClick={() => onOffice()}>
-            {chooseOffice}
-          </button>
-          <p className="advice__text">Place of leaving notification:</p>
-          <button
-            className="advice__selecttext"
-            onClick={() => onPlaceNotification()}
-          >
-            {chooseNotifiedPlace}
-          </button>
+          <AdvicedScreenButtons
+            onReason={onReason}
+            onOffice={onOffice}
+            onPlaceNotification={onPlaceNotification}
+            chooseReason={chooseReason}
+            chooseNotifiedPlace={chooseNotifiedPlace}
+            chooseOffice={chooseOffice}
+          />
         </div>
-        <div className="advice__confirmcontent">
-          <button
-            className="advice__confirmbutton"
-            onClick={() => handleConfirmButton()}
-          >
-            Confirm
-          </button>
-        </div>
+        <AdvicedConfirmButton handleConfirmButton={handleConfirmButton} />
       </div>
     </>
   );

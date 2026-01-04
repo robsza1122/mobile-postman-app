@@ -18,8 +18,12 @@ import {
   markAllParcelOnFalseInList,
   markAllParcelOnTrueInList,
   markParcel,
+  markParcelOnTrueInVerification,
+  multiAdvicing,
+  multiDelivery,
   otherStatus,
   refreshUserAccessToken,
+  removeParcelsInVerification,
 } from "../services/auth.service";
 import appAssert from "../utils/AppAssert";
 import catchErrors from "../utils/catchErrors";
@@ -36,14 +40,18 @@ import { getInDeliveryStatusEmail } from "../utils/InDeliveryEmail";
 import { verifyToken } from "../utils/jwt";
 import { otherStatusEmail } from "../utils/otherStatusEmail";
 import { sendEmail } from "../utils/sendEmail";
-import { parcelSchima } from "./parcel.schimas";
-import { statusSchima } from "./status.schima";
-import { loginShema, registerSchima } from "./user.schima";
-import { usersParcelSchima } from "./usersparcel.schima";
-import { assignParcelSchima, deleteDeliveryBookSchima } from "./assignparcels.schima";
-import { markParcelSchima } from "./markparcel.schima";
-import { failedDeliveryCodeSchima } from "./failedDeliveryCodeSchima";
-import { markAllParcelInListSchima } from "./markAllParcelInListSchima";
+import { parcelSchima } from "../schimas/parcel.schimas";
+import { statusSchima } from "../schimas/status.schima";
+import { loginShema, registerSchima } from "../schimas/user.schima";
+import { usersParcelSchima } from "../schimas/usersparcel.schima";
+import {
+  assignParcelSchima,
+  deleteDeliveryBookSchima,
+} from "../schimas/assignparcels.schima";
+import { markParcelSchima } from "../schimas/markparcel.schima";
+import { failedDeliveryCodeSchima } from "../schimas/failedDeliveryCodeSchima";
+import { markAllParcelInListSchima } from "../schimas/markAllParcelInListSchima";
+import { multiAdvicingSchima, multiDeliverySchima } from "../schimas/multiStatus.schima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
   const request = parcelSchima.parse({
@@ -84,6 +92,7 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       phone: 1,
       numberOfParcel: 1,
       isMarked: 1,
+      isMarkedVERIFICATION: 1,
       deliveryCode: 1,
       amountOfTrials: 1,
       isDownloaded: 1,
@@ -196,12 +205,12 @@ export const failedDeliveryCodeHandler = catchErrors(async (req, res) => {
   const request = failedDeliveryCodeSchima.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
-  })
+  });
 
-  const {updatedParcel } = await failedDeliveryCode(request);
+  const { updatedParcel } = await failedDeliveryCode(request);
 
   return res.status(OK).json(updatedParcel);
-})
+});
 
 export const advicedStatusHandler = catchErrors(async (req, res) => {
   const request = statusSchima.parse({
@@ -307,7 +316,7 @@ export const markingOnFalseInBookHandler = catchErrors(async (req, res) => {
 });
 
 export const markingOnFalseInListHandler = catchErrors(async (req, res) => {
-    const request = markAllParcelInListSchima.parse({
+  const request = markAllParcelInListSchima.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -317,7 +326,7 @@ export const markingOnFalseInListHandler = catchErrors(async (req, res) => {
 });
 
 export const markingOnTrueInListHandler = catchErrors(async (req, res) => {
-    const request = markAllParcelInListSchima.parse({
+  const request = markAllParcelInListSchima.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -325,6 +334,30 @@ export const markingOnTrueInListHandler = catchErrors(async (req, res) => {
 
   res.status(OK).json(changedParcels);
 });
+
+export const markParcelInVerificationHandler = catchErrors(async (req, res) => {
+  const request = markParcelSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { changedParcel } = await markParcelOnTrueInVerification(request);
+
+  res.status(OK).json(changedParcel);
+});
+
+export const removeParcelsInVerificationHandler = catchErrors(
+  async (req, res) => {
+    const request = markAllParcelInListSchima.parse({
+      ...req.body,
+      userAgent: req.headers["user-agent"],
+    });
+
+    const { updatedParcels } = await removeParcelsInVerification(request);
+
+    res.status(OK).json(updatedParcels);
+  }
+);
 
 export const deleteBookHandler = catchErrors(async (req, res) => {
   const request = deleteDeliveryBookSchima.parse({
@@ -367,11 +400,36 @@ export const clearDatesHandler = catchErrors(async (req, res) => {
     }
   );
 
-    await UserModel.updateMany( {}, {
-      $set: {parcels: []}
-    })
+  await UserModel.updateMany(
+    {},
+    {
+      $set: { parcels: [] },
+    }
+  );
 
   return res.status(OK).json({
     message: "Book is successfully cleared",
   });
 });
+
+export const multiDeliveryHandler = catchErrors(async (req, res) => {
+  const request = multiDeliverySchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { changedParcels } = await multiDelivery(request);
+
+  res.status(OK).json(changedParcels);
+});
+
+export const multiAdvicingHandler = catchErrors(async (req, res) => {
+  const request = multiAdvicingSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { updatedParcels } = await multiAdvicing(request);
+
+  res.status(OK).json(updatedParcels);
+})

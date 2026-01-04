@@ -11,7 +11,11 @@ import {
   markAllOnFalse,
 } from "../../api/api";
 import { date } from "../../utils/currentDate";
-import { triggerBackspaces } from "../../utils/helpers/triggerBackspaces";
+import {
+  deliverWithCodeQueryClient,
+  deliveryWithCode,
+  deliveryWithCodeLocally,
+} from "../../utils/helpers/statusObjects";
 
 export const DeliveryCodeScreen = () => {
   const navigate = useNavigate();
@@ -21,10 +25,12 @@ export const DeliveryCodeScreen = () => {
     deliveryCode,
     downloadedParcels,
     setDownloadedParcels,
+    setIsUpdatingParcel,
+    setSavePoints,
   } = useContext(PostManState);
   const { parcels } = useParcels();
   const queryClient = useQueryClient();
-  const { mutate: deliveredStatus } = useMutation({
+  const { mutateAsync: asyncDeliveredStatus } = useMutation({
     mutationFn: addDeliveredStatus,
     mutationKey: [PARCELS],
     onMutate: async (updatedParcel) => {
@@ -34,19 +40,6 @@ export const DeliveryCodeScreen = () => {
 
       queryClient.setQueryData([PARCELS], (old) =>
         old.map((parcel) => {
-          const addStatus = {
-            name: "DELIVERED",
-            createdAt: date,
-            subject: "",
-            details: "",
-            signature: null,
-            isDeliveryCode: true,
-            noAddressee: false,
-            deliveryInput: "",
-            reasonOfAdvice: "",
-            officeOfAdvice: "",
-            placeOfNotification: "",
-          };
           if (parcel.id === updatedParcel.id) {
             return {
               ...parcel,
@@ -55,7 +48,7 @@ export const DeliveryCodeScreen = () => {
               isMarked: false,
               forUser: updatedParcel.username,
               isDeliveryCode: true,
-              status: parcel.status.push(addStatus),
+              status: parcel.status.push(deliverWithCodeQueryClient(date)),
             };
           }
 
@@ -119,7 +112,6 @@ export const DeliveryCodeScreen = () => {
       });
       alert("Wrong delivery code");
       setDeliveryCode("");
-      triggerBackspaces(".pincode-input-text")
     }
 
     if (
@@ -132,6 +124,7 @@ export const DeliveryCodeScreen = () => {
         amountOfTrials: 2,
       });
       alert("Wrong delivery code");
+      setDeliveryCode("");
       triggerBackspaces(".pincode-input-text");
     }
 
@@ -150,50 +143,22 @@ export const DeliveryCodeScreen = () => {
     }
 
     if (clickedParcel.deliveryCode === deliveryCode) {
-      deliveredStatus({
-        nameOfStatus: "DELIVERED",
-        id: clickedParcel._id,
-        subject: "",
-        details: "",
-        signature: "",
-        isDeliveryCode: true,
-        noAddressee: false,
-        deliveryInput: "",
-        reasonOfAdvice: "",
-        officeOfAdvice: "",
-        placeOfNotification: "",
-        isBooked: true,
-        numberOfBook: clickedParcel.numberOfBook,
-        username: clickedParcel.forUser,
-        isDownloaded: true,
-        createdAt: date,
-      });
+      setIsUpdatingParcel(true);
+      asyncDeliveredStatus(deliveryWithCode(clickedParcel, date))
+        .catch((err) => {
+          console.error("addDeliveredStatus failed:", err);
+        })
+        .finally(() => {
+          console.log("addDeliveredStatus settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
 
       setDownloadedParcels(
-        downloadedParcels.map((parcel) => {
-          if (clickedParcel._id === parcel._id) {
-            return {
-              ...parcel,
-              isMarked: false,
-              status: [
-                ...parcel.status,
-                {
-                  name: "DELIVERED",
-                  createdAt: date,
-                  subject: "",
-                  details: "",
-                  noAddressee: false,
-                  deliveryInput: "",
-                },
-              ],
-            };
-          }
-
-          return parcel;
-        }),
+        deliveryWithCodeLocally(downloadedParcels, clickedParcel, date),
       );
 
-      navigate("/statusHandler");
+      navigate("/workPage");
     }
 
     if (deliveryCode === "") {
@@ -246,7 +211,10 @@ export const DeliveryCodeScreen = () => {
         <div className="dsc__buttons">
           <button
             className="dsc__button"
-            onClick={() => navigate("/traditionalDeliver")}
+            onClick={() => {
+              navigate("/traditionalDeliver");
+              setSavePoints(null);
+            }}
           >
             Deliver traditionally
           </button>

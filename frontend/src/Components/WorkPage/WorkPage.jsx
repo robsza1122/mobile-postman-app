@@ -2,20 +2,21 @@ import "./WorkPage.scss";
 import { WorkNav } from "../WorkNav/WorkNav.jsx";
 import { myToolsOptions } from "../../utils/DataProvider.js";
 import { MyToolOption } from "../MyToolOption/MyToolOption.jsx";
-import { useContext } from "react";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider.jsx";
 import { APMOption } from "../APMOption/APMOption.jsx";
 import { MyParcelOption } from "../MyParcelOption/MyParcelOption.jsx";
 import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
 import useParcels from "../../hooks/useParcels.js";
 import useAuth from "../../hooks/useAuth.js";
+import { Loading } from "../../Loading/Loading.jsx";
 
 export const WorkPage = () => {
   const { parcels } = useParcels();
 
   const { slideOptions, downloadedParcels, setDownloadedParcels, currentUser } =
     useContext(PostManState);
+  const { isUpdatingParcel } = useContext(PostManState);
 
   useEffect(() => {
     const handlePop = (e) => {
@@ -39,12 +40,12 @@ export const WorkPage = () => {
       parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
       parcel.forUser === currentUser.username,
   );
-  const advicedParcels = parcels.filter(
+  const advicedParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "ADVICED" &&
       parcel.forUser === currentUser.username,
   );
-  const otherParcels = parcels.filter(
+  const otherParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status[parcel.status.length - 1].name === "OTHER" &&
       parcel.forUser === currentUser.username,
@@ -91,6 +92,7 @@ export const WorkPage = () => {
           transition: "0.1s ease transform",
         }}
       >
+        {isUpdatingParcel && <Loading message="Updating parcel..." />}
         <div className="workpage__options">
           {myParcelsOptions.map((option) => (
             <MyParcelOption option={option} key={option.id} />

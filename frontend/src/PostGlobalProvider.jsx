@@ -29,6 +29,7 @@ export const PostManState = createContext({
   input: "",
   setInput: () => {},
   handleSignatureButton: () => {},
+  handleSignatureLink: () => {},
   signatureRef: {},
   particularSubject: "Addressee refused doing readable signature",
   setParticularSubject: () => {},
@@ -51,7 +52,10 @@ export const PostGlobalProvider = ({ children }) => {
   const { showUsers } = showCurrentUsers();
   const [isLoggedOut, setIsLoggedOut] = useLocaleStorage("isLoggedOut", true);
   const [isMainPage, setIsMainPage] = useLocaleStorage("isMainPage", true);
-  const [downloadedParcels, setDownloadedParcels] = useLocaleStorage("downloadedParcels", []);
+  const [downloadedParcels, setDownloadedParcels] = useLocaleStorage(
+    "downloadedParcels",
+    [],
+  );
   const [slideOptions, setSlideOptions] = useLocaleStorage("slideOptions", 0);
   const [chosenOption, setChosenOption] = useLocaleStorage("chosenOption", 1);
   const [currentUser, setCurrentUser] = useLocaleStorage("currentUser", {});
@@ -83,7 +87,8 @@ export const PostGlobalProvider = ({ children }) => {
     "showAllCurrentUsers",
     [],
   );
-  
+  const [isUpdatingParcel, setIsUpdatingParcel] = useState(false);
+
   const signatureRef = useRef({});
 
   useEffect(() => {
@@ -112,8 +117,6 @@ export const PostGlobalProvider = ({ children }) => {
   };
 
   const handleSignatureButton = () => {
-    setSavePoints(null);
-
     if (
       input === "" &&
       particularSubject === "Parcel left in place set with addressee"
@@ -121,6 +124,28 @@ export const PostGlobalProvider = ({ children }) => {
       alert("Type name and surname delivery's subject");
 
       return;
+    }
+    if (savePoints) {
+      setSavePoints(null);
+
+      return;
+    }
+  };
+
+  const handleSignatureLink = () => {
+    if (
+      input === "" &&
+      particularSubject === "Parcel left in place set with addressee"
+    ) {
+      return;
+    }
+
+    if (savePoints) {
+      return;
+    }
+
+    if (!savePoints) {
+      return "/signatureScreen";
     }
   };
 
@@ -160,9 +185,12 @@ export const PostGlobalProvider = ({ children }) => {
         clearBook,
         clearSignature,
         handleSignatureButton,
+        handleSignatureLink,
         signatureRef,
         downloadedParcels,
         setDownloadedParcels,
+        isUpdatingParcel,
+        setIsUpdatingParcel,
       }}
     >
       {children}

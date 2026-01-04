@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { CheckStatus } from "./Pages/CheckStatus/CheckStatus.jsx";
 import React from "react";
 import { MainPage } from "./Pages/MainPage/MainPage.jsx";
@@ -21,7 +21,8 @@ import { OtherOptionScreen } from "./Components/OtherOptionScreen/OtherOptionScr
 import { SettleWork } from "./Components/SettleWork/SettleWork.jsx";
 import { ReorderList } from "./Components/ReorderList/ReorderList.jsx";
 import { CreateBook } from "./Components/CreateBook/CreateBook.jsx";
-import { MultiDeliveryVerification } from "./Components/MultiDeliveryVerification/MultiDeliveryVerification.jsx";
+import { MultiDeliveryVerification } from "./Components/MultiStatusVerification/MultiDeliveryVerification.jsx";
+import { MultiAdvicingVerification } from "./Components/MultiStatusVerification/MultiAdvicingVerification.jsx";
 
 export const App = () => {
   const navigate = useNavigate();
@@ -53,6 +54,11 @@ export const App = () => {
           path="/multiDeliveryVerification"
           element={<MultiDeliveryVerification />}
         />
+        <Route
+        path="/multiAdvicingVerification"
+        element={<MultiAdvicingVerification />}
+        />
+        <Route path="*" element={<Navigate to="/workPage" replace />} />
       </Routes>
     </PostGlobalProvider>
   );

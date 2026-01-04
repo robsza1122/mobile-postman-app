@@ -1,8 +1,10 @@
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
+import { clearSignatureByButton } from "../../utils/helpers/statusObjects";
+import classNames from "classnames";
 
 export const TDInputs = ({
-  markedParcel,
+  markedParcels,
   setInput,
   input,
   chooseSubject,
@@ -11,30 +13,19 @@ export const TDInputs = ({
   particularSubject,
 }) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
+  console.log(addresseesData);
   return (
     <div className="td__inputs">
-      {!markedParcel.noAddressee && (
+      {!markedParcels[0]?.noAddressee && (
         <>
           <input
             type="text"
             className="td__input"
-            defaultValue={`${markedParcel.name} ${markedParcel.surname}`}
+            defaultValue={`${markedParcels[0]?.name} ${markedParcels[0]?.surname}`}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              setDownloadedParcels(
-                downloadedParcels.map((parcel) => {
-                  if (parcel._id === markedParcel._id) {
-                    return {
-                      ...parcel,
-                      isSignature: false,
-                      signature: null,
-                    };
-                  }
-
-                  return parcel;
-                }),
-              );
+              clearSignatureByButton(downloadedParcels, markedParcels);
             }}
             placeholder="Write name and surname"
           />
@@ -42,35 +33,34 @@ export const TDInputs = ({
             <p className="td__inputinfo">Copy from addressee's data</p>
             <input
               type="checkbox"
-              className="td__checkbox"
-              value={markedParcel.noAddressee}
-              disabled={chooseSubject !== "Addressee"}
+              className={classNames("td__checkbox", {
+                "td__checkbox--checked": addresseesData,
+              })}
+              checked={!!addresseesData}
+              disabled={
+                chooseSubject !== "Addressee" || markedParcels.length > 1
+              }
               onClick={() => {
-                if (chooseSubject === "Addressee") {
-                  setInput(`${markedParcel.name} ${markedParcel.surname}`);
-                }
-                setAddresseesData((value) => !value);
-                setInput(
-                  addresseesData && chooseSubject === "Addressee"
-                    ? `${markedParcel.name} ${markedParcel.surname}`
-                    : "",
-                );
-                setDownloadedParcels(
-                  downloadedParcels.map((parcel) => {
-                    if (parcel._id === markedParcel._id) {
-                      parcel.status[parcel.status.length - 1].noAddressee =
-                        true;
-                    }
+                if (chooseSubject !== "Addressee" || markedParcels.length > 1)
+                  return;
 
-                    return parcel;
-                  }),
-                );
+                const newState = !addresseesData;
+                setAddresseesData(newState);
+
+                if (newState) {
+                  setInput(
+                    `${markedParcels[0]?.name} ${markedParcels[0]?.surname}`,
+                  );
+                } else {
+                  setInput("");
+                  clearSignatureByButton(downloadedParcels, markedParcels);
+                }
               }}
             />
           </div>
         </>
       )}
-      {markedParcel.noAddressee &&
+      {markedParcels[0]?.noAddressee &&
         particularSubject === "Parcel left in place set with addressee" && (
           <input
             type="text"
@@ -80,7 +70,7 @@ export const TDInputs = ({
               setInput(e.target.value);
               setDownloadedParcels(
                 downloadedParcels.map((parcel) => {
-                  if (parcel._id === markedParcel._id) {
+                  if (parcel._id === markedParcels._id) {
                     return {
                       ...parcel,
                       deliveryInput: "",

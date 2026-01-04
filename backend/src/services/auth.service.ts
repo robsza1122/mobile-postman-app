@@ -16,6 +16,7 @@ import makeEmiNumber from "../utils/getEMINumber";
 import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
 import { getAdvicingEmail } from "../utils/getAdvicingEmail";
 import { otherStatusEmail } from "../utils/otherStatusEmail";
+import { getInDeliveryStatusEmail } from "../utils/InDeliveryEmail";
 
 export type CreateParcelOrder = {
   senderName: string;
@@ -37,6 +38,7 @@ export type CreateParcelOrder = {
   numberOfParcel?: string;
   deliveryCode?: string;
   isMarked?: boolean;
+  isMarkedVERIFICATION?: boolean;
   amountOfTrials?: number;
   isDeliveryCode?: boolean;
   status?: {
@@ -146,6 +148,7 @@ export const createOrder = async (data: CreateParcelOrder) => {
     isDownloaded: false,
     isDeliveryCode: false,
     isMarked: false,
+    isMarkedVERIFICATION: false,
     deliveryCode: `${createDeliveryCode()}`,
     status: {
       name: "ORDERED",
@@ -290,9 +293,9 @@ export const assignParcels = async ({ numberOfBook, username }: AssignType) => {
 
 type DeleteBookType = {
   numberOfBook: string;
-}
+};
 
-export const deleteBook = async ( {numberOfBook}: DeleteBookType) => {
+export const deleteBook = async ({ numberOfBook }: DeleteBookType) => {
   await parcelModel.updateMany(
     { numberOfBook, isDownloaded: false },
     {
@@ -335,13 +338,29 @@ export const addInDeliveryStatus = async ({
     }
   );
 
-  const assignParcelsToUser = await parcelModel.find({isDownloaded: true,
-    forUser: username});
+  const assignParcelsToUser = await parcelModel.find({
+    isDownloaded: true,
+    forUser: username,
+  });
 
   await UserModel.updateOne(
-    {username},
-    {$push: {parcels: {...assignParcelsToUser}}}
-  )
+    { username },
+    { $push: { parcels: { ...assignParcelsToUser } } }
+  );
+
+  await Promise.all(
+    (assignParcelsToUser || []).map((parcel) =>
+      parcel?.clientEmail
+        ? sendEmail({
+            ...getInDeliveryStatusEmail(
+              parcel,
+              `${APP_ORIGIN}/checkStatus/${parcel._id}`
+            ),
+            to: parcel.clientEmail,
+          })
+        : Promise.resolve()
+    )
+  );
 
   return {
     assignParcelsToUser,
@@ -596,63 +615,243 @@ export const otherStatus = async ({
 type FailedDeliveryCodeType = {
   id: string;
   amountOfTrials: number;
-}
+};
 
-export const failedDeliveryCode = async ({id, amountOfTrials}: FailedDeliveryCodeType) => {
+export const failedDeliveryCode = async ({
+  id,
+  amountOfTrials,
+}: FailedDeliveryCodeType) => {
   const updatedParcel = await parcelModel.findByIdAndUpdate(id, {
-    $set: {amountOfTrials}
-  })
+    $set: { amountOfTrials },
+  });
 
   return {
     updatedParcel,
-  }
-}
+  };
+};
 
 type SaveParcelType = {
-  parcels: CreateParcelOrder[],
+  parcels: CreateParcelOrder[];
   id: string;
-}
+};
 
-export const saveParcelsInUserMemory = async( {parcels, id}: SaveParcelType ) => {
+export const saveParcelsInUserMemory = async ({
+  parcels,
+  id,
+}: SaveParcelType) => {
   const saveParcels = await UserModel.findByIdAndUpdate(id, {
-    $push: {parcels}
+    $push: { parcels },
   });
 
   return { saveParcels };
-}
+};
 
 type MarkAllParcelInListType = {
   user: string;
-}
+};
 
-export const markAllParcelOnFalseInList = async( {user}: MarkAllParcelInListType ) => {
+export const markAllParcelOnFalseInList = async ({
+  user,
+}: MarkAllParcelInListType) => {
   await parcelModel.updateMany(
-  {isBooked: true,
-    forUser: user,
-    isDownloaded: true,
-  },
-  { isMarked: false }
+    { isBooked: true, forUser: user, isDownloaded: true },
+    { isMarked: false, isMarkedVERIFICATION: false }
   );
 
-  const changedParcels = await parcelModel.find({isBooked: true, forUser: user, isDownloaded: true});
+  const changedParcels = await parcelModel.find({
+    isBooked: true,
+    forUser: user,
+    isDownloaded: true,
+  });
 
   return {
     changedParcels,
-  }
-}
+  };
+};
 
-export const markAllParcelOnTrueInList = async( {user}: MarkAllParcelInListType ) => {
+export const markAllParcelOnTrueInList = async ({
+  user,
+}: MarkAllParcelInListType) => {
   await parcelModel.updateMany(
-  {isBooked: true,
-    forUser: user,
-    isDownloaded: true,
-  },
-  { isMarked: true }
+    { isBooked: true, forUser: user, isDownloaded: true },
+    { isMarked: true }
   );
 
-  const changedParcels = await parcelModel.find({isBooked: true, forUser: user, isDownloaded: true});
+  const changedParcels = await parcelModel.find({
+    isBooked: true,
+    forUser: user,
+    isDownloaded: true,
+  });
 
   return {
     changedParcels,
-  }
-}
+  };
+};
+
+type MarkInVerification = {
+  id: string;
+  markParcel: boolean;
+};
+
+export const markParcelOnTrueInVerification = async ({
+  id,
+  markParcel,
+}: MarkInVerification) => {
+  const changedParcel = await parcelModel.findByIdAndUpdate(id, {
+    isMarkedVERIFICATION: markParcel,
+  });
+
+  return {
+    changedParcel,
+  };
+};
+
+export const removeParcelsInVerification = async ({
+  user,
+}: MarkAllParcelInListType) => {
+  await parcelModel.updateMany(
+    {
+      forUser: user,
+      isDownloaded: true,
+      isMarkedVERIFICATION: true,
+    },
+    {
+      isMarkedVERIFICATION: false,
+    }
+  );
+
+  const updatedParcels = await parcelModel.find({
+    forUser: user,
+    isDownloaded: true,
+  });
+
+  return {
+    updatedParcels,
+  };
+};
+
+type MultiStatusType = {
+  nameOfStatus?: string;
+  createdAt?: string;
+  signature?: string;
+  noAddressee?: boolean;
+  deliveryInput?: string;
+  user?: string;
+  subject?: string;
+  details?: string;
+};
+
+export const multiDelivery = async ({
+  nameOfStatus,
+  createdAt,
+  signature,
+  noAddressee,
+  deliveryInput,
+  user,
+  subject,
+  details,
+}: MultiStatusType) => {
+  const addStatus = {
+    name: nameOfStatus,
+    createdAt,
+    subject,
+    details,
+    signature,
+    isDeliveryCode: false,
+    noAddressee,
+    deliveryInput,
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+  };
+  const updatedParcels = await parcelModel.find({
+    isMarked: true,
+    forUser: user,
+  });
+  await Promise.all(
+    (updatedParcels || []).map((parcel) =>
+      parcel?.clientEmail
+        ? sendEmail({
+            ...getDeliveredEmailTemplate(
+              parcel,
+              `${APP_ORIGIN}/checkStatus/${parcel._id}`
+            ),
+            to: parcel.clientEmail,
+          })
+        : Promise.resolve()
+    )
+  );
+  await parcelModel.updateMany(
+    {
+      isMarked: true,
+      forUser: user,
+    },
+    {
+      $set: { isMarked: false },
+      $push: { status: addStatus },
+    }
+  );
+
+  const changedParcels = await parcelModel.find({ forUser: user });
+
+  return { changedParcels };
+};
+
+type MultiAdvicingType = {
+  createdAt: string;
+  reasonOfAdvice: string;
+  officeOfAdvice: string;
+  placeOfNotification: string;
+  user: string;
+};
+
+export const multiAdvicing = async ({
+  createdAt,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+  user,
+}: MultiAdvicingType) => {
+  const addStatus = {
+    name: "ADVICED",
+    createdAt,
+    subject: "",
+    details: "",
+    signature: null,
+    isDeliveryCode: false,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice,
+    officeOfAdvice,
+    placeOfNotification,
+  };
+  const updatedParcels = await parcelModel.find({
+    isMarked: true,
+    forUser: user,
+  });
+  await Promise.all(
+    (updatedParcels || []).map((parcel) =>
+      parcel?.clientEmail
+        ? sendEmail({
+            ...getAdvicingEmail(
+              parcel,
+              `${APP_ORIGIN}/checkStatus/${parcel._id}`
+            ),
+            to: parcel.clientEmail,
+          })
+        : Promise.resolve()
+    )
+  );
+  await parcelModel.updateMany(
+    {
+      forUser: user,
+      isMarked: true,
+    },
+    {
+      $set: { isMarked: false },
+      $push: { status: addStatus },
+    }
+  );
+
+  return { updatedParcels };
+};

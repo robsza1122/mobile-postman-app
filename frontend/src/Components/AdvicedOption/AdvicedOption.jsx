@@ -11,12 +11,11 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 export const AdvicedOption = () => {
   const { currentUser, downloadedParcels, setDownloadedParcels } = useContext(PostManState);
-  const { parcels } = useParcels();
-  const { user } = useAuth();
+  const markedParcels = downloadedParcels.filter(parcel => parcel.isMarked);
   const queryClient = useQueryClient();
   const { mutate: markAllOnFalsy } = useMutation({
     mutationFn: markAllParcelOnFalseInList,
-    mutationKey: ["parcels"],
+    mutationKey: [PARCELS],
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
@@ -46,7 +45,6 @@ export const AdvicedOption = () => {
     onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
   });
 
-  const markedParcels = parcels.filter((parcel) => parcel.isMarked);
     useEffect(() => {
     if (!currentUser || !currentUser.username) return;
 
@@ -70,10 +68,63 @@ export const AdvicedOption = () => {
       }),
     );
   }, [currentUser?.username]);
+
+   const handleLink = () => {
+    if (markedParcels.length === 0) {
+      return '';
+    }
+      if (markedParcels.length === 1) {
+        return "/advicingScreen";
+      }
+      return '';
+    };
+  
+    const handleMultiAdvicingLink = () => {
+      if (markedParcels.length === 0 || markedParcels.length === 1) {
+        return "";
+      } else if (markedParcels.length > 1) {
+        return "/multiAdvicingVerification";
+      }
+    };
+  
+  const handleOneAdvicingAlerts = (e) => {
+    const parcelIsMarked = markedParcels.length;
+    switch (parcelIsMarked) {
+      case 0:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("no parcel is marked");
+      case 1: {
+        const addressee = `${markedParcels[0].name} ${markedParcels[0].surname}`;
+        setSavePoints(null);
+        setInput(addressee);
+        setDownloadedParcels(
+          setNoAddresseLocally(downloadedParcels, markedParcels[0]),
+        );
+        return;
+      }
+      default:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("More than one position is marked");
+    }
+  };
+  
+    const handleMultiAdvicingAlerts = () => {
+      const parcelIsMarked = markedParcels.length;
+      switch (parcelIsMarked) {
+        case 0:
+          return alert("No position is marked");
+        case 1:
+          return alert("Mark more than one position");
+      }
+    };
   return (
     <StatusHandler
     title="ADVICED OPTION"
     firstButton="Individiual Advice"
-    secondButton="Multi Advice" />
+    secondButton="Multi Advice"
+    onFirstButtonClick={handleOneAdvicingAlerts}
+    onSecondButtonClick={handleMultiAdvicingAlerts}
+    firstButtonLink={handleLink}
+    secondButtonLink={handleMultiAdvicingLink} />
   )
 };

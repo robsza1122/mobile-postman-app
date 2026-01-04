@@ -23,6 +23,7 @@ export interface ParcelDocument extends mongoose.Document {
   deliveryCode: string,
   phone: string,
   isMarked: boolean,
+  isMarkedVERIFICATION: boolean,
   amountOfTrials: number,
   isDeliveryCode: boolean,
   status: {
@@ -123,6 +124,10 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
         type: String,
     },
     isMarked: {
+        type: Boolean,
+        default: false,
+    },
+    isMarkedVERIFICATION: {
         type: Boolean,
         default: false,
     },

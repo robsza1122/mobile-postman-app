@@ -1,12 +1,13 @@
 import "./SignatureScreen.scss";
 import { useContext, useEffect } from "react";
-import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { PostManState } from "../../PostGlobalProvider";
 import SignaturePad from "react-signature-canvas";
 import classNames from "classnames";
 import { useMutation } from "@tanstack/react-query";
 import { addDeliveredStatus } from "../../api/api";
-import { navigate } from "../../api/navigation";
+import { useNavigate } from "react-router-dom";
+import { AppNavigation } from "../AppNavigation/AppNavigation";
+import { SignatureOptions } from "./SignatureOption";
 
 export const SignatureScreen = () => {
   const {
@@ -19,70 +20,45 @@ export const SignatureScreen = () => {
     signatureRef,
   } = useContext(PostManState);
 
-
-  const { parcels } = useParcels();
-
-  const markedParcels = parcels.filter((parcel) => parcel.isMarked);
+  const markedParcels = (downloadedParcels || []).filter(
+    (parcel) => parcel.isMarked,
+  );
+  const navigate = useNavigate();
 
   useEffect(() => {
-    window.onpopstate = () => {
-      if (markedParcels[0].isSignature) {
-        savePoints([]);
-        setDownloadedParcels(
-          downloadedParcels.map((parcel) => {
-            if (markedParcels[0]._id === parcel._id) {
-              return {
-                ...parcel,
-                isSignature: false,
-                signature: null,
-              };
-            }
-
-            return parcel;
-          }),
-        );
-      }
-      navigate("/ML");
-      window.location.reload();
+    const handlePop = () => {
+      setSavePoints(null);
+      navigate("/traditionalDeliver", { replace: true });
     };
-  });
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", handlePop);
+
+    return () => {
+      window.removeEventListener("popstate", handlePop);
+    };
+  }, [navigate, setSavePoints]);
 
   const saveSignature = () => {
-    navigate('/traditionalDeliver');
-  }
+    navigate("/traditionalDeliver");
+  };
 
   console.log(downloadedParcels);
   console.log(savePoints);
 
   return (
     <div className="sign__content">
-      <nav className="sign__nav">
-        <p className="sign__info">SIGNATURE SCREEN</p>
-        <p className="sign__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-      </nav>
+      <AppNavigation
+        username={currentUser.username}
+        title="SIGNATURE SCREEN"
+        EMINumber={currentUser.EMINumber}
+      />
       <p className="sign__signatureinfo">{`Addressee: ${markedParcels[0].name} ${markedParcels[0].surname} Address: ${markedParcels[0].adress} City: ${markedParcels[0].city} PostCode: ${markedParcels[0].postCode}`}</p>
       <div className="sign__signatureblock">
-        <div className="sign__options">
-          <button
-            className={classNames("sign__button", {
-              "sign__button--disabled": !savePoints,
-            })}
-            onClick={() => clearSignature()}
-          >
-            Clear
-          </button>
-          <div className="sign__signinfo">
-            Write your signature into the white square below.
-          </div>
-          <button
-            className={classNames("sign__button", {
-              "sign__button--disabled": !savePoints,
-            })}
-            onClick={() => saveSignature()}
-          >
-            Accept
-          </button>
-        </div>
+        <SignatureOptions
+          savePoints={savePoints}
+          saveSignature={saveSignature}
+          clearSignature={clearSignature}
+        />
         <SignaturePad
           ref={signatureRef}
           onEnd={(e) => {

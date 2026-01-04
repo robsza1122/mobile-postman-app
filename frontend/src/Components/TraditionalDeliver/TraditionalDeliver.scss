@@ -28,6 +28,12 @@
     border: 1px solid black;
     background-color: lightgray;
   }
+
+  &__exclamation {
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+  }
   &__listarrow {
     margin-left: 6px;
     font-weight: 1000;
@@ -130,11 +136,11 @@
     font-family: Post, sans-serif;
     text-align: left;
     text-indent: 15px;
-    width: 80%;
-    height: 50px;
+    width: 100%;
+    height: 35px;
     border: 0;
     border-bottom: 1px solid lightgray;
-    margin: 10px 0;
+    margin: auto 15px;
     outline: 0;
     &:focus-visible {
       border: 0;
@@ -142,10 +148,10 @@
     }
   }
   &__inputs {
+    background-color: rgb(220, 219, 219);
     display: flex;
-    margin: 0 auto;
-    width: 90%;
-    gap: 30px;
+    justify-content: space-around;
+    width: 100%;
   }
   &__buttons {
     display: flex;
@@ -176,6 +182,30 @@
     place-content: center;
     align-self: center;
     appearance: none;
+    box-shadow: inset 13px 13px white;
+    margin: 0;
+    color: black;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    transform: translateY(-0.075em);
+    transform: scale(1);
+    // &:checked::before {
+    //   transform: scale(1);
+    // }
+    // &::before {
+    //   content: "";
+    //   width: 15px;
+    //   height: 20px;
+    //   transform: scale(0);
+    //   transition: 120ms transform ease-in-out;
+    //   background-color: #fff;
+    // }
+    &--checked {
+    display: grid;
+    place-content: center;
+    align-self: center;
+    appearance: none;
     box-shadow: inset 13px 13px $post-color;
     margin: 0;
     color: black;
@@ -183,24 +213,18 @@
     height: 20px;
     border: 1px solid black;
     transform: translateY(-0.075em);
-    &:checked::before {
-      transform: scale(1);
-    }
-    &::before {
-      content: "";
-      width: 15px;
-      height: 20px;
-      transform: scale(0);
-      transition: 120ms transform ease-in-out;
-      background-color: #fff;
+    transform: scale(1);
     }
   }
   &__inputcontent {
     display: flex;
-    gap: 10px;
+    justify-content: right;
+    width: 90%;
+    margin-right: 20px;
   }
   &__inputinfo {
     font-family: Post, sans-serif;
+    width: 70%;
   }
   &__signcontent {
     width: 90%;

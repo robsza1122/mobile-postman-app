@@ -3,7 +3,7 @@ import UserModel from "../Models/UserModel";
 import { saveParcelsInUserMemory } from "../services/auth.service";
 import appAssert from "../utils/AppAssert";
 import catchErrors from "../utils/catchErrors";
-import { saveParcelToMemorySchima } from "./saveParcelsInMemorySchima";
+import { saveParcelToMemorySchima } from "../schimas/saveParcelsInMemorySchima";
 
 export const getUserHandler = catchErrors(async (req, res) => {
     const user = await UserModel.findById(req.userId);
@@ -21,3 +21,4 @@ export const saveParcelsToUserHandler = catchErrors(async (req, res) => {
 
     return res.status(OK).json(saveParcels);
 })
+

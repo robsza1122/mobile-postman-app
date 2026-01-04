@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
 import classNames from "classnames";
+import useParcels from "../../hooks/useParcels";
+import { markAllOnFalse } from "../../api/api";
 
 export const TDButtons = ({
   markParcel,
-  input,
-  particularSubject,
   savePoints,
-  handleSignatureButton
+  handleSignatureButton,
+  handleSignatureLink,
 }) => {
+  console.log(savePoints)
   return (
     <div className="td__buttons">
       <Link
@@ -15,7 +17,7 @@ export const TDButtons = ({
         className={classNames("td__button", {
           "td__button--disabled": markParcel.amountOfTrials === 3,
         })}
-        disabled={markParcel.amountOfTrials}
+        disabled={markParcel.amountOfTrials === 3}
       >
         Delivery code
       </Link>
@@ -23,14 +25,7 @@ export const TDButtons = ({
         className={classNames("td__button", {
           "td__button--is-signed": savePoints,
         })}
-        to={`${
-          markParcel.noAddressee
-            ? input === "" &&
-              particularSubject === "Parcel left in place set with addressee"
-              ? ""
-              : "/signatureScreen"
-            : `${input === "" ? "" : "/signatureScreen"}`
-        }`}
+        to={handleSignatureLink()}
         onClick={() => handleSignatureButton()}
       >
         Signature

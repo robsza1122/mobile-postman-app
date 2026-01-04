@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
+import { clearSignatureByButton } from "../../utils/helpers/statusObjects";
 
 export const TDSubjectWindow = ({
   subjectsOption,
-  markedParcel,
+  markedParcels,
   setShowSubjects,
   setChooseSubject,
   setChoosen,
@@ -11,7 +12,7 @@ export const TDSubjectWindow = ({
   setAddresseesData,
   setInput,
 }) => {
-  const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
+  const { downloadedParcels, setDownloadedParcels, setSavePoints } = useContext(PostManState);
   return (
     <>
       <div
@@ -20,31 +21,27 @@ export const TDSubjectWindow = ({
       ></div>
       <div className="td__window">
         {subjectsOption.map((subject, id) => {
+            const handleInput = () => {
+    if (subject === 'Addressee' && markedParcels.length === 1) {
+      return `${markedParcels[0].name} ${markedParcels[0].surname}`;
+    } else if (subject === 'Addressee' && markedParcels.length > 1) {
+      return '';
+    } else if (subject !== 'Addressee') {
+      return '';
+    }
+  }
           const handleButtonSubject = () => {
             setDownloadedParcels(
-              downloadedParcels.map((parcel) => {
-                if (parcel._id === markedParcel._id) {
-                  return {
-                    ...parcel,
-                    isSignature: false,
-                    signature: null,
-                  };
-                }
-
-                return parcel;
-              }),
+              clearSignatureByButton(downloadedParcels, markedParcels),
             );
 
             setInput(
-              `${
-                subject === "Addressee"
-                  ? `${markedParcel.name} ${markedParcel.surname}`
-                  : ""
-              }`,
+              handleInput(),
             );
             setAddresseesData(subject === "Addressee" ? true : false);
             setShowSubjects(false);
             setChooseSubject(subject);
+            setSavePoints(null);
           };
           console.log(id);
           return (

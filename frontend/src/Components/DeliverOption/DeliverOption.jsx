@@ -4,13 +4,19 @@ import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markAllParcelOnFalseInList } from "../../api/api";
+import { setNoAddresseLocally } from "../../utils/helpers/statusObjects";
 
 export const DeliverOption = () => {
-  const { parcels } = useParcels();
-  const markedParcels = parcels.filter((parcel) => parcel.isMarked);
-  const { currentUser, downloadedParcels, setDownloadedParcels } =
-    useContext(PostManState);
+  const {
+    currentUser,
+    downloadedParcels,
+    setDownloadedParcels,
+    setSavePoints,
+    setInput,
+  } = useContext(PostManState);
   const queryClient = useQueryClient();
+
+  const markedParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
 
   const { mutate: markAllOnFalsy } = useMutation({
     mutationFn: markAllParcelOnFalseInList,
@@ -47,7 +53,6 @@ export const DeliverOption = () => {
   useEffect(() => {
     if (!currentUser || !currentUser.username) return;
 
-    // clear marks on server and locally for current user's downloaded parcels
     markAllOnFalsy({ user: currentUser.username });
 
     setDownloadedParcels(
@@ -60,6 +65,7 @@ export const DeliverOption = () => {
           return {
             ...parcel,
             isMarked: false,
+            isMarkedVERIFICATION: false,
           };
         }
 
@@ -68,13 +74,16 @@ export const DeliverOption = () => {
     );
   }, [currentUser?.username]);
   const handleLink = () => {
+    if (markedParcels.length === 0) {
+      return "";
+    }
     if (markedParcels.length === 1 && markedParcels[0].amountOfTrials === 3) {
       return "/traditionalDeliver";
     }
     if (markedParcels.length === 1) {
       return "/deliveryCodeScreen";
     }
-    return;
+    return "";
   };
 
   const handleMultiDeliveryLink = () => {
@@ -84,13 +93,46 @@ export const DeliverOption = () => {
       return "/multiDeliveryVerification";
     }
   };
+
+  const handleOneDeliveryAlerts = (e) => {
+    const parcelIsMarked = markedParcels.length;
+    switch (parcelIsMarked) {
+      case 0:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("no parcel is marked");
+      case 1: {
+        const addressee = `${markedParcels[0].name} ${markedParcels[0].surname}`;
+        setSavePoints(null);
+        setInput(addressee);
+        setDownloadedParcels(
+          setNoAddresseLocally(downloadedParcels, markedParcels[0]),
+        );
+        return;
+      }
+      default:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("More than one position is marked");
+    }
+  };
+
+  const handleMultiDeliveryAlerts = () => {
+    const parcelIsMarked = markedParcels.length;
+    switch (parcelIsMarked) {
+      case 0:
+        return alert("No position is marked");
+      case 1:
+        return alert("Mark more than one position");
+    }
+  };
   return (
     <StatusHandler
       title={"DELIVER OPTION"}
       firstButton={"Individual Delivery"}
       secondButton={"Multi Delivery"}
-      firstButtonLink={handleLink()}
-      secondButtonLink={handleMultiDeliveryLink()}
+      onFirstButtonClick={handleOneDeliveryAlerts}
+      onSecondButtonClick={handleMultiDeliveryAlerts}
+      firstButtonLink={handleLink}
+      secondButtonLink={handleMultiDeliveryLink}
     />
   );
 };

@@ -2,14 +2,11 @@ import "./TrailOption.scss";
 import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { useContext, useState } from "react";
 import { Loading } from "../../Loading/Loading.jsx";
-import classnames from "classnames";
 import { Link, useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider.jsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getInDeliveryStatus,
-  sendInDeliveryEmail,
-  saveParcelsInMemory,
 } from "../../api/api.js";
 import { TrailConfirmBook } from "./TrailConfirmBook.jsx";
 import { TrailConfirmBookError } from "./TrailConfirmBookError.jsx";
@@ -41,37 +38,8 @@ export const TrailOption = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { mutate: saveParcels } = useMutation({
-    mutationFn: saveParcelsInMemory,
-    mutationKey: [PARCELS],
-    onMutate: async (updatedParcel) => {
-      await queryClient.cancelQueries({ queryKey: [PARCELS] });
-
-      const previousParcels = queryClient.getQueriesData([PARCELS]);
-
-      queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
-
-      return { previousParcels };
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
-  });
   const { mutate: inDeliveryStatus } = useMutation({
     mutationFn: getInDeliveryStatus,
-    mutationKey: [PARCELS],
-    onMutate: async (updatedParcel) => {
-      await queryClient.cancelQueries({ queryKey: [PARCELS] });
-
-      const previousParcels = queryClient.getQueriesData([PARCELS]);
-
-      queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
-
-      return { previousParcels };
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
-  });
-
-  const { mutate: inDeliveryEmail } = useMutation({
-    mutationFn: sendInDeliveryEmail,
     mutationKey: [PARCELS],
     onMutate: async (updatedParcel) => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
@@ -139,7 +107,6 @@ export const TrailOption = () => {
     }
 
     if (markedBook) {
-      inDeliveryEmail(typedParcel._id);
       inDeliveryStatus({
         numberOfBook: typedParcelBookNumber,
         username: typedParcel.forUser,

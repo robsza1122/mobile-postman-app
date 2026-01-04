@@ -1,33 +1,29 @@
-import useAuth from "../../hooks/useAuth";
 import "./statushandler.scss";
-import classnames from "classnames";
 import { Link, useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
-import useParcels, { PARCELS } from "../../hooks/useParcels";
+import useParcels from "../../hooks/useParcels";
 import { SwitchingModelPanel } from "./SwitchingModelPanel";
 import { StatusPanelNavigation } from "./StatusPanelNavigation";
 import { StatusHandlingInput } from "./StatusHandlingInput";
 import { StatusHandlingList } from "./StatusHandlingList";
 import { StatusHandlingButtons } from "./StatusHandlingButtons";
 import { StatusHandlingZDOButton } from "./StatusHandlingZDOButton";
-import { useMutation } from "@tanstack/react-query";
-import { markAllOnFalse } from "../../api/api";
-import { useContext, useState, useEffect, useCallback } from "react";
+import { useContext, useState, useEffect } from "react";
 
 export const StatusHandler = ({
   title,
   firstButton,
   secondButton,
+  onFirstButtonClick,
+  onSecondButtonClick,
   firstButtonLink,
-  secondButtonLink
+  secondButtonLink,
 }) => {
-  const { currentUser, downloadedParcels, setDownloadedParcels } =
+  const { currentUser, downloadedParcels, setSavePoints } =
     useContext(PostManState);
   const { parcels } = useParcels();
 
   const markedParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
-
-  const [searchInput, setSearchInput] = useState("");
 
   const inDeliveryParcels = downloadedParcels.filter(
     (parcel) =>
@@ -46,12 +42,33 @@ export const StatusHandler = ({
       parcel.forUser === currentUser.username,
   );
 
+  const [searchInput, setSearchInput] = useState("");
   const [chosenOption, setChosenOption] = useState(0);
   const [slideOptions, setSlideOptions] = useState(0);
   const getChosenOption = (id) => {
     setChosenOption(id);
     setSlideOptions(id);
   };
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handlePop = () => {
+      const marked = (downloadedParcels || []).some(
+        (p) => p.isMarked && p.forUser === currentUser?.username,
+      );
+
+      if (!marked) {
+        navigate("/workPage");
+      }
+    };
+
+    // push a history entry so back button triggers popstate here
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", handlePop);
+
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [downloadedParcels, currentUser, navigate]);
 
   const searchPosition = (positions) => {
     const filterPosition = positions.filter((position) => {
@@ -70,8 +87,7 @@ export const StatusHandler = ({
 
   return (
     <div className="deliver__content">
-      <StatusPanelNavigation 
-      title={title} />
+      <StatusPanelNavigation title={title} />
       <div className="deliver__menu">
         <SwitchingModelPanel
           chosenOption={chosenOption}
@@ -124,8 +140,11 @@ export const StatusHandler = ({
             markedParcels={markedParcels}
             firstButton={firstButton}
             secondButton={secondButton}
+            onFirstButtonClick={onFirstButtonClick}
+            onSecondButtonClick={onSecondButtonClick}
             firstButtonLink={firstButtonLink}
             secondButtonLink={secondButtonLink}
+            setSavePoints={setSavePoints}
           />
         </div>
         <div className="deliver__blockcontent">

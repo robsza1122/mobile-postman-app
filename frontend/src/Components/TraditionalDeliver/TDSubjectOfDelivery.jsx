@@ -5,7 +5,7 @@ import classNames from "classnames";
 export const TDSubjectOfDelivery = ({
   setShowSubjects,
   openList,
-  markedParcel,
+  markedParcels,
   chooseSubject,
 }) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
@@ -22,7 +22,7 @@ export const TDSubjectOfDelivery = ({
           setShowSubjects(true);
           setDownloadedParcels(
             downloadedParcels.map((parcel) => {
-              if (parcel._id === markedParcel._id) {
+              if (parcel._id === markedParcels[0]._id) {
                 return {
                   ...parcel,
                   isSignature: false,
@@ -34,10 +34,10 @@ export const TDSubjectOfDelivery = ({
             }),
           );
         }}
-        disabled={markedParcel.noAddressee}
+        disabled={markedParcels[0]?.noAddressee}
       >
         {`${
-          markedParcel.noAddressee
+          markedParcels[0]?.noAddressee
             ? "Person authorized to receive parcel"
             : chooseSubject
         }`}

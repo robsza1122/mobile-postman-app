@@ -22,6 +22,10 @@ import {
   failedDeliveryCodeHandler,
   markingOnTrueInListHandler,
   markingOnFalseInListHandler,
+  markParcelInVerificationHandler,
+  removeParcelsInVerificationHandler,
+  multiDeliveryHandler,
+  multiAdvicingHandler,
 } from "../controllers/parcel.controller";
 import { saveParcelsToUserHandler } from "../controllers/user.controller";
 
@@ -29,27 +33,44 @@ const postRoutes = Router();
 
 postRoutes.post("/orderParcel", orderedParcelHandler);
 postRoutes.get("/getParcels", getParcelsHandler);
+
+// Handling user 
 postRoutes.post("/register", registerHandler);
 postRoutes.post("/login", loginHandler);
 postRoutes.get("/logout", logoutHandler);
 postRoutes.get("/refresh", refreshHandler);
+postRoutes.get("/showAllUsers", showUsersHandler);
+
+// Displaying status in email
 postRoutes.post("/checkStatus/:id", checkStatusHandler);
+postRoutes.post("/sendInDeliveryEmail/:id", inDeliveryEmailHandler);
+
+// Adding status to parcel
 postRoutes.post("/addDeliveredStatus", deliveredStatusHandler);
 postRoutes.post("/addAdvicedStatus", advicedStatusHandler);
 postRoutes.post("/addOtherStatus", otherResultHandler); 
-postRoutes.post("/sendInDeliveryEmail/:id", inDeliveryEmailHandler);
-postRoutes.get("/showAllUsers", showUsersHandler);
 postRoutes.post("/handleFailedDeliveryCode", failedDeliveryCodeHandler);
+postRoutes.post("/addInDeliveryStatus", addInDeliveryStatusHandler);
 
+// MULTI STATUS HANDLER
+postRoutes.post("/multiDelivery", multiDeliveryHandler);
+postRoutes.post("/multiAdvicing", multiAdvicingHandler);
+
+//Creating new book
 postRoutes.post("/assignParcelsToUser", assignParcelsHandler);
 postRoutes.post("/saveParcelsToUser", saveParcelsToUserHandler);
-postRoutes.post("/addInDeliveryStatus", addInDeliveryStatusHandler);
+postRoutes.post("/deleteBook", deleteBookHandler);
+
+//Marking parcels in different places
 postRoutes.post("/markParcel", markParcelHandler);
 postRoutes.post("/markAllParcelsOnTrueForBook", markingOnTrueInBookHandler);
 postRoutes.post("/markAllParcelsOnFalseForBook", markingOnFalseInBookHandler);
 postRoutes.post("/markAllParcelOnTrueInList", markingOnTrueInListHandler);
 postRoutes.post("/markAllParcelOnFalseInList", markingOnFalseInListHandler);
-postRoutes.post("/deleteBook", deleteBookHandler);
+postRoutes.post("/markParcelVERIFICATION", markParcelInVerificationHandler);
+postRoutes.post("/removingParcelsVERIFICATION", removeParcelsInVerificationHandler);
+
+//Deleting all dates
 postRoutes.post("/deleteAllDates", clearDatesHandler);
 
 export default postRoutes; 

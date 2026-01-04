@@ -19,6 +19,7 @@ export const parcelSchima = z.object({
   postCode: dataSchima,
   numberOfParcel: numberSchima,
   isMarked: z.boolean().optional(),
+  isMarkedVERIFICATION: z.boolean().optional(),
   isSignature: z.boolean().optional(),
   signature: z.string().optional(),
   deliveryCode: z.string().length(6).optional(),

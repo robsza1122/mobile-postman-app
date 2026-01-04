@@ -3,19 +3,12 @@ import "./BookList.scss";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
 import useParcels from "../../hooks/useParcels";
-import { useNavigate } from "react-router-dom";
 
 export const BookList = () => {
   const { currentUser, downloadedParcels } = useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    window.onpopstate = () => {
-      navigate("/trailOption");
-    };
-  });
   console.log(downloadedParcels);
 
 

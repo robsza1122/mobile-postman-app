@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 
 export const TDNoAddresseeDelivery = ({
-  markedParcel,
+  markedParcels,
   setShowParticularSubject,
   particularSubject,
   setNoAddressee,
@@ -12,18 +12,18 @@ export const TDNoAddresseeDelivery = ({
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   return (
     <>
-      {markedParcel.noAddressee && (
+      {markedParcels[0]?.noAddressee && (
         <button
           className="td__particularcontent"
           style={{
-            height: `${markedParcel.noAddressee && "35px"}`,
+            height: `${markedParcels[0]?.noAddressee && "35px"}`,
             width: "100%",
           }}
           onClick={() => {
             setShowParticularSubject(true);
             setDownloadedParcels(
               downloadedParcels.map((parcel) => {
-                if (parcel._id === markedParcel._id) {
+                if (parcel._id === markedParcels[0]._id) {
                   return {
                     ...parcel,
                     isSignature: false,
@@ -48,7 +48,7 @@ export const TDNoAddresseeDelivery = ({
               setNoAddressee(!noAddressee);
               setDownloadedParcels(
                 downloadedParcels.map((parcel) => {
-                  if (markedParcel._id === parcel._id) {
+                  if (markedParcels[0]._id === parcel._id) {
                     return {
                       ...parcel,
                       noAddressee: !parcel.noAddressee,
@@ -59,19 +59,18 @@ export const TDNoAddresseeDelivery = ({
                     
                 }),
               );
-              markedParcel.noAddressee = !markedParcel.noAddressee;
               setInput(
-                !markedParcel.noAddressee
-                  ? `${markedParcel.name} ${markedParcel.surname}`
+                !markedParcels[0]?.noAddressee
+                  ? `${markedParcels[0]?.name} ${markedParcels[0]?.surname}`
                   : "",
               );
             }}
             style={{
-              transform: `translateX(${markedParcel.noAddressee ? "45px" : "0"})`,
+              transform: `translateX(${markedParcels[0]?.noAddressee ? "45px" : "0"})`,
               transition: "0.3s ease transform",
             }}
           >
-            {markedParcel.noAddressee ? "NO" : "YES"}
+            {markedParcels[0]?.noAddressee ? "NO" : "YES"}
           </button>
         </div>
       </div>

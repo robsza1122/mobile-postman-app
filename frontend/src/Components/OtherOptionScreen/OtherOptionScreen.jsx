@@ -4,29 +4,41 @@ import { PostManState } from "../../PostGlobalProvider";
 import { resultOfDelivery } from "../../utils/DataProvider";
 import { date } from "../../utils/currentDate";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addOtherResult } from "../../api/api";
 
+import { PARCELS } from "../../hooks/useParcels.js";
+import {
+  otherResultStatus,
+  otherStatusLocally,
+} from "../../utils/helpers/statusObjects";
+import { handleChoosingOptions } from "../../utils/helpers/otherOptionSelection";
+import { OtherOptionResult } from "./OtherOptionResult";
+import { OtherOptionDetails } from "./OtherOptionDetails";
+import { AppNavigation } from "../AppNavigation/AppNavigation";
+import { SettledParcels } from "./SettledParcels";
+import { OtherOptionButton } from "./OtherOptionButton";
+import { OtherOptionExceptions } from "./OtherOptionExceptions";
+import { OtherOptionButtons } from "./OtherOptionButtons";
+
 export const OtherOptionScreen = () => {
-  const { currentUser, setInput, input } = useContext(PostManState);
-  const { setDownloadedBook, downloadedParcels } =
-    useContext(PostManState);
-  const { mutate: otherResult } = useMutation({
+  const {
+    currentUser,
+    setInput,
+    input,
+    setDownloadedParcels,
+    downloadedParcels,
+    setIsUpdatingParcel,
+  } = useContext(PostManState);
+  const currentParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
+  const { mutateAsync: otherResultAsync, mutate: otherResult } = useMutation({
     mutationKey: ["advicedParcel"],
     mutationFn: addOtherResult,
-    onSuccess: () => {
-      window.location.reload();
-    },
   });
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    window.onpopstate = () => {
-      navigate("/ML");
-      setInput("");
-    };
-  });
   const [chooseResult, setChooseResult] = useState("Parcel postponed");
   const [showResult, setShowResult] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -52,47 +64,6 @@ export const OtherOptionScreen = () => {
   };
 
   const handleConfirmButton = () => {
-    setDownloadedBook(
-      downloadedParcels.map((parcel) => {
-        if (parcel._id === currentParcels[0]._id) {
-          otherResult({
-            nameOfStatus: "OTHER",
-            id: parcel._id,
-            subject: chooseResult,
-            details: chooseDetails,
-            signature: "",
-            isDeliveryCode: false,
-            isSignature: false,
-            noAddressee: false,
-            deliveryInput: input,
-            reasonOfAdvice: "",
-            officeOfAdvice: "",
-            placeOfNotification: "",
-            isBooked: true,
-            numberOfBook: parcel.numberOfBook,
-            isDownloaded: true,
-            username: parcel.forUser,
-            createdAt: date,
-          });
-          setInput("");
-          return {
-            ...parcel,
-            status: [
-              ...parcel.status,
-              {
-                name: "OTHER",
-                createdAt: date,
-                reasonOfAdvice: "",
-                DetailsOfAdvice: "",
-                placeOfNotification: "",
-              },
-            ],
-          };
-        }
-        return parcel;
-      }),
-    );
-
     if (chooseDetails === "Parcel returned from other reason" && input === "") {
       alert("No other reason is typed");
       return;
@@ -109,48 +80,36 @@ export const OtherOptionScreen = () => {
       alert("No name and surname is typed");
       return;
     }
-    navigate("/otherOption");
-  };
 
-  const handleChoosingOptions = (options) => {
-    switch (options) {
-      case "Parcel postponed":
-        return [
-          "Addressee ordered delivery again",
-          "Courier was not on time",
-          "No one was at home",
-        ];
-      case "Lack of status":
-        return ["Parcel lost"];
-      case "Wrong address":
-        return [
-          "Parcel wrongly directed",
-          "Parcel should be written to other courier",
-        ];
-      case "Delivered to ZDO":
-        return [
-          "Parcel delivered to boxmachine",
-          "Parcel left in shop, ORLEN, ParcelPoint",
-        ];
-      case "Parcel undelivered to ZDO":
-        return [
-          "Parcel directed to post office",
-          "Parcel wrongly directed",
-          "Parcel undelivered from other reason",
-        ];
-      case "Parcel directed to office of undeliverable parcels":
-        return ["Parcels adviced on post office from other reason"];
-      case "Parcel returned to sender":
-        return [
-          "Addressee refused delivery",
-          "Parcel is damaged",
-          "Addressee moved out",
-          "Addressee passed on",
-          "Parcel returned from other reason",
-          "Wrong address",
-          "Parcel is impossible to delivery",
-        ];
-    }
+    setIsUpdatingParcel(true);
+    otherResultAsync(
+      otherResultStatus(
+        currentParcels[0],
+        chooseResult,
+        chooseDetails,
+        input,
+        date,
+      ),
+    )
+      .catch((err) => {
+        console.error("addOtherResult failed:", err);
+      })
+      .finally(() => {
+        console.log("addOtherResult settled");
+        setIsUpdatingParcel(false);
+        queryClient.invalidateQueries({ queryKey: [PARCELS] });
+      });
+    setDownloadedParcels(
+      otherStatusLocally(
+        downloadedParcels,
+        currentParcels[0],
+        input,
+        chooseResult,
+        chooseDetails,
+        date,
+      ),
+    );
+    navigate("/workPage");
   };
 
   console.log(chooseResult);
@@ -159,129 +118,42 @@ export const OtherOptionScreen = () => {
   return (
     <>
       {showResult && (
-        <>
-          <div className="advice__background"></div>
-          <div className="advice__window">
-            {resultOfDelivery.map((result) => (
-              <>
-                <button
-                  className="advice__button"
-                  onClick={() => {
-                    onChooseResult(result);
-                    onChooseDetails(handleChoosingOptions(result)[0]);
-                  }}
-                >
-                  {result}
-                </button>
-              </>
-            ))}
-          </div>
-        </>
+        <OtherOptionResult
+          resultOfDelivery={resultOfDelivery}
+          onChooseResult={onChooseResult}
+          onChooseDetails={onChooseDetails}
+        />
       )}
       {showDetails && (
-        <>
-          <div className="advice__background"></div>
-          <div className="advice__window">
-            {handleChoosingOptions(chooseResult).map((reason) => {
-              console.log(reason);
-              return (
-                <>
-                  <button
-                    className="advice__button"
-                    onClick={() => onChooseDetails(reason)}
-                  >
-                    {reason}
-                  </button>
-                </>
-              );
-            })}
-          </div>
-        </>
+        <OtherOptionDetails
+          onChooseDetails={onChooseDetails}
+          chooseResult={chooseResult}
+        />
       )}
 
       <div className="advice">
-        <nav className="advice__nav">
-          <p className="advice__info">OTHER OPTIONS</p>
-          <p className="advice__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
-        </nav>
-        <div
-          className="deliver__positioncontent"
-          style={{
-            borderBottom: "1px solid gray",
-          }}
-        >
-          <p className="deliver__number" style={{ marginLeft: "60px" }}>
-            {currentParcels[0].numberOfParcel}
-          </p>
-          <p
-            className="deliver__info"
-            style={{ marginLeft: "60px" }}
-          >{`${currentParcels[0].name} ${currentParcels[0].surname}`}</p>
-          <p className="deliver__info" style={{ marginLeft: "60px" }}>
-            {currentParcels[0].adress}
-          </p>
-          <p
-            className="deliver__adress"
-            style={{ marginLeft: "60px" }}
-          >{`${currentParcels[0].city} ${currentParcels[0].postCode}`}</p>
-        </div>
+        <AppNavigation
+          username={currentUser.username}
+          pageName="OTHER"
+          EMINumber={currentUser.EMINumber}
+        />
+        {currentParcels.map((parcel) => {
+          return <SettledParcels parcel={parcel} key={parcel._id} />;
+        })}
         <div className="advice__content">
-          <p className="advice__text">Result of Delivery:</p>
-          <button className="advice__selecttext" onClick={() => onResult()}>
-            {chooseResult}
-          </button>
-          <p className="advice__text">Details of delivery:</p>
-          <button className="advice__selecttext" onClick={() => onDetails()}>
-            {chooseDetails}
-          </button>
-          {chooseDetails === "Parcel returned from other reason" && (
-            <>
-              <p className="advice__reason">Other reason:</p>
-              <input
-                type="text"
-                className="advice__input"
-                onChange={(e) => setInput(e.target.value)}
-                value={input}
-                placeholder="Type other reason..."
-              />
-            </>
-          )}
-
-          {chooseDetails === "Parcel lost" && (
-            <>
-              <p className="advice__reason">Reason:</p>
-              <input
-                type="text"
-                className="advice__input"
-                onChange={(e) => setInput(e.target.value)}
-                value={input}
-                placeholder="Type reason..."
-              />
-            </>
-          )}
-          {chooseDetails === "Parcel left in shop, ORLEN, ParcelPoint" && (
-            <>
-              <p className="advice__reason">
-                Name and surname receiving person:
-              </p>
-              <input
-                type="text"
-                className="advice__input"
-                onChange={(e) => setInput(e.target.value)}
-                value={input}
-                placeholder="Type name and surname..."
-              />
-            </>
-          )}
+          <OtherOptionButtons
+            onResult={onResult}
+            onDetails={onDetails}
+            chooseDetails={chooseDetails}
+            chooseResult={chooseResult}
+          />
+          <OtherOptionExceptions
+            chooseDetails={chooseDetails}
+            setInput={setInput}
+            input={input}
+          />
         </div>
-        <div className="advice__confirmcontent">
-          <button
-            className="advice__confirmbutton"
-            onClick={() => handleConfirmButton()}
-          >
-            Confirm
-          </button>
-        </div>
+        <OtherOptionButton handleConfirmButton={handleConfirmButton} />
       </div>
     </>
   );
