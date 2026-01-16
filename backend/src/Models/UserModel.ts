@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { compareValue, hashValue } from "../utils/bscrypt";
-import { CreateParcelOrder } from "../services/auth.service";
+import { CreateParcelOrder } from "../services/parcel.service";
 
 export interface UserDocument extends mongoose.Document {
     userId: mongoose.Types.ObjectId;

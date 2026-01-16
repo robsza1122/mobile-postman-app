@@ -2,16 +2,22 @@ import "./WorkPage.scss";
 import { WorkNav } from "../WorkNav/WorkNav.jsx";
 import { myToolsOptions } from "../../utils/DataProvider.js";
 import { MyToolOption } from "../MyToolOption/MyToolOption.jsx";
-import { useContext, useEffect } from "react";
-import { PostManState } from "../../PostGlobalProvider.jsx";
+import { Children, useContext, useEffect } from "react";
+import { PostManState } from "../../PostGlobalProvider.js";
 import { APMOption } from "../APMOption/APMOption.jsx";
 import { MyParcelOption } from "../MyParcelOption/MyParcelOption.jsx";
 import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
 import useParcels from "../../hooks/useParcels.js";
 import useAuth from "../../hooks/useAuth.js";
 import { Loading } from "../../Loading/Loading.jsx";
+import { CreateParcelOrder } from "../../types/parcel.type.js";
+import { ReactNode } from "react";
 
-export const WorkPage = () => {
+interface WorkPageProps {
+  children?: ReactNode;
+}
+
+export const WorkPage = ({ children }: WorkPageProps) => {
   const { parcels } = useParcels();
 
   const { slideOptions, downloadedParcels, setDownloadedParcels, currentUser } =
@@ -19,7 +25,7 @@ export const WorkPage = () => {
   const { isUpdatingParcel } = useContext(PostManState);
 
   useEffect(() => {
-    const handlePop = (e) => {
+    const handlePop = (e: PopStateEvent) => {
       if (currentUser && currentUser.username) {
         alert("Click LOGOUT button, if you want move to LoginPage");
         window.history.pushState(null, document.title, window.location.href);
@@ -32,22 +38,22 @@ export const WorkPage = () => {
       window.removeEventListener("popstate", handlePop);
     };
   }, [currentUser]);
-  const usersParcels = parcels.filter(
-    (parcel) => parcel.forUser === currentUser.username && parcel.isDownloaded,
+  const usersParcels = (Array.isArray(parcels) ? parcels : parcels?.data || []).filter(
+    (parcel: CreateParcelOrder) => parcel.forUser === currentUser.username && parcel.isDownloaded,
   );
   const parcelsToDeliver = downloadedParcels.filter(
     (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
+      parcel.status && parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
       parcel.forUser === currentUser.username,
   );
   const advicedParcels = downloadedParcels.filter(
     (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "ADVICED" &&
+      parcel.status && parcel.status[parcel.status.length - 1].name === "ADVICED" &&
       parcel.forUser === currentUser.username,
   );
   const otherParcels = downloadedParcels.filter(
     (parcel) =>
-      parcel.status[parcel.status.length - 1].name === "OTHER" &&
+      parcel.status && parcel.status[parcel.status.length - 1].name === "OTHER" &&
       parcel.forUser === currentUser.username,
   );
 
@@ -78,9 +84,6 @@ export const WorkPage = () => {
     },
   ];
 
-  console.log(parcels);
-  console.log(downloadedParcels);
-
   return (
     <>
       <WorkNav />
@@ -110,6 +113,7 @@ export const WorkPage = () => {
           <MenuServisData />
         </div>
       </div>
+      {children}
     </>
   );
 };

@@ -9,6 +9,7 @@ import { markAllParcelOnFalseInList } from "../../api/api";
 export const OtherOption = () => {
    const queryClient = useQueryClient();
    const { currentUser, downloadedParcels, setDownloadedParcels } = useContext(PostManState);
+   const markedParcels = downloadedParcels.filter(parcel => parcel.isMarked);
   const { mutate: markAllOnFalsy } = useMutation({
     mutationFn: markAllParcelOnFalseInList,
     mutationKey: [PARCELS],
@@ -64,11 +65,63 @@ export const OtherOption = () => {
       }),
     );
   }, [currentUser?.username]);
+
+     const handleLink = () => {
+    if (markedParcels.length === 0) {
+      return '';
+    }
+      if (markedParcels.length === 1) {
+        return "/otherOptionScreen";
+      }
+      return '';
+    };
+  
+    const handleMultiResultsLink = () => {
+      if (markedParcels.length === 0 || markedParcels.length === 1) {
+        return "";
+      } else if (markedParcels.length > 1) {
+        return "/multiResultsVerification";
+      }
+    };
+  
+  const handleOneResultsAlerts = (e) => {
+    const parcelIsMarked = markedParcels.length;
+    switch (parcelIsMarked) {
+      case 0:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("no parcel is marked");
+      case 1: {
+        const addressee = `${markedParcels[0].name} ${markedParcels[0].surname}`;
+        setSavePoints(null);
+        setInput(addressee);
+        setDownloadedParcels(
+          setNoAddresseLocally(downloadedParcels, markedParcels[0]),
+        );
+        return;
+      }
+      default:
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        return alert("More than one position is marked");
+    }
+  };
+  
+    const handleMultiResultsAlerts = () => {
+      const parcelIsMarked = markedParcels.length;
+      switch (parcelIsMarked) {
+        case 0:
+          return alert("No position is marked");
+        case 1:
+          return alert("Mark more than one position");
+      }
+    };
   return (
     <StatusHandler 
     title="OTHER OPTION"
     firstButton="Other Status"
     secondButton="Grouped Result"
-    firstButtonLink="/otherOptionScreen" />
+    firstButtonLink={handleLink}
+    secondButtonLink={handleMultiResultsLink}
+    onFirstButtonClick={handleOneResultsAlerts}
+    onSecondButtonClick={handleMultiResultsAlerts} />
   );
 };

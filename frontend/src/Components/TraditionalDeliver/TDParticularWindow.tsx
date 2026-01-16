@@ -1,6 +1,21 @@
 import { useContext } from "react";
 import { particularDeliveryInfo } from "../../utils/DataProvider";
 import { PostManState } from "../../PostGlobalProvider";
+import { CreateParcelOrder } from "../../types/parcel.type";
+
+type TDParticularWindowProps = {
+  showSubjects: (show: boolean) => void;
+  setInput: (input: string) => void;
+  input: string;
+  markedParcel: CreateParcelOrder;
+  chooseSubject: string;
+  addresseesData: boolean;
+  particularSubject: string;
+  setChoosen: (choosen: string) => void;
+  setShowParticularSubject: (show: boolean) => void;
+  setParticularSubject: (subject: string) => void;
+  choosen: string;
+}
 
 export const TDParticularWindow = ({
   showSubjects,
@@ -14,7 +29,7 @@ export const TDParticularWindow = ({
   setShowParticularSubject,
   setParticularSubject,
   choosen,
-}) => {
+}: TDParticularWindowProps) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   return (
     <>

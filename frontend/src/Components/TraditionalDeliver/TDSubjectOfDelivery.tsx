@@ -2,12 +2,19 @@ import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
 
+type TDSubjectOfDeliveryProps = {
+  setShowSubjects: (show: boolean) => void;
+  openList: boolean;
+  markedParcels: { _id: string; noAddressee?: boolean }[];
+  chooseSubject: string;
+}
+
 export const TDSubjectOfDelivery = ({
   setShowSubjects,
   openList,
   markedParcels,
   chooseSubject,
-}) => {
+}: TDSubjectOfDeliveryProps) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   return (
     <div

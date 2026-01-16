@@ -1,14 +1,20 @@
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-import useParcels from "../../hooks/useParcels";
-import { markAllOnFalse } from "../../api/api";
+import { CreateParcelOrder } from "../../types/parcel.type";
+
+type TDButtonsProps = {
+  markParcel: CreateParcelOrder;
+  savePoints: boolean;
+  handleSignatureButton: () => void;
+  handleSignatureLink: () => string;
+}
 
 export const TDButtons = ({
   markParcel,
   savePoints,
   handleSignatureButton,
   handleSignatureLink,
-}) => {
+}: TDButtonsProps) => {
   console.log(savePoints)
   return (
     <div className="td__buttons">
@@ -17,7 +23,7 @@ export const TDButtons = ({
         className={classNames("td__button", {
           "td__button--disabled": markParcel.amountOfTrials === 3,
         })}
-        disabled={markParcel.amountOfTrials === 3}
+        aria-disabled={markParcel.amountOfTrials === 3}
       >
         Delivery code
       </Link>

@@ -4,6 +4,53 @@ import { useRef } from "react";
 import useAuth from "./hooks/useAuth";
 import { deleteAllDates } from "./api/api";
 import showCurrentUsers from "./hooks/showAllUsers";
+import { CreateParcelOrder } from "./types/parcel.type";
+
+type PostManStateType = {
+  isLoggedOut: boolean;
+  setIsLoggedOut: (value: boolean) => void;
+  isMainPage: boolean;
+  setIsMainPage: (value: boolean) => void;
+  slideOptions: number;
+  setSlideOptions: (value: number) => void;
+  chosenOption: number;
+  setChosenOption: (value: number) => void;
+  currentUser: any;
+  setCurrentUser: (value: any) => void;
+  checkedParcel: any;
+  setCheckedParcel: (value: any) => void;
+  deliveryCode: string;
+  setDeliveryCode: (value: string) => void;
+  chooseSubject: string;
+  setChooseSubject: (value: string) => void;
+  clearBook: () => void;
+  savePoints: any;
+  setSavePoints: (value: any) => void;
+  clearSignature: () => void;
+  input: string;
+  setInput: (value: string) => void;
+  handleSignatureButton: () => void;
+  handleSignatureLink: () => string | undefined;
+  signatureRef: any;
+  particularSubject: string;
+  setParticularSubject: (value: string) => void;
+  settled: boolean;
+  setSettled: (value: boolean) => void;
+  deliveryBooks: any[];
+  setDeliveryBooks: (value: any[]) => void;
+  listOfPositions: any[];
+  setListOfPositions: (value: any[]) => void;
+  showAllCurrentUsers: any[];
+  setShowAllCurrentUsers: (value: any[]) => void;
+  dayIsFinished: boolean;
+  setDayIsFinished: (value: boolean) => void;
+  downloadedParcels: CreateParcelOrder[];
+  setDownloadedParcels: (value: CreateParcelOrder[]) => void;
+  isUpdatingParcel: boolean;
+  setIsUpdatingParcel: (value: boolean) => void;
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+};
 
 export const PostManState = createContext({
   isLoggedOut: true,
@@ -45,9 +92,11 @@ export const PostManState = createContext({
   setDayIsFinished: () => {},
   downloadedParcels: [],
   setDownloadedParcels: () => {},
-});
+  isUpdatingParcel: false,
+  setIsUpdatingParcel: () => {},
+} as PostManStateType);
 
-export const PostGlobalProvider = ({ children }) => {
+export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const { showUsers } = showCurrentUsers();
   const [isLoggedOut, setIsLoggedOut] = useLocaleStorage("isLoggedOut", true);
@@ -74,7 +123,7 @@ export const PostGlobalProvider = ({ children }) => {
     "particularSubject",
     "Addressee refused doing readable signature",
   );
-  const [settled, setSettled] = useState(false);
+  const [settled, setSettled] = useState<boolean>(false);
   const [listOfPositions, setListOfPositions] = useLocaleStorage(
     "listOfPositions",
     [],
@@ -88,8 +137,9 @@ export const PostGlobalProvider = ({ children }) => {
     [],
   );
   const [isUpdatingParcel, setIsUpdatingParcel] = useState(false);
+  const [checkedParcel, setCheckedParcel] = useLocaleStorage("checkedParcel", {});
 
-  const signatureRef = useRef({});
+  const signatureRef = useRef<any>(null);
 
   useEffect(() => {
     if (user) {
@@ -162,6 +212,8 @@ export const PostGlobalProvider = ({ children }) => {
         setSlideOptions,
         currentUser,
         setCurrentUser,
+        checkedParcel,
+        setCheckedParcel,
         deliveryCode,
         setDeliveryCode,
         setSavePoints,

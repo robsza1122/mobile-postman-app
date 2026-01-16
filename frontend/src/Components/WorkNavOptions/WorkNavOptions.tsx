@@ -7,7 +7,7 @@ import { PostManState } from "../../PostGlobalProvider";
 export const WorkNavOptions = () => {
   const { setChosenOption, setSlideOptions, chosenOption } =
     useContext(PostManState);
-  const getChosenOption = (id) => {
+  const getChosenOption = (id: number) => {
     setChosenOption(id);
     setSlideOptions((id - 1) * -100);
   };

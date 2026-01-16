@@ -1,29 +1,10 @@
-import { boolean, z } from "zod";
 import { APP_ORIGIN } from "../constants/env";
 import { CREATED, NOT_FOUND, OK, UNAUTHORIZED } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
 import SessionModel from "../Models/SessionModel";
 import UserModel from "../Models/UserModel";
 import {
-  addInDeliveryStatus,
-  advicedStatus,
-  assignParcels,
-  createNewUser,
-  createOrder,
-  date,
-  deleteBook,
-  deliveredStatus,
-  failedDeliveryCode,
-  loginUser,
-  markAllParcelOnFalseInList,
-  markAllParcelOnTrueInList,
-  markParcel,
-  markParcelOnTrueInVerification,
-  multiAdvicing,
-  multiDelivery,
-  otherStatus,
   refreshUserAccessToken,
-  removeParcelsInVerification,
 } from "../services/auth.service";
 import appAssert from "../utils/AppAssert";
 import catchErrors from "../utils/catchErrors";
@@ -34,11 +15,8 @@ import {
   setUserCookies,
 } from "../utils/cookies";
 import { getDeliveryEmailTemplate } from "../utils/emailTemplate";
-import { getAdvicingEmail } from "../utils/getAdvicingEmail";
-import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
 import { getInDeliveryStatusEmail } from "../utils/InDeliveryEmail";
 import { verifyToken } from "../utils/jwt";
-import { otherStatusEmail } from "../utils/otherStatusEmail";
 import { sendEmail } from "../utils/sendEmail";
 import { parcelSchima } from "../schimas/parcel.schimas";
 import { statusSchima } from "../schimas/status.schima";
@@ -51,7 +29,13 @@ import {
 import { markParcelSchima } from "../schimas/markparcel.schima";
 import { failedDeliveryCodeSchima } from "../schimas/failedDeliveryCodeSchima";
 import { markAllParcelInListSchima } from "../schimas/markAllParcelInListSchima";
-import { multiAdvicingSchima, multiDeliverySchima } from "../schimas/multiStatus.schima";
+import { multiAdvicingSchima, multiDeliverySchima, multiResultsSchima } from "../schimas/multiStatus.schima";
+import { createNewUser, createOrder, date, loginUser } from "../services/parcel.service";
+import { multiAdvicing, multiDelivery, multiResults } from "../services/multiStatus.service";
+import { addInDeliveryStatus, advicedStatus, deliveredStatus, otherStatus } from "../services/status.service";
+import { assignParcels, failedDeliveryCode, markParcel } from "../services/check.service";
+import { markParcelInVerification, removeParcelsInVerification } from "../services/verification.service";
+import { deleteBook, markAllParcelOnFalseInList, markAllParcelOnTrueInList } from "../services/book.service";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
   const request = parcelSchima.parse({
@@ -112,64 +96,6 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
     .json(parcels.map((parcel) => ({ ...parcel.toObject() })));
 });
 
-export const registerHandler = catchErrors(async (req, res) => {
-  const request = registerSchima.parse({
-    ...req.body,
-    userAgent: req.headers["user-agent"],
-  });
-  const { newUser, accessToken, refreshToken } = await createNewUser(request);
-
-  return setUserCookies({ res, accessToken, refreshToken })
-    .status(CREATED)
-    .json(newUser);
-});
-
-export const loginHandler = catchErrors(async (req, res) => {
-  const request = loginShema.parse({
-    ...req.body,
-    userAgent: req.headers["user-agent"],
-  });
-
-  const { accessToken, refreshToken } = await loginUser(request);
-
-  return setUserCookies({ res, accessToken, refreshToken })
-    .status(OK)
-    .json({ message: "Login successful" });
-});
-
-export const logoutHandler = catchErrors(async (req, res) => {
-  const accessToken = (req.cookies.accessToken as string) || undefined;
-  const { payload } = verifyToken(accessToken || "");
-
-  if (payload) {
-    await SessionModel.findByIdAndDelete(payload.sessionId);
-  }
-
-  return clearUserCookies(res)
-    .status(OK)
-    .json({ message: "Logout successful" });
-});
-
-export const refreshHandler = catchErrors(async (req, res) => {
-  const refreshToken = req.cookies.refreshToken as string;
-
-  appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
-
-  const { accessToken, newRefreshToken } = await refreshUserAccessToken(
-    refreshToken
-  );
-
-  if (newRefreshToken) {
-    res
-      .status(OK)
-      .cookie("refreshToken", newRefreshToken, getRefreshTokenOptions());
-  }
-
-  return res
-    .status(OK)
-    .cookie("accessToken", accessToken, getAccessTokenOptions())
-    .json({ message: "Access token refreshed" });
-});
 
 export const checkStatusHandler = catchErrors(async (req, res) => {
   const checkedParcel = await parcelModel.findById(req.params.id);
@@ -341,7 +267,7 @@ export const markParcelInVerificationHandler = catchErrors(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
 
-  const { changedParcel } = await markParcelOnTrueInVerification(request);
+  const { changedParcel } = await markParcelInVerification(request);
 
   res.status(OK).json(changedParcel);
 });
@@ -430,6 +356,17 @@ export const multiAdvicingHandler = catchErrors(async (req, res) => {
   });
 
   const { updatedParcels } = await multiAdvicing(request);
+
+  res.status(OK).json(updatedParcels);
+})
+
+export const multiResultsHandler = catchErrors(async (req, res) => {
+  const request = multiResultsSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { updatedParcels } = await multiResults(request);
 
   res.status(OK).json(updatedParcels);
 })

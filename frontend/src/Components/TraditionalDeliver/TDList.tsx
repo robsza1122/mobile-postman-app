@@ -1,7 +1,12 @@
 import React from "react";
-import classNames from "classnames";
+import { CreateParcelOrder } from "../../types/parcel.type";
+type TDListProps = {
+  findParcel: [CreateParcelOrder];
+  openList: string | null;
+  handleList: (id: string | undefined) => void;
+}
 
-export const TDList = ({ findParcel, openList, handleList }) => {
+export const TDList = ({ findParcel, openList, handleList }: TDListProps) => {
   const openParcel = findParcel.find((p) => p._id === openList);
   const openIndex = openParcel ? findParcel.indexOf(openParcel) : -1;
 

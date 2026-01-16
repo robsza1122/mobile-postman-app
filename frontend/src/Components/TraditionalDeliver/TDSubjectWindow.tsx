@@ -1,6 +1,18 @@
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import { clearSignatureByButton } from "../../utils/helpers/statusObjects";
+import { CreateParcelOrder } from "../../types/parcel.type";
+
+type TDSubjectWindowProps = {
+  subjectsOption: string[];
+  markedParcels: CreateParcelOrder[];
+  setShowSubjects: (show: boolean) => void;
+  setChooseSubject: (subject: string) => void;
+  setChoosen: (choosen: string) => void;
+  choosen: string;
+  setAddresseesData: (isAddressee: boolean) => void;
+  setInput: (input: string | undefined) => void;
+}
 
 export const TDSubjectWindow = ({
   subjectsOption,
@@ -11,7 +23,7 @@ export const TDSubjectWindow = ({
   choosen,
   setAddresseesData,
   setInput,
-}) => {
+}: TDSubjectWindowProps) => {
   const { downloadedParcels, setDownloadedParcels, setSavePoints } = useContext(PostManState);
   return (
     <>

@@ -5,10 +5,12 @@ import { resultOfDelivery } from "../../utils/DataProvider";
 import { date } from "../../utils/currentDate";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addOtherResult } from "../../api/api";
+import { addOtherResult, multiResultsStatus } from "../../api/api";
 
 import { PARCELS } from "../../hooks/useParcels.js";
 import {
+  multiResults,
+  multiResultsLocally,
   otherResultStatus,
   otherStatusLocally,
 } from "../../utils/helpers/statusObjects";
@@ -31,9 +33,13 @@ export const OtherOptionScreen = () => {
     setIsUpdatingParcel,
   } = useContext(PostManState);
   const currentParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
-  const { mutateAsync: otherResultAsync, mutate: otherResult } = useMutation({
-    mutationKey: ["advicedParcel"],
+  const { mutateAsync: otherResultAsync } = useMutation({
+    mutationKey: [PARCELS],
     mutationFn: addOtherResult,
+  });
+  const { mutateAsync: multiResultsAsync } = useMutation({
+    mutationKey: [PARCELS],
+    mutationFn: multiResultsStatus,
   });
 
   const navigate = useNavigate();
@@ -82,34 +88,66 @@ export const OtherOptionScreen = () => {
     }
 
     setIsUpdatingParcel(true);
-    otherResultAsync(
-      otherResultStatus(
-        currentParcels[0],
-        chooseResult,
-        chooseDetails,
-        input,
-        date,
-      ),
-    )
-      .catch((err) => {
-        console.error("addOtherResult failed:", err);
-      })
-      .finally(() => {
-        console.log("addOtherResult settled");
-        setIsUpdatingParcel(false);
-        queryClient.invalidateQueries({ queryKey: [PARCELS] });
-      });
-    setDownloadedParcels(
-      otherStatusLocally(
-        downloadedParcels,
-        currentParcels[0],
-        input,
-        chooseResult,
-        chooseDetails,
-        date,
-      ),
-    );
-    navigate("/workPage");
+    if (currentParcels.length === 1) {
+      otherResultAsync(
+        otherResultStatus(
+          currentParcels[0],
+          chooseResult,
+          chooseDetails,
+          input,
+          date,
+        ),
+      )
+        .catch((err) => {
+          console.error("addOtherResult failed:", err);
+        })
+        .finally(() => {
+          console.log("addOtherResult settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+      setDownloadedParcels(
+        otherStatusLocally(
+          downloadedParcels,
+          currentParcels[0],
+          input,
+          chooseResult,
+          chooseDetails,
+          date,
+        ),
+      );
+      navigate("/workPage");
+    }
+    if (currentParcels.length > 1) {
+      multiResultsAsync(
+        multiResults(
+          date,
+          chooseResult,
+          chooseDetails,
+          input,
+          currentUser.username,
+        ),
+      )
+        .catch((err) => {
+          console.error("addOtherMultiResult failed:", err);
+        })
+        .finally(() => {
+          console.log("addOtherMultiResult settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+
+      setDownloadedParcels(
+        multiResultsLocally(
+          downloadedParcels,
+          date,
+          chooseResult,
+          chooseDetails,
+          input,
+        ),
+      );
+      navigate("/workPage");
+    }
   };
 
   console.log(chooseResult);

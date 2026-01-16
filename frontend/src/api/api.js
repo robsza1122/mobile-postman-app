@@ -12,6 +12,8 @@ export const multiDeliveryStatus = async (data) =>
   API.post("/multiDelivery", data);
 export const multiAdvicingStatus = async (data) => 
   API.post("/multiAdvicing", data);
+export const multiResultsStatus = async (data) =>
+  API.post("/multiResults", data);
 
 // Adding statuses
 export const getInDeliveryStatus = async (data) =>

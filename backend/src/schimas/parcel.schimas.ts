@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { date } from "../services/auth.service";
+import { date } from "../services/parcel.service";
 
 export const dataSchima = z.string().min(3).max(255);
 export const numberSchima = z.string().length(14).optional();

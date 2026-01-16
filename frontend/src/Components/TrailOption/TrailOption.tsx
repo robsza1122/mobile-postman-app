@@ -1,21 +1,22 @@
 import "./TrailOption.scss";
-import useParcels, { PARCELS } from "../../hooks/useParcels";
+import useParcels, { PARCELS } from "../../hooks/useParcels.js";
 import { useContext, useState } from "react";
 import { Loading } from "../../Loading/Loading.jsx";
 import { Link, useNavigate } from "react-router-dom";
-import { PostManState } from "../../PostGlobalProvider.jsx";
+import { PostManState } from "../../PostGlobalProvider.js";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getInDeliveryStatus,
 } from "../../api/api.js";
-import { TrailConfirmBook } from "./TrailConfirmBook.jsx";
+import { TrailConfirmBook } from "./TrailConfirmBook.js";
 import { TrailConfirmBookError } from "./TrailConfirmBookError.jsx";
 import { TrailVerifyBook } from "./TrailVerifyBook.jsx";
 import { TrailNavigation } from "./TrailNavigation.jsx";
 import { TrailInput } from "./TrailInput.jsx";
-import { TrailButtons } from "./TrailButtons.jsx";
+import { TrailButtons } from "./TrailButtons.js";
 import { date } from "../../utils/currentDate.js";
 import useAuth from "../../hooks/useAuth.js";
+import { CreateParcelOrder } from "../../types/parcel.type.js";
 
 export const TrailOption = () => {
   const {
@@ -31,7 +32,7 @@ export const TrailOption = () => {
   const [openBook, setOpenBook] = useState(false);
   const [showError, setShowError] = useState(false);
   const { parcels, isLoading } = useParcels();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState("");
   const [verifyBook, setVerifyBook] = useState(false);
   const [markedBook, setMarkedBook] = useState(false);
@@ -44,24 +45,24 @@ export const TrailOption = () => {
     onMutate: async (updatedParcel) => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
-      const previousParcels = queryClient.getQueriesData([PARCELS]);
+      const previousParcels = queryClient.getQueriesData({ queryKey: [PARCELS] });
 
-      queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
+      queryClient.setQueryData([PARCELS], (old: CreateParcelOrder[] | undefined) => [...(old || []), updatedParcel]);
 
       return { previousParcels };
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: [PARCELS] }),
   });
 
-  const typedParcelBookNumber = parcels.find(
-    (parcel) => parcel.numberOfParcel === parcelsNumber,
+  const typedParcelBookNumber = (Array.isArray(parcels) ? parcels : parcels?.data || []).find(
+    (parcel: CreateParcelOrder) => parcel.numberOfParcel === parcelsNumber,
   )?.numberOfBook;
 
-  const deliveryBookLength = parcels.filter(
-    (parcel) => parcel.numberOfBook === typedParcelBookNumber,
+  const deliveryBookLength = (Array.isArray(parcels) ? parcels : parcels?.data || []).filter(
+    (parcel: CreateParcelOrder) => parcel.numberOfBook === typedParcelBookNumber,
   ).length;
-  const typedParcel = parcels.find(
-    (parcel) => parcel.numberOfParcel === parcelsNumber,
+  const typedParcel = (Array.isArray(parcels) ? parcels : parcels?.data || []).find(
+    (parcel: CreateParcelOrder) => parcel.numberOfParcel === parcelsNumber,
   );
   console.log(user);
   console.log(currentUser);
@@ -115,15 +116,15 @@ export const TrailOption = () => {
 
       setDownloadedParcels([
         ...downloadedParcels,
-        ...parcels
-          .map((parcel) => {
+        ...(Array.isArray(parcels) ? parcels : parcels?.data || [])
+          .map((parcel: CreateParcelOrder) => {
             if (parcel.numberOfBook === typedParcelBookNumber) {
               return {
                 ...parcel,
                 isDownloaded: true,
                 noAddressee: false,
                 status: [
-                  ...parcel.status,
+                  ...(Array.isArray(parcel.status) ? parcel.status : []),
                   {
                     name: "IN DELIVERY",
                     createdAt: date,
@@ -142,15 +143,15 @@ export const TrailOption = () => {
             }
             return parcel;
           })
-          .filter((parcel) => parcel.numberOfBook === typedParcelBookNumber),
+          .filter((parcel: CreateParcelOrder) => parcel.numberOfBook === typedParcelBookNumber),
       ]);
 
       navigate("/booklist");
     }
 
     if (
-      parcels.find(
-        (parcel) => parcel.numberOfParcel === parcelsNumber && !parcel.isBooked,
+      (Array.isArray(parcels) ? parcels : parcels?.data || []).find(
+        (parcel: CreateParcelOrder) => parcel.numberOfParcel === parcelsNumber && !parcel.isBooked,
       )
     ) {
       alert("Parcel is not added to any book.");
@@ -166,7 +167,7 @@ export const TrailOption = () => {
       return;
     }
 
-    if (parcels.find((parcel) => parcel.numberOfParcel === parcelsNumber)) {
+    if ((Array.isArray(parcels) ? parcels : parcels?.data || []).find((parcel: CreateParcelOrder) => parcel.numberOfParcel === parcelsNumber)) {
       setOpenBook(true);
     }
   };
@@ -228,14 +229,8 @@ export const TrailOption = () => {
             showError={showError}
             verifyBook={verifyBook}
             markedBook={markedBook}
-            setLoading={setLoading}
             onSubmit={onSubmit}
             onReset={onReset}
-            setLoadingText={setLoadingText}
-            typedParcel={typedParcel}
-            setParcelsNumber={setParcelsNumber}
-            parcelsNumber={parcelsNumber}
-            setOpenBook={setOpenBook}
           />
         </div>
         <>

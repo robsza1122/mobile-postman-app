@@ -375,3 +375,105 @@ export const clearSignatureByButton = (downloadedParcels, updateParcels) => {
     return parcel;
   });
 };
+
+export const multiAdvicedStatus = (
+  createdAt,
+  reasonOfAdvice,
+  placeOfAdvice,
+  placeOfNotification,
+  user,
+) => {
+  return {
+    createdAt,
+    reasonOfAdvice,
+    officeOfAdvice: placeOfAdvice,
+    placeOfNotification,
+    user,
+  };
+};
+
+export const multiAdvicedStatusLocally = (
+  downloadedParcels,
+  createdAt,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel.isMarked) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...parcel.status,
+          {
+            name: "ADVICED",
+            createdAt,
+            subject: "",
+            details: "",
+            signature: null,
+            isDeliveryCode: false,
+            noAddressee: false,
+            deliveryInput: "",
+            reasonOfAdvice,
+            officeOfAdvice,
+            placeOfNotification,
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const multiResults = (
+  date,
+  chooseResult,
+  chooseDetails,
+  input,
+  user,
+) => {
+  return {
+    createdAt: date,
+    result: chooseResult,
+    details: chooseDetails,
+    input,
+    user,
+  };
+};
+
+export const multiResultsLocally = (
+  downloadedParcels,
+  createdAt,
+  chooseResult,
+  chooseDetails,
+  input,
+) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel.isMarked) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...parcel.status,
+          {
+            name: "OTHER",
+            createdAt,
+            result: chooseResult,
+            details: chooseDetails,
+            signature: null,
+            isDeliveryCode: false,
+            noAddressee: false,
+            deliveryInput: input,
+            reasonOfAdvice: "",
+            officeOfAdvice: "",
+            placeOfNotification: "",
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};

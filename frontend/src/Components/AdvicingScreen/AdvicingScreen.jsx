@@ -9,11 +9,13 @@ import {
 import { date } from "../../utils/currentDate";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addAdvicedStatus } from "../../api/api";
+import { addAdvicedStatus, multiAdvicingStatus } from "../../api/api";
 import { ShowReasonAdvicedScreen } from "./ShowReasonAdvicedScreen";
 import {
   advicedStatusLocally,
   advicedStatusObject,
+  multiAdvicedStatus,
+  multiAdvicedStatusLocally,
 } from "../../utils/helpers/statusObjects";
 import { AppNavigation } from "../AppNavigation/AppNavigation";
 import { SettledParcels } from "../OtherOptionScreen/SettledParcels";
@@ -31,9 +33,14 @@ export const AdvicingScreen = () => {
     setIsUpdatingParcel,
   } = useContext(PostManState);
   const currentParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
-  const { mutateAsync: changeStatusAsync, mutate: changeStatus } = useMutation({
-    mutationKey: ["advicedParcel"],
+  const { mutateAsync: changeStatusAsync } = useMutation({
+    mutationKey: [PARCELS],
     mutationFn: addAdvicedStatus,
+  });
+
+  const { mutateAsync: asyncMultiAdvice } = useMutation({
+    mutationKey: [PARCELS],
+    mutationFn: multiAdvicingStatus,
   });
   const queryClient = useQueryClient();
 
@@ -96,37 +103,68 @@ export const AdvicingScreen = () => {
 
   const handleConfirmButton = () => {
     setIsUpdatingParcel(true);
-    changeStatusAsync(
-      advicedStatusObject(
-        currentParcels[0],
-        chooseReason,
-        chooseOffice,
-        chooseNotifiedPlace,
-        date,
-      ),
-    )
-      .catch((err) => {
-        console.error("addAdvicedStatus failed:", err);
-      })
-      .finally(() => {
-        console.log("addAdvicedStatus settled");
-        setIsUpdatingParcel(false);
-        queryClient.invalidateQueries({ queryKey: [PARCELS] });
-      });
-    setDownloadedParcels(
-      advicedStatusLocally(
-        downloadedParcels,
-        currentParcels[0],
-        date,
-        chooseReason,
-        chooseOffice,
-        chooseNotifiedPlace,
-      ),
-    );
-    navigate("/workPage");
+    if (currentParcels.length === 1) {
+      changeStatusAsync(
+        advicedStatusObject(
+          currentParcels[0],
+          chooseReason,
+          chooseOffice,
+          chooseNotifiedPlace,
+          date,
+        ),
+      )
+        .catch((err) => {
+          console.error("addAdvicedStatus failed:", err);
+        })
+        .finally(() => {
+          console.log("addAdvicedStatus settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+      setDownloadedParcels(
+        advicedStatusLocally(
+          downloadedParcels,
+          currentParcels[0],
+          date,
+          chooseReason,
+          chooseOffice,
+          chooseNotifiedPlace,
+        ),
+      );
+      navigate("/workPage");
+    }
+    if (currentParcels.length > 1) {
+      asyncMultiAdvice(
+        multiAdvicedStatus(
+          date,
+          chooseReason,
+          chooseOffice,
+          chooseNotifiedPlace,
+          currentUser.username,
+        ),
+      )
+        .catch((err) => {
+          console.error("addMultiAdvicedStatus failed:", err);
+        })
+        .finally(() => {
+          console.log("addMultiAdvicedStatus settled");
+          setIsUpdatingParcel(false);
+          queryClient.invalidateQueries({ queryKey: [PARCELS] });
+        });
+      setDownloadedParcels(
+        multiAdvicedStatusLocally(
+          downloadedParcels,
+          date,
+          reasonOfAdvice,
+          placeOfAdvice,
+          placeOfNotification,
+        ),
+      );
+      navigate("/workPage");
+    }
   };
 
-  console.log(chooseNotifiedPlace);
+  console.log(currentParcels);
 
   return (
     <>
@@ -151,9 +189,11 @@ export const AdvicingScreen = () => {
           pageName="ADVICE SCREEN"
           EMINumber={currentUser.EMINumber}
         />
-        {currentParcels.map((parcel) => {
-          <SettledParcels key={parcel._id} parcel={parcel} />;
-        })}
+        <div className="advice__adviced-window">
+          {currentParcels.map((parcel) => (
+            <SettledParcels key={parcel._id} parcel={parcel} />
+          ))}
+        </div>
         <div className="advice__content">
           <AdvicedScreenButtons
             onReason={onReason}

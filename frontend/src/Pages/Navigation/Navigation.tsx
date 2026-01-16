@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Loading } from "../../Loading/Loading.jsx";
 import "./Navigation.scss";
-import { PostManState } from "../../PostGlobalProvider";
+import { PostManState } from "../../PostGlobalProvider.js";
 import React from "react";
 
 export const Navigation = () => {
@@ -12,7 +12,7 @@ export const Navigation = () => {
         <div className="Nav__image" />
         <h2 className="Nav__title">MOBILE POSTMAN</h2>
       </nav>
-      {loading && <Loading />}
+      {loading && <Loading message="Loading..." />}
     </>
   );
 };

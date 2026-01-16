@@ -1,5 +1,15 @@
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
+import { CreateParcelOrder } from "../../types/parcel.type";
+
+type TDNoAddresseeDeliveryProps = {
+  markedParcels: CreateParcelOrder[];
+  setShowParticularSubject: (show: boolean) => void;
+  particularSubject: string;
+  setNoAddressee: (noAddressee: boolean) => void;
+  noAddressee: boolean;
+  setInput: (input: string) => void;
+}
 
 export const TDNoAddresseeDelivery = ({
   markedParcels,
@@ -8,7 +18,7 @@ export const TDNoAddresseeDelivery = ({
   setNoAddressee,
   noAddressee,
   setInput,
-}) => {
+}: TDNoAddresseeDeliveryProps) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   return (
     <>

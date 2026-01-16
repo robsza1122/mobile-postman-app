@@ -1,4 +1,5 @@
-import { CreateParcelOrder } from "../services/auth.service";
+import { CreateParcelOrder } from "../services/parcel.service";
+
 
 export const getDeliveredEmailTemplate = (parcel: CreateParcelOrder, url: string) => {
 

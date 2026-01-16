@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCheckStatus } from "../../api/api.js";
 import classNames from "classnames";
 import useParcels from "../../hooks/useParcels.js";
+import { StatusType } from "../../types/status.type.js";
 
 export const CheckStatus = () => {
   const { id } = useParams();
@@ -13,16 +14,17 @@ export const CheckStatus = () => {
   const {
     isSuccess,
     isError,
-    data: checkStatus,
+    data: checkStatusResponse,
   } = useQuery({
     queryKey: ["STATUS", id],
     queryFn: () => getCheckStatus(id),
     staleTime: Infinity,
   });
+  const checkStatus = checkStatusResponse?.data;
   const [showSignature, setShowSignature] = useState(false);
   const [showAdviced, setShowAdviced] = useState(false);
   const [showOthers, setShowOthers] = useState(false);
-  const [clickedId, setClickedId] = useState(null);
+  const [clickedId, setClickedId] = useState<string | number | null | undefined>(null);
 
   console.log(checkStatus);
   console.log(parcels);
@@ -79,7 +81,7 @@ export const CheckStatus = () => {
                     <th className="status__head">Name of Status</th>
                     <th className="status__head">Data of Status</th>
                   </tr>
-                  {checkStatus.status.map((status) => {
+                  {checkStatus.status.map((status: StatusType) => {
                     const colorizeStatus = () => {
                       switch (status.name) {
                         case "ORDERED":

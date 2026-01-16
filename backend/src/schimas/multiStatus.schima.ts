@@ -18,3 +18,11 @@ export const multiAdvicingSchima = z.object({
   placeOfNotification: z.string(),
   user: z.string(),
 })
+
+export const multiResultsSchima = z.object({
+    createdAt: z.string(),
+  result: z.string(),
+  details: z.string(),
+  input: z.string(),
+  user: z.string(),
+})

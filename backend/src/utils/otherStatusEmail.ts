@@ -1,4 +1,5 @@
-import { CreateParcelOrder } from "../services/auth.service";
+import { CreateParcelOrder } from "../services/parcel.service";
+
 
 export const otherStatusEmail = (parcel: CreateParcelOrder, url: string) => {
     const details = parcel?.status?.[parcel?.status?.length - 1]?.details;

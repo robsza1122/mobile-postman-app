@@ -3,8 +3,6 @@ import { PostManState } from "../../PostGlobalProvider";
 import classnames from "classnames";
 import { markAllParcelOnFalseInList } from "../../api/api";
 import { useEffect } from "react";
-import useAuth from "../../hooks/useAuth";
-import { Link } from "react-router-dom";
 import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { StatusHandler } from "../StatusHandler/StatusHandler";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -48,7 +46,6 @@ export const AdvicedOption = () => {
     useEffect(() => {
     if (!currentUser || !currentUser.username) return;
 
-    // clear marks on server and locally for current user's downloaded parcels
     markAllOnFalsy({ user: currentUser.username });
 
     setDownloadedParcels(

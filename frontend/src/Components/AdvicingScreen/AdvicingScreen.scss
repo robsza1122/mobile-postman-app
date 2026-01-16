@@ -50,6 +50,11 @@ body {
     opacity: 0.7;
     z-index: 2;
   }
+  &__adviced-window {
+    border-bottom: 1px solid black;
+    max-height: 180px;
+    overflow-y: scroll;
+  }
   &__window {
     position: absolute;
     top: 31%;

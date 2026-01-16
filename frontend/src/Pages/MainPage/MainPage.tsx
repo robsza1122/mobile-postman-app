@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Navigation } from "../Navigation/Navigation.jsx";
 import "./MainPage.scss";
 import { Link } from "react-router-dom";
-import { PostManState } from "../../PostGlobalProvider.jsx";
+import { PostManState } from "../../PostGlobalProvider.js";
 
 export const MainPage = () => {
   const { setCurrentUser, currentUser, setIsMainPage } = useContext(PostManState);

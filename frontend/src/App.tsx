@@ -1,11 +1,10 @@
 import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { CheckStatus } from "./Pages/CheckStatus/CheckStatus.jsx";
-import React from "react";
 import { MainPage } from "./Pages/MainPage/MainPage.jsx";
 import { PostmanContainer } from "./Components/PostmanContainer.jsx";
 import { TrailOption } from "./Components/TrailOption/TrailOption.jsx";
 import { setNavigate } from "./api/navigation.js";
-import { LoginPage } from "./Pages/LoginPage/LoginPage.jsx";
+import { LoginPage } from "./Pages/LoginPage/LoginPage.js";
 import { BookList } from "./Components/BookList/BookList.jsx";
 import { StatusHandler } from "./Components/StatusHandler/StatusHandler.jsx";
 import { DeliveryCodeScreen } from "./Components/DeliveryCodeScreen/DeliveryCodeScreen.jsx";
@@ -23,6 +22,7 @@ import { ReorderList } from "./Components/ReorderList/ReorderList.jsx";
 import { CreateBook } from "./Components/CreateBook/CreateBook.jsx";
 import { MultiDeliveryVerification } from "./Components/MultiStatusVerification/MultiDeliveryVerification.jsx";
 import { MultiAdvicingVerification } from "./Components/MultiStatusVerification/MultiAdvicingVerification.jsx";
+import { MultiResultsVerification } from "./Components/MultiStatusVerification/MultiResultsVerification.jsx";
 
 export const App = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export const App = () => {
         <Route path="/startTrail" element={<TrailOption />} />
         <Route path="/booklist" element={<BookList />} />
         <Route path="/workPage" element={<WorkPage />} />
-        <Route path="/statusHandler" element={<StatusHandler />} />
+        <Route path="/statusHandler" element={<StatusHandler title={undefined} firstButton={undefined} secondButton={undefined} onFirstButtonClick={undefined} onSecondButtonClick={undefined} firstButtonLink={undefined} secondButtonLink={undefined} />} />
         <Route path="/deliverOption" element={<DeliverOption />} />
         <Route path="/advicedOption" element={<AdvicedOption />} />
         <Route path="/deliveryCodeScreen" element={<DeliveryCodeScreen />} />
@@ -57,6 +57,9 @@ export const App = () => {
         <Route
         path="/multiAdvicingVerification"
         element={<MultiAdvicingVerification />}
+        />
+        <Route path="/multiResultsVerification"
+        element={<MultiResultsVerification />}
         />
         <Route path="*" element={<Navigate to="/workPage" replace />} />
       </Routes>

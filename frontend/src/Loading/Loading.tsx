@@ -1,7 +1,7 @@
 import "./Loading.scss";
 import React from "react";
 
-export const Loading = ({ message }) => {
+export const Loading = ({ message }: { message: string }) => {
   return (
     <>
       <div className="Loader__background"></div>

@@ -2,6 +2,17 @@ import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import { clearSignatureByButton } from "../../utils/helpers/statusObjects";
 import classNames from "classnames";
+import { CreateParcelOrder } from "../../types/parcel.type";
+
+type TDInputsProps = {
+  markedParcels: CreateParcelOrder[];
+  setInput: (input: string) => void;
+  input: string;
+  chooseSubject: string;
+  setAddresseesData: (isAddressee: boolean) => void;
+  addresseesData: boolean;
+  particularSubject: string;
+}
 
 export const TDInputs = ({
   markedParcels,
@@ -11,7 +22,7 @@ export const TDInputs = ({
   setAddresseesData,
   addresseesData,
   particularSubject,
-}) => {
+}: TDInputsProps) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   console.log(addresseesData);
   return (
@@ -70,7 +81,7 @@ export const TDInputs = ({
               setInput(e.target.value);
               setDownloadedParcels(
                 downloadedParcels.map((parcel) => {
-                  if (parcel._id === markedParcels._id) {
+                  if (parcel._id === markedParcels[0]._id) {
                     return {
                       ...parcel,
                       deliveryInput: "",
