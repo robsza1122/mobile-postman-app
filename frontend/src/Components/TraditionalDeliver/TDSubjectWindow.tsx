@@ -11,7 +11,7 @@ type TDSubjectWindowProps = {
   setChoosen: (choosen: string) => void;
   choosen: string;
   setAddresseesData: (isAddressee: boolean) => void;
-  setInput: (input: string | undefined) => void;
+  setInput: (input: string) => void;
 }
 
 export const TDSubjectWindow = ({
@@ -40,11 +40,13 @@ export const TDSubjectWindow = ({
       return '';
     } else if (subject !== 'Addressee') {
       return '';
+    } else {
+      return '';
     }
   }
           const handleButtonSubject = () => {
             setDownloadedParcels(
-              clearSignatureByButton(downloadedParcels, markedParcels),
+              clearSignatureByButton({downloadedParcels, updateParcels: markedParcels}),
             );
 
             setInput(

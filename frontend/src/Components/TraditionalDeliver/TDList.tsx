@@ -1,7 +1,7 @@
 import React from "react";
 import { CreateParcelOrder } from "../../types/parcel.type";
 type TDListProps = {
-  findParcel: [CreateParcelOrder];
+  findParcel: CreateParcelOrder[];
   openList: string | null;
   handleList: (id: string | undefined) => void;
 }

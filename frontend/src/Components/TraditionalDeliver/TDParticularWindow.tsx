@@ -4,7 +4,6 @@ import { PostManState } from "../../PostGlobalProvider";
 import { CreateParcelOrder } from "../../types/parcel.type";
 
 type TDParticularWindowProps = {
-  showSubjects: (show: boolean) => void;
   setInput: (input: string) => void;
   input: string;
   markedParcel: CreateParcelOrder;
@@ -18,7 +17,6 @@ type TDParticularWindowProps = {
 }
 
 export const TDParticularWindow = ({
-  showSubjects,
   setInput,
   input,
   markedParcel,
@@ -33,7 +31,7 @@ export const TDParticularWindow = ({
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
   return (
     <>
-      <div className="td__background" onClick={() => showSubjects(false)}></div>
+      <div className="td__background" onClick={() => setShowParticularSubject(false)}></div>
       <div className="td__window">
         {particularDeliveryInfo.map((subject, id) => {
           const handleButtonSubject = () => {

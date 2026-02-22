@@ -94,6 +94,8 @@ export const PostManState = createContext({
   setDownloadedParcels: () => {},
   isUpdatingParcel: false,
   setIsUpdatingParcel: () => {},
+  loading: false,
+  setLoading: () => {},
 } as PostManStateType);
 
 export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) => {
@@ -138,6 +140,7 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
   );
   const [isUpdatingParcel, setIsUpdatingParcel] = useState(false);
   const [checkedParcel, setCheckedParcel] = useLocaleStorage("checkedParcel", {});
+  const [loading, setLoading] = useState<boolean>(false);
 
   const signatureRef = useRef<any>(null);
 
@@ -243,6 +246,8 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
         setDownloadedParcels,
         isUpdatingParcel,
         setIsUpdatingParcel,
+        loading,
+        setLoading,
       }}
     >
       {children}

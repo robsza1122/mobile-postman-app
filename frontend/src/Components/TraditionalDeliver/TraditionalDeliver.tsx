@@ -3,14 +3,11 @@ import "./TraditionalDeliver.scss";
 import { PostManState } from "../../PostGlobalProvider.js";
 import { useNavigate } from "react-router-dom";
 import { subjectsOption } from "../../utils/DataProvider.js";
-import classNames from "classnames";
-import { Link } from "react-router-dom";
 import { PARCELS } from "../../hooks/useParcels.js";
 import { date } from "../../utils/currentDate.js";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDeliveredStatus, multiDeliveryStatus } from "../../api/api.js";
 import useParcels from "../../hooks/useParcels.js";
-import { Loading } from "../../Loading/Loading.js";
 import { TDSubjectWindow } from "./TDSubjectWindow.jsx";
 import { TDParticularWindow } from "./TDParticularWindow.jsx";
 import { TDList } from "./TDList.jsx";
@@ -62,9 +59,9 @@ export const TraditionalDeliver = () => {
     onMutate: async (updatedParcel) => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
-      const previousParcels = queryClient.getQueriesData([PARCELS]);
+      const previousParcels = queryClient.getQueryData([PARCELS]);
 
-      queryClient.setQueryData([PARCELS], (old) => [...old, updatedParcel]);
+      queryClient.setQueryData([PARCELS], (old: any) => [...old, updatedParcel]);
 
       return { previousParcels };
     },
@@ -74,12 +71,11 @@ export const TraditionalDeliver = () => {
   const { mutateAsync: asyncMultiDelivery } = useMutation({
     mutationFn: multiDeliveryStatus,
   });
-  const handleList = (id) => {
+  const handleList = (id: string | undefined) => {
     if (openList !== id) {
-      setOpenList(id);
-    } else {
-      setOpenList("");
-    }
+      setOpenList(id || "");
+    } else setOpenList("");
+
   };
   useEffect(() => {
     const handlePop = () => {
@@ -124,15 +120,16 @@ export const TraditionalDeliver = () => {
     }
     if (findParcels.length > 1 && !findParcels[0].noAddressee) {
       asyncMultiDelivery(
-        multiDeliverStatus(
+        {
+          nameOfStatus: "DELIVERED",
           date,
-          savePoints,
-          findParcels[0].noAddressee,
+          signature: savePoints,
+          noAddressee: findParcels[0].noAddressee,
           input,
-          currentUser.username,
+          username: currentUser.username,
           chooseSubject,
-          "",
-        ),
+          details: "",
+        }
       )
         .catch((err) => {
           console.error("multiDeliveryWithAddressee failed:", err);
@@ -143,28 +140,31 @@ export const TraditionalDeliver = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        multiDeliveryLocally(
+        multiDeliveryLocally({
           downloadedParcels,
           date,
           chooseSubject,
-          "",
-          findParcels[0].noAddressee,
+          details: "",
+          noAddressee: findParcels[0].noAddressee,
           input,
+        }
+
         ),
       );
       navigate("/workPage");
       setInput("");
     } else if (findParcels.length > 1 && findParcels[0].noAddressee) {
       asyncMultiDelivery(
-        multiDeliverStatus(
+        {
+          nameOfStatus: "DELIVERED",
           date,
-          savePoints,
-          findParcels[0].noAddressee,
+          signature: savePoints,
+          noAddressee: findParcels[0].noAddressee,
           input,
-          currentUser.username,
+          username: currentUser.username,
           chooseSubject,
-          particularSubject,
-        ),
+          details: particularSubject,
+        }
       )
         .catch((err) => {
           console.error("multiDeliveryNoAddressee failed:", err);
@@ -176,28 +176,29 @@ export const TraditionalDeliver = () => {
         });
 
       setDownloadedParcels(
-        multiDeliveryLocally(
+        multiDeliveryLocally({
           downloadedParcels,
           date,
           chooseSubject,
-          particularSubject,
-          findParcels[0].noAddressee,
+          details: particularSubject,
+          noAddressee: findParcels[0].noAddressee,
           input,
-        ),
+        }),
       );
       navigate("/workPage");
       setInput("");
       setSavePoints(null);
     } else if (savePoints && !findParcels[0].noAddressee) {
       asyncChangeStatus(
-        deliveryStatusWithAddressee(
-          findParcels[0],
+        deliveryStatusWithAddressee({
+          parcel: findParcels[0],
           chooseSubject,
           savePoints,
           input,
           date,
-        ),
+        }),
       )
+
         .catch((err) => {
           console.error("deliverWithAddressee failed:", err);
         })
@@ -207,29 +208,29 @@ export const TraditionalDeliver = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        deliveryStatusLocally(
+        deliveryStatusLocally({
           downloadedParcels,
-          findParcels[0],
+          updatedParcel: findParcels[0],
           date,
           chooseSubject,
           particularSubject,
           input,
-          false,
-        ),
+          noAddressee: false,
+        }),
       );
       navigate("/workPage");
       setInput("");
       setSavePoints(null);
     } else if (findParcels[0].noAddressee) {
       asyncChangeStatus(
-        deliveryStatusWithNoAddressee(
-          findParcels[0],
+        deliveryStatusWithNoAddressee({
+          parcel: findParcels[0],
           chooseSubject,
           particularSubject,
           savePoints,
           input,
           date,
-        ),
+        }),
       )
         .catch((err) => {
           console.error("deliverWithNoAddressee failed:", err);
@@ -240,15 +241,15 @@ export const TraditionalDeliver = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        deliveryStatusLocally(
+        deliveryStatusLocally({
           downloadedParcels,
-          findParcels[0],
+          updatedParcel: findParcels[0],
           date,
           chooseSubject,
           particularSubject,
           input,
-          true,
-        ),
+          noAddressee: true,
+        }),
       );
       navigate("/workPage");
       setInput("");
@@ -269,7 +270,6 @@ export const TraditionalDeliver = () => {
       <div className="td__content">
         {showSubjects && (
           <TDSubjectWindow
-            showSubjects={showSubjects}
             subjectsOption={subjectsOption}
             markedParcels={findParcels}
             setShowSubjects={setShowSubjects}
@@ -283,7 +283,6 @@ export const TraditionalDeliver = () => {
 
         {showParticularSubject && (
           <TDParticularWindow
-            showSubjects={showSubjects}
             setInput={setInput}
             input={input}
             markedParcel={findParcels[0]}
@@ -301,9 +300,9 @@ export const TraditionalDeliver = () => {
           <p className="td__user">{`${currentUser.username} [${currentUser.EMINumber}]`}</p>
         </nav>
         <TDList
+          handleList={handleList}
           findParcel={findParcels}
           openList={openList}
-          handleList={handleList}
         />
 
         <TDSubjectOfDelivery
@@ -334,8 +333,6 @@ export const TraditionalDeliver = () => {
         </div>
         <TDButtons
           markParcel={findParcels[0]}
-          input={input}
-          particularSubject={particularSubject}
           savePoints={savePoints}
           handleSignatureButton={handleSignatureButton}
           handleSignatureLink={handleSignatureLink}

@@ -26,7 +26,7 @@ import { MultiResultsVerification } from "./Components/MultiStatusVerification/M
 
 export const App = () => {
   const navigate = useNavigate();
-  setNavigate(navigate);
+  setNavigate(() => navigate);
 
   return (
     <PostGlobalProvider>
@@ -38,7 +38,7 @@ export const App = () => {
         <Route path="/startTrail" element={<TrailOption />} />
         <Route path="/booklist" element={<BookList />} />
         <Route path="/workPage" element={<WorkPage />} />
-        <Route path="/statusHandler" element={<StatusHandler title={undefined} firstButton={undefined} secondButton={undefined} onFirstButtonClick={undefined} onSecondButtonClick={undefined} firstButtonLink={undefined} secondButtonLink={undefined} />} />
+        <Route path="/statusHandler" element={<StatusHandler title="" firstButton="" secondButton="" firstButtonLink={() => ""} secondButtonLink={() => ""} onFirstButtonClick={() => { }} onSecondButtonClick={() => { }} />} />
         <Route path="/deliverOption" element={<DeliverOption />} />
         <Route path="/advicedOption" element={<AdvicedOption />} />
         <Route path="/deliveryCodeScreen" element={<DeliveryCodeScreen />} />
@@ -55,11 +55,11 @@ export const App = () => {
           element={<MultiDeliveryVerification />}
         />
         <Route
-        path="/multiAdvicingVerification"
-        element={<MultiAdvicingVerification />}
+          path="/multiAdvicingVerification"
+          element={<MultiAdvicingVerification />}
         />
         <Route path="/multiResultsVerification"
-        element={<MultiResultsVerification />}
+          element={<MultiResultsVerification />}
         />
         <Route path="*" element={<Navigate to="/workPage" replace />} />
       </Routes>

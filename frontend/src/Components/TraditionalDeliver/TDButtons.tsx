@@ -6,7 +6,7 @@ type TDButtonsProps = {
   markParcel: CreateParcelOrder;
   savePoints: boolean;
   handleSignatureButton: () => void;
-  handleSignatureLink: () => string;
+  handleSignatureLink: () => string | undefined;
 }
 
 export const TDButtons = ({
@@ -31,7 +31,7 @@ export const TDButtons = ({
         className={classNames("td__button", {
           "td__button--is-signed": savePoints,
         })}
-        to={handleSignatureLink()}
+        to={handleSignatureLink() || ""}
         onClick={() => handleSignatureButton()}
       >
         Signature

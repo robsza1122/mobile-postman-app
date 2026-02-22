@@ -1,0 +1,626 @@
+import { CreateParcelOrder } from "../../../src/types/parcel.type";
+
+type deliveryStatusWithAddresseeType = {
+  parcel: any;
+  chooseSubject: string;
+  savePoints: string;
+  input: string | number;
+  date: string;
+};
+
+type deliveryStatusWithNoAddresseeType = {
+  parcel: CreateParcelOrder;
+  chooseSubject: string;
+  particularSubject: string;
+  savePoints: string;
+  input: string | number;
+  date: string;
+};
+
+type deliveryStatusLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  updatedParcel: CreateParcelOrder;
+  date: string;
+  chooseSubject: string;
+  particularSubject: string;
+  input: string | number;
+  noAddressee: boolean;
+};
+
+type advicedStatusObjectType = {
+  parcel: CreateParcelOrder;
+  chooseReason: string;
+  chooseOffice: string;
+  chooseNotifiedPlace: string;
+  date: string;
+};
+
+type advicedStatusLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  currentParcel: CreateParcelOrder;
+  date: string;
+  chooseReason: string;
+  chooseOffice: string;
+  chooseNotifiedPlace: string;
+};
+
+type otherResultStatusType = {
+  parcel: CreateParcelOrder;
+  chooseResult: string;
+  chooseDetails: string;
+  input: string | number;
+  date: string;
+};
+
+type otherStatusLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  currentParcel: CreateParcelOrder;
+  input: string | number;
+  chooseResult: string;
+  chooseDetails: string;
+  date: string;
+};
+
+type deliveryWithCodeType = {
+  id: string | undefined;
+  date: string;
+  numberOfBook: string | undefined;
+  username: string;
+};
+type deliveryWithCodeLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  updatedParcel: CreateParcelOrder;
+  date: string;
+};
+
+type multiDeliveryLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  date: string;
+  chooseSubject: string;
+  details: string;
+  noAddressee: boolean | undefined;
+  input: string | number;
+};
+
+export type multiDeliverStatusType = {
+  nameOfStatus: string;
+  date: string;
+  signature: string;
+  noAddressee: boolean | undefined;
+  input: string | number;
+  username: string;
+  chooseSubject: string;
+  details: string;
+};
+
+type clearSignatureByButtonType = {
+  downloadedParcels: CreateParcelOrder[];
+  updateParcels: CreateParcelOrder[];
+};
+
+export type multiAdvicedStatusType = {
+  createdAt: string;
+  reasonOfAdvice: string;
+  placeOfAdvice: string;
+  placeOfNotification: string;
+  user: string;
+};
+
+type multiAdvicedStatusLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  createdAt: string;
+  reasonOfAdvice: string;
+  officeOfAdvice: string;
+  placeOfNotification: string;
+};
+
+type multiResultsType = {
+  date: string;
+  chooseResult: string;
+  chooseDetails: string;
+  input: string | number;
+  user: string;
+};
+
+type multiResultsLocallyType = {
+  downloadedParcels: CreateParcelOrder[];
+  createdAt: string;
+  chooseResult: string;
+  chooseDetails: string;
+  input: string | number;
+};
+
+export const deliveryStatusWithAddressee = ({
+  parcel,
+  chooseSubject,
+  savePoints,
+  input,
+  date,
+}: deliveryStatusWithAddresseeType) => {
+  return {
+    nameOfStatus: "DELIVERED",
+    id: parcel._id,
+    subject: chooseSubject,
+    details: "",
+    signature: savePoints,
+    isDeliveryCode: false,
+    isSignature: true,
+    noAddressee: false,
+    deliveryInput: input.toString(),
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+    isBooked: true,
+    numberOfBook: parcel.numberOfBook,
+    isDownloaded: true,
+    username: parcel.forUser,
+    createdAt: date,
+  };
+};
+
+export const deliveryStatusWithNoAddressee = ({
+  parcel,
+  chooseSubject,
+  particularSubject,
+  savePoints,
+  input,
+  date,
+}: deliveryStatusWithNoAddresseeType) => {
+  return {
+    nameOfStatus: "DELIVERED",
+    id: parcel._id,
+    subject: chooseSubject,
+    details: particularSubject,
+    signature: savePoints,
+    isDeliveryCode: false,
+    isSignature: true,
+    noAddressee: true,
+    deliveryInput:
+      particularSubject === "Parcel left in place set with addressee"
+        ? input
+        : "",
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+    isBooked: true,
+    numberOfBook: parcel.numberOfBook,
+    username: parcel.forUser,
+    createdAt: date,
+    isDownloaded: true,
+  };
+};
+
+export const deliveryStatusLocally = ({
+  downloadedParcels,
+  updatedParcel,
+  date,
+  chooseSubject,
+  particularSubject,
+  input,
+  noAddressee,
+}: deliveryStatusLocallyType): any => {
+  return downloadedParcels.map((parcel) => {
+    if (updatedParcel._id === parcel._id) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "DELIVERED",
+            createdAt: date,
+            subject: chooseSubject,
+            noAddressee,
+            details: "",
+            deliveryInput: chooseSubject === "Addressee" ? input : "",
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const deliveryStatusNoAddresseeLocally = ({
+  downloadedParcels,
+  updatedParcel,
+  date,
+  chooseSubject,
+  particularSubject,
+  input,
+}: deliveryStatusLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (updatedParcel._id === parcel._id) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "DELIVERED",
+            createdAt: date,
+            subject: chooseSubject,
+            details: particularSubject,
+            noAddressee: true,
+            deliveryInput:
+              particularSubject === "Parcel left in place set with addressee"
+                ? input
+                : "",
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const advicedStatusObject = ({
+  parcel,
+  chooseReason,
+  chooseOffice,
+  chooseNotifiedPlace,
+  date,
+}: advicedStatusObjectType) => {
+  return {
+    nameOfStatus: "ADVICED",
+    id: parcel._id,
+    subject: "",
+    details: "",
+    signature: "",
+    isDeliveryCode: false,
+    isSignature: false,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice: chooseReason,
+    officeOfAdvice: chooseOffice,
+    placeOfNotification: chooseNotifiedPlace,
+    isBooked: true,
+    numberOfBook: parcel.numberOfBook,
+    isDownloaded: true,
+    username: parcel.forUser,
+    createdAt: date,
+  };
+};
+
+export const advicedStatusLocally = ({
+  downloadedParcels,
+  currentParcel,
+  date,
+  chooseReason,
+  chooseOffice,
+  chooseNotifiedPlace,
+}: advicedStatusLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel._id === currentParcel._id) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "ADVICED",
+            createdAt: date,
+            reasonOfAdvice: chooseReason,
+            officeOfAdvice: chooseOffice,
+            placeOfNotification: chooseNotifiedPlace,
+          },
+        ],
+      };
+    }
+    return parcel;
+  });
+};
+
+export const otherResultStatus = ({
+  parcel,
+  chooseResult,
+  chooseDetails,
+  input,
+  date,
+}: otherResultStatusType) => {
+  return {
+    nameOfStatus: "OTHER",
+    id: parcel._id,
+    subject: chooseResult,
+    details: chooseDetails,
+    signature: "",
+    isDeliveryCode: false,
+    isSignature: false,
+    noAddressee: false,
+    deliveryInput: input,
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+    isBooked: true,
+    numberOfBook: parcel.numberOfBook,
+    isDownloaded: true,
+    username: parcel.forUser,
+    createdAt: date,
+  };
+};
+
+export const otherStatusLocally = ({
+  downloadedParcels,
+  currentParcel,
+  input,
+  chooseResult,
+  chooseDetails,
+  date,
+}: otherStatusLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel._id === currentParcel._id) {
+      return {
+        ...parcel,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            deliveryInput: input,
+            subject: chooseResult,
+            details: chooseDetails,
+            name: "OTHER",
+            createdAt: date,
+            reasonOfAdvice: "",
+            DetailsOfAdvice: "",
+            placeOfNotification: "",
+          },
+        ],
+      };
+    }
+    return parcel;
+  });
+};
+
+export const deliveryWithCode = ({
+  id,
+  date,
+  numberOfBook,
+  username,
+}: deliveryWithCodeType) => {
+  return {
+    nameOfStatus: "DELIVERED",
+    id,
+    subject: "",
+    details: "",
+    signature: "",
+    isDeliveryCode: true,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+    isBooked: true,
+    numberOfBook,
+    username,
+    isDownloaded: true,
+    createdAt: date,
+  };
+};
+
+
+export const deliveryWithCodeLocally = ({
+  downloadedParcels,
+  updatedParcel,
+  date,
+}: deliveryWithCodeLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (updatedParcel._id === parcel._id) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "DELIVERED",
+            createdAt: date,
+            subject: "",
+            details: "",
+            noAddressee: false,
+            deliveryInput: "",
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const deliverWithCodeQueryClient = (date: string) => {
+  return {
+    name: "DELIVERED",
+    createdAt: date,
+    subject: "",
+    details: "",
+    signature: null,
+    isDeliveryCode: true,
+    noAddressee: false,
+    deliveryInput: "",
+    reasonOfAdvice: "",
+    officeOfAdvice: "",
+    placeOfNotification: "",
+  };
+};
+
+export const setNoAddresseLocally = (
+  downloadedParcels: CreateParcelOrder[],
+  updatedParcel: CreateParcelOrder,
+) => {
+  return (downloadedParcels || []).map((parcel) => {
+    if (updatedParcel._id === parcel._id) {
+      return {
+        ...parcel,
+        noAddressee: false,
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const multiDeliveryLocally = ({
+  downloadedParcels,
+  date,
+  chooseSubject,
+  details,
+  noAddressee,
+  input,
+}: multiDeliveryLocallyType): any => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel.isMarked) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "DELIVERED",
+            createdAt: date,
+            subject: chooseSubject,
+            noAddressee,
+            details,
+            deliveryInput: chooseSubject === "Addressee" ? input : "",
+          },
+        ],
+      };
+    }
+    return parcel;
+  });
+};
+
+export const multiDeliverStatus = ({
+  date,
+  signature,
+  noAddressee,
+  input,
+  username,
+  chooseSubject,
+  details,
+}: multiDeliverStatusType) => {
+  return {
+    nameOfStatus: "DELIVERED",
+    createdAt: date,
+    signature,
+    noAddressee,
+    deliveryInput: input,
+    user: username,
+    subject: chooseSubject,
+    details,
+  };
+};
+
+export const clearSignatureByButton = ({
+  downloadedParcels,
+  updateParcels,
+}: clearSignatureByButtonType) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel._id === updateParcels[0]._id) {
+      return {
+        ...parcel,
+        isSignature: false,
+        signature: null,
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const multiAdvicedStatus = ({
+  createdAt,
+  reasonOfAdvice,
+  placeOfAdvice,
+  placeOfNotification,
+  user,
+}: multiAdvicedStatusType) => {
+  return {
+    createdAt,
+    reasonOfAdvice,
+    officeOfAdvice: placeOfAdvice,
+    placeOfNotification,
+    user,
+  };
+};
+
+export const multiAdvicedStatusLocally = ({
+  downloadedParcels,
+  createdAt,
+  reasonOfAdvice,
+  officeOfAdvice,
+  placeOfNotification,
+}: multiAdvicedStatusLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel.isMarked) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "ADVICED",
+            createdAt,
+            subject: "",
+            details: "",
+            signature: null,
+            isDeliveryCode: false,
+            noAddressee: false,
+            deliveryInput: "",
+            reasonOfAdvice,
+            officeOfAdvice,
+            placeOfNotification,
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};
+
+export const multiResults = ({
+  date,
+  chooseResult,
+  chooseDetails,
+  input,
+  user,
+}: multiResultsType) => {
+  return {
+    createdAt: date,
+    result: chooseResult,
+    details: chooseDetails,
+    input,
+    user,
+  };
+};
+
+export const multiResultsLocally = ({
+  downloadedParcels,
+  createdAt,
+  chooseResult,
+  chooseDetails,
+  input,
+}: multiResultsLocallyType) => {
+  return downloadedParcels.map((parcel) => {
+    if (parcel.isMarked) {
+      return {
+        ...parcel,
+        isMarked: false,
+        status: [
+          ...(Array.isArray(parcel.status) ? parcel.status : []),
+          {
+            name: "OTHER",
+            createdAt,
+            result: chooseResult,
+            details: chooseDetails,
+            signature: null,
+            isDeliveryCode: false,
+            isMarked: false,
+          },
+        ],
+      };
+    }
+
+    return parcel;
+  });
+};

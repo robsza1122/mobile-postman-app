@@ -1,11 +1,12 @@
 import { useContext } from "react";
 import { PostManState } from "../../PostGlobalProvider";
 import classNames from "classnames";
+import { CreateParcelOrder } from "../../types/parcel.type";
 
 type TDSubjectOfDeliveryProps = {
   setShowSubjects: (show: boolean) => void;
-  openList: boolean;
-  markedParcels: { _id: string; noAddressee?: boolean }[];
+  openList: string;
+  markedParcels: CreateParcelOrder[];
   chooseSubject: string;
 }
 
