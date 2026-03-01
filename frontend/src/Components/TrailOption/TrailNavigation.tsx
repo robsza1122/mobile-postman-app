@@ -10,7 +10,7 @@ export const TrailNavigation = () => {
                     <AppNavigation
                       username={currentUser.username}
                       EMINumber={currentUser.EMINumber}
-                      pageName={"TRAIL OPTION"}
+                      title={"TRAIL OPTION"}
                     />
                     <div className="trail__icons">
                       <div className="trail__iconcontainer">

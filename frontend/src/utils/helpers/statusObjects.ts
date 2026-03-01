@@ -1,23 +1,15 @@
 import { CreateParcelOrder } from "../../../src/types/parcel.type";
 
-type deliveryStatusWithAddresseeType = {
-  parcel: any;
-  chooseSubject: string;
-  savePoints: string;
-  input: string | number;
-  date: string;
-};
-
-type deliveryStatusWithNoAddresseeType = {
+export type deliveryStatusType = {
   parcel: CreateParcelOrder;
   chooseSubject: string;
-  particularSubject: string;
+  particularSubject?: string;
   savePoints: string;
   input: string | number;
   date: string;
 };
 
-type deliveryStatusLocallyType = {
+export type deliveryStatusLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   updatedParcel: CreateParcelOrder;
   date: string;
@@ -27,7 +19,7 @@ type deliveryStatusLocallyType = {
   noAddressee: boolean;
 };
 
-type advicedStatusObjectType = {
+export type advicedStatusObjectType = {
   parcel: CreateParcelOrder;
   chooseReason: string;
   chooseOffice: string;
@@ -35,7 +27,7 @@ type advicedStatusObjectType = {
   date: string;
 };
 
-type advicedStatusLocallyType = {
+export type advicedStatusLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   currentParcel: CreateParcelOrder;
   date: string;
@@ -44,7 +36,7 @@ type advicedStatusLocallyType = {
   chooseNotifiedPlace: string;
 };
 
-type otherResultStatusType = {
+export type otherResultStatusType = {
   parcel: CreateParcelOrder;
   chooseResult: string;
   chooseDetails: string;
@@ -52,7 +44,7 @@ type otherResultStatusType = {
   date: string;
 };
 
-type otherStatusLocallyType = {
+export type otherStatusLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   currentParcel: CreateParcelOrder;
   input: string | number;
@@ -61,19 +53,19 @@ type otherStatusLocallyType = {
   date: string;
 };
 
-type deliveryWithCodeType = {
+export type deliveryWithCodeType = {
   id: string | undefined;
   date: string;
   numberOfBook: string | undefined;
   username: string;
 };
-type deliveryWithCodeLocallyType = {
+export type deliveryWithCodeLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   updatedParcel: CreateParcelOrder;
   date: string;
 };
 
-type multiDeliveryLocallyType = {
+export type multiDeliveryLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   date: string;
   chooseSubject: string;
@@ -93,7 +85,7 @@ export type multiDeliverStatusType = {
   details: string;
 };
 
-type clearSignatureByButtonType = {
+export type clearSignatureByButtonType = {
   downloadedParcels: CreateParcelOrder[];
   updateParcels: CreateParcelOrder[];
 };
@@ -114,7 +106,7 @@ type multiAdvicedStatusLocallyType = {
   placeOfNotification: string;
 };
 
-type multiResultsType = {
+export type multiResultsType = {
   date: string;
   chooseResult: string;
   chooseDetails: string;
@@ -122,7 +114,7 @@ type multiResultsType = {
   user: string;
 };
 
-type multiResultsLocallyType = {
+export type multiResultsLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   createdAt: string;
   chooseResult: string;
@@ -136,7 +128,7 @@ export const deliveryStatusWithAddressee = ({
   savePoints,
   input,
   date,
-}: deliveryStatusWithAddresseeType) => {
+}: deliveryStatusType): any => {
   return {
     nameOfStatus: "DELIVERED",
     id: parcel._id,
@@ -165,7 +157,7 @@ export const deliveryStatusWithNoAddressee = ({
   savePoints,
   input,
   date,
-}: deliveryStatusWithNoAddresseeType) => {
+}: deliveryStatusType): any => {
   return {
     nameOfStatus: "DELIVERED",
     id: parcel._id,
@@ -377,7 +369,7 @@ export const deliveryWithCode = ({
   date,
   numberOfBook,
   username,
-}: deliveryWithCodeType) => {
+}: deliveryWithCodeType): any => {
   return {
     nameOfStatus: "DELIVERED",
     id,

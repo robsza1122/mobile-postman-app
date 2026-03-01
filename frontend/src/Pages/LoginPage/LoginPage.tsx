@@ -45,7 +45,7 @@ export const LoginPage = () => {
       
         <Navigation />
         <div className="login__content">
-          <h1 className="login__title">Poczta Polska ADFS</h1>
+          <h1 className="login__title">Mobile Postman App</h1>
           <p className="login__logintext">
             Login using your organisation account
           </p>

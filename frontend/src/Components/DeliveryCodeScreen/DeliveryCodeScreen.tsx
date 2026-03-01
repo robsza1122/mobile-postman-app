@@ -34,7 +34,7 @@ export const DeliveryCodeScreen = () => {
   const { mutateAsync: asyncDeliveredStatus } = useMutation({
     mutationFn: addDeliveredStatus,
     mutationKey: [PARCELS],
-    onMutate: async (updatedParcel) => {
+    onMutate: async (updatedParcel: any) => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
       const previousParcels = queryClient.getQueriesData({ queryKey: [PARCELS] });
@@ -144,12 +144,14 @@ export const DeliveryCodeScreen = () => {
 
     if (clickedParcel.deliveryCode === deliveryCode) {
       setIsUpdatingParcel(true);
-      asyncDeliveredStatus(deliveryWithCode({
+      asyncDeliveredStatus(
+        deliveryWithCode({
         id: clickedParcel._id,
         date,
         numberOfBook: clickedParcel.numberOfBook,
         username: currentUser.username,
-      }))
+      }),
+    )
         .catch((err) => {
           console.error("addDeliveredStatus failed:", err);
         })
