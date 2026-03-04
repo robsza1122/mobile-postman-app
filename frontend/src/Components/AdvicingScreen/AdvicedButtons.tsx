@@ -1,3 +1,12 @@
+type AdvicedButtonsType = {
+    showOffice: boolean;
+    placeOfAdvice: string[];
+    onChooseOffice: (reason: string) => void;
+    showNotifiedPlace: boolean;
+    placeOfNotification: string[];
+    onChooseNotificationPlace: (reason: string) => void;
+}
+
 export const AdvicedButtons = ({
   showOffice,
   placeOfAdvice,
@@ -5,7 +14,7 @@ export const AdvicedButtons = ({
   showNotifiedPlace,
   placeOfNotification,
   onChooseNotificationPlace,
-}) => {
+}: AdvicedButtonsType) => {
   return (
     <>
       {showOffice && (

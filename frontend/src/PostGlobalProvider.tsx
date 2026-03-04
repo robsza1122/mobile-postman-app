@@ -50,6 +50,8 @@ type PostManStateType = {
   setIsUpdatingParcel: (value: boolean) => void;
   loading: boolean;
   setLoading: (value: boolean) => void;
+  isMultiStatus: boolean;
+  setIsMultiStatus: (value: boolean) => void;
 };
 
 export const PostManState = createContext({
@@ -96,6 +98,8 @@ export const PostManState = createContext({
   setIsUpdatingParcel: () => {},
   loading: false,
   setLoading: () => {},
+  isMultiStatus: false,
+  setIsMultiStatus: () => {},
 } as PostManStateType);
 
 export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) => {
@@ -141,6 +145,7 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
   const [isUpdatingParcel, setIsUpdatingParcel] = useState(false);
   const [checkedParcel, setCheckedParcel] = useLocaleStorage("checkedParcel", {});
   const [loading, setLoading] = useState<boolean>(false);
+  const [isMultiStatus, setIsMultiStatus] = useState<boolean>(false);
 
   const signatureRef = useRef<any>(null);
 
@@ -248,6 +253,8 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
         setIsUpdatingParcel,
         loading,
         setLoading,
+        isMultiStatus,
+        setIsMultiStatus,
       }}
     >
       {children}

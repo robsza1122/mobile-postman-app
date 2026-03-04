@@ -1,4 +1,5 @@
 import API from "../config/apiClient.ts";
+import { CreateParcelOrder } from "../types/parcel.type.ts";
 import {
   assignParcelsToUserType,
   deleteBookType,
@@ -22,7 +23,7 @@ export const getParcels = async () => API.get("/getParcels");
 export const getParcelInfos = () => API.post("/orderParcel");
 
 //Infos about status
-export const getCheckStatus = async (id: string) =>
+export const getCheckStatus = async (id: string | undefined): Promise<CreateParcelOrder> =>
   API.post(`/checkStatus/${id}`);
 
 // Adding multi statuses
@@ -68,7 +69,7 @@ export const markAllParcelOnFalseInList = async (
 ) => API.post("/markAllParcelOnFalseInList", data);
 export const markParcelVERIFICATION = async (data: markParcelType) =>
   API.post("/markParcelVERIFICATION", data);
-export const markParcel = async (data: markParcelType) =>
+export const markParcel = async (data: any) =>
   API.post("/markParcel", data);
 export const removingParcelsVERIFICATION = async (
   data: markAllParcelOnFalseOrTrueInListType,

@@ -1,3 +1,12 @@
+type AdvicedScreenButtonsType = {
+    onReason: () => void;
+    onOffice: () => void;
+    onPlaceNotification: () => void;
+    chooseReason: string;
+    chooseOffice: string;
+    chooseNotifiedPlace: string;
+}
+
 export const AdvicedScreenButtons = ({
   onReason,
   onOffice,
@@ -5,7 +14,7 @@ export const AdvicedScreenButtons = ({
   chooseReason,
   chooseOffice,
   chooseNotifiedPlace,
-}) => {
+}: AdvicedScreenButtonsType) => {
   return (
     <>
       <p className="advice__text">Reason of advicing:</p>

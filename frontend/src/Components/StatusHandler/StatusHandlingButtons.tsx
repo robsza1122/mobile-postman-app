@@ -1,4 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
+import { PostManState } from "../../PostGlobalProvider";
+import { useContext } from "react";
 type StatusHandlingButtonsProps = {
   slideOptions: number;
   firstButton: string;
@@ -45,7 +47,9 @@ export const StatusHandlingButtons = ({
       <Link
         className="deliver__button"
         to={secondLink}
-        onClick={(e) => onSecondButtonClick && onSecondButtonClick(e)}
+        onClick={(e) => {
+          onSecondButtonClick && onSecondButtonClick(e);
+        }}
       >
         <p className="deliver__buttontext">{secondButton}</p>
         <img src="src/image/boxes.svg" alt="" className="deliver__img" />

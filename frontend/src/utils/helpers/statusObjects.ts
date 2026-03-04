@@ -47,7 +47,7 @@ export type otherResultStatusType = {
 export type otherStatusLocallyType = {
   downloadedParcels: CreateParcelOrder[];
   currentParcel: CreateParcelOrder;
-  input: string | number;
+  input: string;
   chooseResult: string;
   chooseDetails: string;
   date: string;
@@ -254,7 +254,7 @@ export const advicedStatusObject = ({
   chooseOffice,
   chooseNotifiedPlace,
   date,
-}: advicedStatusObjectType) => {
+}: advicedStatusObjectType): any => {
   return {
     nameOfStatus: "ADVICED",
     id: parcel._id,
@@ -311,7 +311,7 @@ export const otherResultStatus = ({
   chooseDetails,
   input,
   date,
-}: otherResultStatusType) => {
+}: otherResultStatusType): any => {
   return {
     nameOfStatus: "OTHER",
     id: parcel._id,
@@ -525,7 +525,7 @@ export const multiAdvicedStatus = ({
   placeOfAdvice,
   placeOfNotification,
   user,
-}: multiAdvicedStatusType) => {
+}: multiAdvicedStatusType): any => {
   return {
     createdAt,
     reasonOfAdvice,
@@ -541,7 +541,7 @@ export const multiAdvicedStatusLocally = ({
   reasonOfAdvice,
   officeOfAdvice,
   placeOfNotification,
-}: multiAdvicedStatusLocallyType) => {
+}: multiAdvicedStatusLocallyType): any => {
   return downloadedParcels.map((parcel) => {
     if (parcel.isMarked) {
       return {
@@ -576,7 +576,7 @@ export const multiResults = ({
   chooseDetails,
   input,
   user,
-}: multiResultsType) => {
+}: multiResultsType): any => {
   return {
     createdAt: date,
     result: chooseResult,
@@ -592,7 +592,7 @@ export const multiResultsLocally = ({
   chooseResult,
   chooseDetails,
   input,
-}: multiResultsLocallyType) => {
+}: multiResultsLocallyType): any => {
   return downloadedParcels.map((parcel) => {
     if (parcel.isMarked) {
       return {

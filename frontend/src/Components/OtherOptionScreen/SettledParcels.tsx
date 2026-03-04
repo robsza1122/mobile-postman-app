@@ -1,6 +1,7 @@
 import { CreateParcelOrder } from "../../types/parcel.type"
 
-export const SettledParcels = (parcel: CreateParcelOrder) => {
+
+export const SettledParcels = ({parcel}: {parcel: CreateParcelOrder, key: string | undefined}) => {
     return (
         <div
           className="deliver__positioncontent"

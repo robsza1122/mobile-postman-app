@@ -1,12 +1,13 @@
 import classNames from "classnames";
 import { CreateParcelOrder } from "../../types/parcel.type";
+import { PostManState } from "../../PostGlobalProvider";
+import { useContext } from "react";
+import { StatusHandlingPositionProps } from "./StatusHandlingPosition";
 
-export type StatusHandlingPositionProps = {
-    parcel: CreateParcelOrder;
-    handleMarkParcel: (id: string | undefined, isMarked: boolean) => void;
-};
-
-export const StatusHandlingPosition = ({ parcel, handleMarkParcel }: StatusHandlingPositionProps) => {
+export const StatusHandlingVerifiedPosition = ({ parcel, handleMarkParcel }: StatusHandlingPositionProps) => {
+  const {isMultiStatus} = useContext(PostManState);
+  console.log(parcel.isMarkedVERIFICATION);
+  console.log(isMultiStatus);
   return (
     <div className="deliver__position" key={parcel._id}>
       <div className="deliver__positioncontent">
@@ -19,10 +20,10 @@ export const StatusHandlingPosition = ({ parcel, handleMarkParcel }: StatusHandl
         <input
           type="checkbox"
           className={classNames("deliver__checkbox", {
-            "deliver__checkbox--is-checked": parcel.isMarked,
+            "deliver__checkbox--is-checked": parcel.isMarkedVERIFICATION,
           })}
-          checked={parcel.isMarked}
-          onClick={() => handleMarkParcel(parcel._id, !parcel.isMarked)}
+          checked={parcel.isMarkedVERIFICATION}
+          onClick={() => handleMarkParcel(parcel._id, !parcel.isMarkedVERIFICATION)}
         />
         {parcel.amount !== 0 && (
           <p className="deliver__cash">

@@ -12,7 +12,7 @@ export type StatusType = {
     reasonOfAdvice?: string;
     officeOfAdvice?: string;
     placeOfNotification?: string;
-    _id: string;
+    _id?: string;
   };
 
   export type inDeliveryStatusType = {

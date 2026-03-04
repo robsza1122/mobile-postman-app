@@ -14,6 +14,7 @@ import { StatusHandlingButtons } from "../StatusHandler/StatusHandlingButtons";
 import { useNavigate } from "react-router-dom";
 import { setNoAddresseLocally } from "../../utils/helpers/statusObjects";
 import { CreateParcelOrder } from "../../types/parcel.type";
+import { StatusHandlingVerifiedPosition } from "../StatusHandler/StatusHandlingVerifiedPosition";
 
 export const MultiAdvicingVerification = () => {
   const { parcels } = useParcels();
@@ -139,7 +140,7 @@ export const MultiAdvicingVerification = () => {
     }
 
     if (visibleParcels.length - parcelMarkedLength < 2) {
-      alert("At least two parcel have to leave in multi Advicing handler");
+      alert("At least two parcels have to leave in multi status handler");
       return;
     }
     removeParcels({ user: currentUser.username });
@@ -158,14 +159,14 @@ export const MultiAdvicingVerification = () => {
   };
 
   const handleLinksOnRemovingParcels = () => {
-    const parcelMarked = visibleParcels.filter(
-      (parcel) => parcel.isMarkedVERIFICATION,
-    );
-    if (parcelMarked.length === 1) {
-      alert("Mark more than one parcel");
+    // const parcelMarked = visibleParcels.filter(
+    //   (parcel) => parcel.isMarkedVERIFICATION,
+    // );
+    // if (parcelMarked.length === 1) {
+    //   alert("Mark more than one parcel");
 
-      return '';
-    }
+    //   return '';
+    // }
 
     return '';
   };
@@ -189,10 +190,9 @@ export const MultiAdvicingVerification = () => {
       <div className="msv__list">
         {visibleParcels.map((parcel) => {
           return (
-            <StatusHandlingPosition
+            <StatusHandlingVerifiedPosition
               parcel={parcel}
               handleMarkParcel={handleMarkParcel}
-              isVERIFICATION={markedParcels.length > 1}
             />
           );
         })}

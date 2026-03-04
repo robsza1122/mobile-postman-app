@@ -13,7 +13,7 @@ type MyToolOptionProps = {
   option: {
     header: string;
     img: string;
-    id: string;
+    id: number;
   };
 }
 
@@ -111,7 +111,7 @@ export const MyToolOption = ({option}: MyToolOptionProps) => {
         to={handleLinkOptions(header)}
       >
         <h1 className="mytooloption__title">{header}</h1>
-        <img src={img} alt={id} className="mytooloption__image" />
+        <img src={img} alt={String(id)} className="mytooloption__image" />
       </Link>
       {finishedWindow && (
         <>

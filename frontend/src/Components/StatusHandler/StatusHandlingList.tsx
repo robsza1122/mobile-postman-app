@@ -20,7 +20,8 @@ export const StatusHandlingList = ({
     statusType,
 }: StatusHandlingListProps) => {
     const {parcels} = useParcels();
-    const {settled, setDownloadedParcels, downloadedParcels} = useContext(PostManState);
+    const {settled, setDownloadedParcels, downloadedParcels, isMultiStatus} = useContext(PostManState);
+    const markedParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
         const queryClient = useQueryClient();
   const { mutate: markClickedParcel } = useMutation({
     mutationFn: markParcel,
@@ -75,7 +76,8 @@ export const StatusHandlingList = ({
     setDownloadedParcels(updateParcels)
   }
 
-  console.log(parcels)
+  console.log(parcels);
+  console.log(isMultiStatus);
     return (
         <>
                     <div className="deliver__titlepanelblock" style={{
@@ -90,7 +92,7 @@ export const StatusHandlingList = ({
                     key={parcel._id}
                     parcel={parcel}
                     handleMarkParcel={handleMarkParcel}
-                    isVERIFICATION={visibleParcels.length > 1 ? true : false}
+                    isVERIFICATION={markedParcels.length >= 2 && isMultiStatus ? true : false}
                     />
                   );
                 })}

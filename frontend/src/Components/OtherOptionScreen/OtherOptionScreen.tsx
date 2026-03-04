@@ -59,12 +59,12 @@ export const OtherOptionScreen = () => {
   const onDetails = () => {
     setShowDetails(!showDetails);
   };
-  const onChooseDetails = (Details) => {
-    setChooseDetails(Details);
+  const onChooseDetails = (details: string) => {
+    setChooseDetails(details);
     setShowDetails(false);
   };
 
-  const onChooseResult = (result) => {
+  const onChooseResult = (result: string) => {
     setChooseResult(result);
     setShowResult(false);
   };
@@ -90,13 +90,13 @@ export const OtherOptionScreen = () => {
     setIsUpdatingParcel(true);
     if (currentParcels.length === 1) {
       otherResultAsync(
-        otherResultStatus(
-          currentParcels[0],
+        otherResultStatus({
+          parcel: currentParcels[0],
           chooseResult,
           chooseDetails,
           input,
           date,
-        ),
+    }),
       )
         .catch((err) => {
           console.error("addOtherResult failed:", err);
@@ -107,26 +107,26 @@ export const OtherOptionScreen = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        otherStatusLocally(
+        otherStatusLocally({
           downloadedParcels,
-          currentParcels[0],
+          currentParcel: currentParcels[0],
           input,
           chooseResult,
           chooseDetails,
           date,
-        ),
+    }),
       );
       navigate("/workPage");
     }
     if (currentParcels.length > 1) {
       multiResultsAsync(
-        multiResults(
+        multiResults({
           date,
           chooseResult,
           chooseDetails,
           input,
-          currentUser.username,
-        ),
+          user: currentUser.username,
+    }),
       )
         .catch((err) => {
           console.error("addOtherMultiResult failed:", err);
@@ -138,13 +138,13 @@ export const OtherOptionScreen = () => {
         });
 
       setDownloadedParcels(
-        multiResultsLocally(
+        multiResultsLocally({
           downloadedParcels,
-          date,
+          createdAt: date,
           chooseResult,
           chooseDetails,
           input,
-        ),
+    }),
       );
       navigate("/workPage");
     }
@@ -172,7 +172,7 @@ export const OtherOptionScreen = () => {
       <div className="advice">
         <AppNavigation
           username={currentUser.username}
-          pageName="OTHER"
+          title="OTHER"
           EMINumber={currentUser.EMINumber}
         />
         {currentParcels.map((parcel) => {

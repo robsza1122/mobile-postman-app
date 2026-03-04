@@ -20,7 +20,7 @@ export const CheckStatus = () => {
     queryFn: () => getCheckStatus(id),
     staleTime: Infinity,
   });
-  const checkStatus = checkStatusResponse?.data;
+  const checkStatus = checkStatusResponse;
   const [showSignature, setShowSignature] = useState(false);
   const [showAdviced, setShowAdviced] = useState(false);
   const [showOthers, setShowOthers] = useState(false);
@@ -38,40 +38,40 @@ export const CheckStatus = () => {
             <>
               <div className="status__container">
                 <span className="status__span">Number of Parcel:</span>
-                <p className="status__number">{checkStatus.numberOfParcel}</p>
+                <p className="status__number">{checkStatus?.numberOfParcel}</p>
               </div>
               <div className="status__containers">
                 <div className="status__datacontainer">
                   <span className="status__spandata">Sender's Name</span>
-                  <p className="status__data">{checkStatus.senderName}</p>
+                  <p className="status__data">{checkStatus?.senderName}</p>
                   <span className="status__spandata">Sender's Surname</span>
-                  <p className="status__data">{checkStatus.senderSurname}</p>
+                  <p className="status__data">{checkStatus?.senderSurname}</p>
                   <span className="status__spandata">Sender's post code</span>
-                  <p className="status__data">{checkStatus.senderPostCode}</p>
+                  <p className="status__data">{checkStatus?.senderPostCode}</p>
                   <span className="status__spandata">Sender's city</span>
-                  <p className="status__data">{checkStatus.senderCity}</p>
+                  <p className="status__data">{checkStatus?.senderCity}</p>
                   <span className="status__spandata">Sender's adress</span>
-                  <p className="status__data">{checkStatus.senderAdress}</p>
+                  <p className="status__data">{checkStatus?.senderAdress}</p>
                   <span className="status__spandata">Sender's country</span>
-                  <p className="status__data">{checkStatus.senderCountry}</p>
+                  <p className="status__data">{checkStatus?.senderCountry}</p>
                   <span className="status__spandata">Sender's email</span>
-                  <p className="status__data">{checkStatus.clientEmail}</p>
+                  <p className="status__data">{checkStatus?.clientEmail}</p>
                 </div>
                 <div className="status__datacontainer">
                   <span className="status__spandata">Adressee's Name</span>
-                  <p className="status__data">{checkStatus.name}</p>
+                  <p className="status__data">{checkStatus?.name}</p>
                   <span className="status__spandata">Adressee's Surname</span>
-                  <p className="status__data">{checkStatus.surname}</p>
+                  <p className="status__data">{checkStatus?.surname}</p>
                   <span className="status__spandata">Adressee's post code</span>
-                  <p className="status__data">{checkStatus.postCode}</p>
+                  <p className="status__data">{checkStatus?.postCode}</p>
                   <span className="status__spandata">Adressee's city</span>
-                  <p className="status__data">{checkStatus.city}</p>
+                  <p className="status__data">{checkStatus?.city}</p>
                   <span className="status__spandata">Adressee's adress</span>
-                  <p className="status__data">{checkStatus.adress}</p>
+                  <p className="status__data">{checkStatus?.adress}</p>
                   <span className="status__spandata">Adressee's country</span>
-                  <p className="status__data">{checkStatus.country}</p>
+                  <p className="status__data">{checkStatus?.country}</p>
                   <span className="status__spandata">Phone</span>
-                  <p className="status__data">{checkStatus.phone}</p>
+                  <p className="status__data">{checkStatus?.phone}</p>
                 </div>
               </div>
               <div className="status__statuscontainer">
@@ -81,7 +81,7 @@ export const CheckStatus = () => {
                     <th className="status__head">Name of Status</th>
                     <th className="status__head">Data of Status</th>
                   </tr>
-                  {checkStatus.status.map((status: StatusType) => {
+                  {checkStatus?.status?.map((status: StatusType) => {
                     const colorizeStatus = () => {
                       switch (status.name) {
                         case "ORDERED":

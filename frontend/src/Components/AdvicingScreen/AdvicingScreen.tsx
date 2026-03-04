@@ -79,7 +79,7 @@ export const AdvicingScreen = () => {
     setShowReason(!showReason);
   };
 
-  const onChooseReason = (reason) => {
+  const onChooseReason = (reason: string) => {
     setChooseReason(reason);
     setShowReason(false);
   };
@@ -87,7 +87,7 @@ export const AdvicingScreen = () => {
   const onOffice = () => {
     setShowOffice(!showOffice);
   };
-  const onChooseOffice = (office) => {
+  const onChooseOffice = (office: string) => {
     setChooseOffice(office);
     setShowOffice(false);
   };
@@ -96,7 +96,7 @@ export const AdvicingScreen = () => {
     setShowNotifiedPlace(!showNotifiedPlace);
   };
 
-  const onChooseNotificationPlace = (place) => {
+  const onChooseNotificationPlace = (place: string) => {
     setChooseNotifiedPlace(place);
     setShowNotifiedPlace(false);
   };
@@ -105,13 +105,13 @@ export const AdvicingScreen = () => {
     setIsUpdatingParcel(true);
     if (currentParcels.length === 1) {
       changeStatusAsync(
-        advicedStatusObject(
-          currentParcels[0],
+        advicedStatusObject({
+          parcel: currentParcels[0],
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
           date,
-        ),
+    }),
       )
         .catch((err) => {
           console.error("addAdvicedStatus failed:", err);
@@ -122,26 +122,27 @@ export const AdvicingScreen = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        advicedStatusLocally(
+        advicedStatusLocally({
           downloadedParcels,
-          currentParcels[0],
+          currentParcel: currentParcels[0],
           date,
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
+        }
         ),
       );
       navigate("/workPage");
     }
     if (currentParcels.length > 1) {
       asyncMultiAdvice(
-        multiAdvicedStatus(
-          date,
-          chooseReason,
-          chooseOffice,
-          chooseNotifiedPlace,
-          currentUser.username,
-        ),
+        multiAdvicedStatus({
+          createdAt: date,
+          reasonOfAdvice: chooseReason,
+          placeOfAdvice: chooseOffice,
+          placeOfNotification: chooseNotifiedPlace,
+          user: currentUser.username,
+    }),
       )
         .catch((err) => {
           console.error("addMultiAdvicedStatus failed:", err);
@@ -152,12 +153,13 @@ export const AdvicingScreen = () => {
           queryClient.invalidateQueries({ queryKey: [PARCELS] });
         });
       setDownloadedParcels(
-        multiAdvicedStatusLocally(
+        multiAdvicedStatusLocally({
           downloadedParcels,
-          date,
-          reasonOfAdvice,
-          placeOfAdvice,
-          placeOfNotification,
+          createdAt: date,
+          reasonOfAdvice: chooseReason,
+          officeOfAdvice: chooseOffice,
+          placeOfNotification: chooseNotifiedPlace,
+        }
         ),
       );
       navigate("/workPage");
@@ -186,7 +188,7 @@ export const AdvicingScreen = () => {
       <div className="advice">
         <AppNavigation
           username={currentUser.username}
-          pageName="ADVICE SCREEN"
+          title="ADVICE SCREEN"
           EMINumber={currentUser.EMINumber}
         />
         <div className="advice__adviced-window">

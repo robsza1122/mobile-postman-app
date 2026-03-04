@@ -1,7 +1,12 @@
+type ShowReasonAdvicedScreenType = {
+    reasonOfAdvice: string[];
+    onChooseReason: (reason: string) => void;
+}
+
 export const ShowReasonAdvicedScreen = ({
     reasonOfAdvice,
     onChooseReason,
-}) => {
+}: ShowReasonAdvicedScreenType) => {
     return (
         <>
                   <div className="advice__background"></div>

@@ -1,4 +1,8 @@
-export const AdvicedConfirmButton = ({ handleConfirmButton }) => {
+type AdvicedConfirmButtonType = {
+    handleConfirmButton: () => void;
+}
+
+export const AdvicedConfirmButton = ({ handleConfirmButton }: AdvicedConfirmButtonType) => {
   return (
     <div className="advice__confirmcontent">
       <button

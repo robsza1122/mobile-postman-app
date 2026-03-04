@@ -30,11 +30,9 @@ export const StatusHandler = ({
   firstButtonLink,
   secondButtonLink,
 }: StatusHandlerProps) => {
-  const { currentUser, downloadedParcels, setSavePoints } =
+  const { currentUser, downloadedParcels, setIsMultiStatus } =
     useContext(PostManState);
   const { parcels } = useParcels();
-
-  const markedParcels = downloadedParcels.filter((parcel) => parcel.isMarked);
   const inDeliveryParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status && parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
@@ -70,6 +68,7 @@ export const StatusHandler = ({
 
       if (!marked) {
         navigate("/workPage");
+        setIsMultiStatus(false);
       }
     };
 
