@@ -1,7 +1,7 @@
 const today = new Date();
 const currentMonth = today.getMonth() + 1;
 
-export const date = `Date: ${today.getFullYear()}-${
+export const date = () => `Date: ${today.getFullYear()}-${
   currentMonth.toString().length === 1 ? "0" : ""
 }${currentMonth}-${
   today.getDate().toString().length === 1 ? "0" : ""

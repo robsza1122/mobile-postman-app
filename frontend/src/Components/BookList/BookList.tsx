@@ -18,25 +18,25 @@ export const BookList = () => {
       <p className="booklist__text">BOOK LIST</p>
       <div className="booklist__content">
         {downloadedParcels.map((parcel) => {
+          const lastStatusName = parcel?.status?.[parcel.status.length - 1]?.name;
           return (
             <div
               className={classNames("booklist__position", {
-                                "booklist__position--delivered":
-                  parcel.status[parcel.status.length - 1].name === "IN DELIVERY",
+                                "booklist__position--in-delivery":
+                  lastStatusName === "IN DELIVERY",
                 "booklist__position--delivered":
-                  parcel.status[parcel.status.length - 1].name === "DELIVERED",
+                  lastStatusName === "DELIVERED",
                 "booklist__position--adviced":
-                  parcel.status[parcel.status.length - 1].name === "ADVICED",
+                  lastStatusName === "ADVICED",
                 "booklist__position--other":
-                  parcel.status[parcel.status.length - 1].name === "OTHER",
+                  lastStatusName === "OTHER",
               })}
               key={parcel._id}
             >
               <p
                 className={classNames("booklist__number", {
                   "booklist__number--marked":
-                    parcel.status[parcel.status.length - 1].name ===
-                    "DELIVERED",
+                    lastStatusName === "DELIVERED",
                 })}
               >
                 {parcel.numberOfParcel}
@@ -44,15 +44,13 @@ export const BookList = () => {
               <p
                 className={classNames("booklist__info", {
                   "booklist__info--marked":
-                    parcel.status[parcel.status.length - 1].name ===
-                    "DELIVERED",
+                    lastStatusName === "DELIVERED",
                 })}
               >{`${parcel.name} ${parcel.surname}`}</p>
               <p
                 className={classNames("booklist__info", {
                   "booklist__info--marked":
-                    parcel.status[parcel.status.length - 1].name ===
-                    "DELIVERED",
+                    lastStatusName === "DELIVERED",
                 })}
               >
                 {parcel.adress}
@@ -60,8 +58,7 @@ export const BookList = () => {
               <p
                 className={classNames("booklist__adress", {
                   "booklist__adress--marked":
-                    parcel.status[parcel.status.length - 1].name ===
-                    "DELIVERED",
+                    lastStatusName === "DELIVERED",
                 })}
               >{`${parcel.city} ${parcel.postCode}`}</p>
             </div>

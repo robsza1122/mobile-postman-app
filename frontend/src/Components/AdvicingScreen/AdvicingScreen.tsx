@@ -110,7 +110,7 @@ export const AdvicingScreen = () => {
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
-          date,
+          date: date(),
     }),
       )
         .catch((err) => {
@@ -125,7 +125,7 @@ export const AdvicingScreen = () => {
         advicedStatusLocally({
           downloadedParcels,
           currentParcel: currentParcels[0],
-          date,
+          date: date(),
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
@@ -137,7 +137,7 @@ export const AdvicingScreen = () => {
     if (currentParcels.length > 1) {
       asyncMultiAdvice(
         multiAdvicedStatus({
-          createdAt: date,
+          createdAt: date(),
           reasonOfAdvice: chooseReason,
           placeOfAdvice: chooseOffice,
           placeOfNotification: chooseNotifiedPlace,
@@ -155,7 +155,7 @@ export const AdvicingScreen = () => {
       setDownloadedParcels(
         multiAdvicedStatusLocally({
           downloadedParcels,
-          createdAt: date,
+          createdAt: date(),
           reasonOfAdvice: chooseReason,
           officeOfAdvice: chooseOffice,
           placeOfNotification: chooseNotifiedPlace,

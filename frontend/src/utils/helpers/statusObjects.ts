@@ -579,7 +579,7 @@ export const multiResults = ({
 }: multiResultsType): any => {
   return {
     createdAt: date,
-    result: chooseResult,
+    subject: chooseResult,
     details: chooseDetails,
     input,
     user,

@@ -21,7 +21,7 @@ export const multiAdvicingSchima = z.object({
 
 export const multiResultsSchima = z.object({
     createdAt: z.string(),
-  result: z.string(),
+  subject: z.string(),
   details: z.string(),
   input: z.string(),
   user: z.string(),

@@ -59,16 +59,16 @@ export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
                             </h1>
                             <p
                               style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
-                              Your parcel is adviced on ${parcel?.status?.[parcel.status.length - 1]?.officeOfAdvice}.
+                              Your parcel is adviced on ${parcel?.status?.[parcel?.status?.length - 1]?.officeOfAdvice}.
                             </p>
                             <p
                               style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
-                              Place of notification: ${parcel?.status?.[parcel.status.length - 1]?.placeOfNotification}.
+                              Place of notification: ${parcel?.status?.[parcel?.status?.length - 1]?.placeOfNotification}.
                               </p>
 
                               <p
                               style="font-size:18px;line-height:28px;margin:16px 0;margin-top:16px;font-weight:600;color:black">
-                              Reason of advice: ${parcel?.status?.[parcel.status.length - 1]?.reasonOfAdvice}.
+                              Reason of advice: ${parcel?.status?.[parcel?.status?.length - 1]?.reasonOfAdvice}.
                               </p>
                             
                             <p

@@ -7,7 +7,7 @@ type StatusHandlingButtonsProps = {
   secondButton: string;
   firstButtonLink: () => string;
   secondButtonLink: () => string;
-  onFirstButtonClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void
+  onFirstButtonClick:    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void
   onSecondButtonClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 }
 

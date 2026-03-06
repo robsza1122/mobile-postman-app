@@ -92,7 +92,6 @@ export const StatusHandlingList = ({
                     key={parcel._id}
                     parcel={parcel}
                     handleMarkParcel={handleMarkParcel}
-                    isVERIFICATION={markedParcels.length >= 2 && isMultiStatus ? true : false}
                     />
                   );
                 })}

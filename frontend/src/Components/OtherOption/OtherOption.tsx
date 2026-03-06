@@ -83,10 +83,12 @@ export const OtherOption = () => {
         return "";
       } else if (markedParcels.length > 1) {
         return "/multiResultsVerification";
+      } else {
+        return "";
       }
     };
   
-  const handleOneResultsAlerts = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleOneResultsAlerts = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const parcelIsMarked = markedParcels.length;
     switch (parcelIsMarked) {
       case 0:

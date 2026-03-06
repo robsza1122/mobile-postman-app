@@ -134,7 +134,7 @@ export const multiAdvicing = async ({
 
 type OtherOptionType = {
   createdAt: string;
-  result: string;
+  subject: string;
   details: string;
   input: string;
   user: string;
@@ -142,7 +142,7 @@ type OtherOptionType = {
 
 export const multiResults = async ({
   createdAt,
-  result,
+  subject,
   details,
   input,
   user,
@@ -151,7 +151,7 @@ export const multiResults = async ({
   const addStatus = {
     name: "OTHER",
     createdAt,
-    result,
+    subject,
     details,
     signature: null,
     isDeliveryCode: false,

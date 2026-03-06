@@ -6,9 +6,11 @@ import { useEffect } from "react";
 import useParcels, { PARCELS } from "../../hooks/useParcels";
 import { StatusHandler } from "../StatusHandler/StatusHandler";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { CreateParcelOrder } from "../../types/parcel.type";
+import { setNoAddresseLocally } from "../../utils/helpers/statusObjects";
 
 export const AdvicedOption = () => {
-  const { currentUser, downloadedParcels, setDownloadedParcels } = useContext(PostManState);
+  const { currentUser, downloadedParcels, setDownloadedParcels, setSavePoints, setInput } = useContext(PostManState);
   const markedParcels = downloadedParcels.filter(parcel => parcel.isMarked);
   const queryClient = useQueryClient();
   const { mutate: markAllOnFalsy } = useMutation({
@@ -17,9 +19,9 @@ export const AdvicedOption = () => {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: [PARCELS] });
 
-      const previousParcels = queryClient.getQueriesData([PARCELS]);
+      const previousParcels = queryClient.getQueriesData({ queryKey: [PARCELS] });
 
-      queryClient.setQueryData([PARCELS], (old) => {
+      queryClient.setQueryData([PARCELS], (old: CreateParcelOrder[]) => {
         if (!old) return old;
 
         return old.map((parcel) => {
@@ -79,12 +81,12 @@ export const AdvicedOption = () => {
     const handleMultiAdvicingLink = () => {
       if (markedParcels.length === 0 || markedParcels.length === 1) {
         return "";
-      } else if (markedParcels.length > 1) {
+      } else {
         return "/multiAdvicingVerification";
       }
     };
   
-  const handleOneAdvicingAlerts = (e) => {
+  const handleOneAdvicingAlerts = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const parcelIsMarked = markedParcels.length;
     switch (parcelIsMarked) {
       case 0:
