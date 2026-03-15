@@ -29,6 +29,7 @@ export type CreateParcelOrder = {
   isMarkedVERIFICATION?: boolean;
   amountOfTrials?: number;
   isDeliveryCode?: boolean;
+  placeOfLeavingParcel?: string;
   status?: {
     name: string;
     createdAt: String;
@@ -138,6 +139,7 @@ export const createOrder = async (data: CreateParcelOrder) => {
     isMarked: false,
     isMarkedVERIFICATION: false,
     deliveryCode: `${createDeliveryCode()}`,
+    placeOfLeavingParcel: "",
     status: {
       name: "ORDERED",
       subject: "",

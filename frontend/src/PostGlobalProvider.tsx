@@ -52,6 +52,8 @@ type PostManStateType = {
   setLoading: (value: boolean) => void;
   isMultiStatus: boolean;
   setIsMultiStatus: (value: boolean) => void;
+  placeOfLeavingParcels: string;
+  setPlaceOfLeavingParcels: (value: string) => void;
 };
 
 export const PostManState = createContext({
@@ -100,6 +102,8 @@ export const PostManState = createContext({
   setLoading: () => {},
   isMultiStatus: false,
   setIsMultiStatus: () => {},
+  placeOfLeavingParcels: "",
+  setPlaceOfLeavingParcels: () => {},
 } as PostManStateType);
 
 export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) => {
@@ -146,6 +150,7 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
   const [checkedParcel, setCheckedParcel] = useLocaleStorage("checkedParcel", {});
   const [loading, setLoading] = useState<boolean>(false);
   const [isMultiStatus, setIsMultiStatus] = useState<boolean>(false);
+  const [placeOfLeavingParcels, setPlaceOfLeavingParcels] = useState<string>("");
 
   const signatureRef = useRef<any>(null);
 
@@ -255,6 +260,8 @@ export const PostGlobalProvider = ({ children }: { children: React.ReactNode }) 
         setLoading,
         isMultiStatus,
         setIsMultiStatus,
+        placeOfLeavingParcels,
+        setPlaceOfLeavingParcels,
       }}
     >
       {children}

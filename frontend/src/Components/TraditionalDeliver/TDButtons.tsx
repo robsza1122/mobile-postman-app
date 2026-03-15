@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { CreateParcelOrder } from "../../types/parcel.type";
+import { PostManState } from "../../PostGlobalProvider";
+import { useContext } from "react";
 
 type TDButtonsProps = {
   markParcel: CreateParcelOrder;
@@ -15,15 +17,15 @@ export const TDButtons = ({
   handleSignatureButton,
   handleSignatureLink,
 }: TDButtonsProps) => {
-  console.log(savePoints)
+  const {downloadedParcels} = useContext(PostManState);
+  const markedParcel = downloadedParcels.filter((parcel) => parcel.isMarked);
   return (
     <div className="td__buttons">
       <Link
-        to={markParcel.amountOfTrials === 3 ? "" : "/deliveryCodeScreen"}
+        to={markParcel.amountOfTrials === 3  || markedParcel.length > 1 ? "" : "/deliveryCodeScreen"}
         className={classNames("td__button", {
-          "td__button--disabled": markParcel.amountOfTrials === 3,
+          "td__button--disabled": markParcel.amountOfTrials === 3 || markedParcel.length > 1,
         })}
-        aria-disabled={markParcel.amountOfTrials === 3}
       >
         Delivery code
       </Link>

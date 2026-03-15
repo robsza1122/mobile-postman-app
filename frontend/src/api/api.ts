@@ -5,6 +5,7 @@ import {
   deleteBookType,
   failedDeliveryCodeType,
   inDeliveryStatusType,
+  leaveParcelOnPostBranchType,
   loginUserType,
   markAllParcelOnFalseOrTrueInListType,
   markParcelType,
@@ -45,6 +46,8 @@ export const addOtherResult = async (data: otherResultStatusType) =>
   API.post("/addOtherStatus", data);
 export const handleFailedDeliveryCode = async (data: failedDeliveryCodeType) =>
   API.post("/handleFailedDeliveryCode", data);
+export const leaveParcelOnPostBranch = async (data: leaveParcelOnPostBranchType) =>
+  API.post("/leaveParcelOnPostBranch", data);
 
 // Handling user authentication
 export const loginUser = async (data: loginUserType) =>

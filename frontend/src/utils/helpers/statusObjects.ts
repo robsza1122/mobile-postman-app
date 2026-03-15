@@ -75,14 +75,14 @@ export type multiDeliveryLocallyType = {
 };
 
 export type multiDeliverStatusType = {
-  nameOfStatus: string;
-  date: string;
-  signature: string;
-  noAddressee: boolean | undefined;
-  input: string | number;
-  username: string;
-  chooseSubject: string;
-  details: string;
+nameOfStatus?: string;
+  createdAt?: string;
+  signature?: string;
+  noAddressee?: boolean;
+  deliveryInput?: string;
+  user?: string;
+  subject?: string;
+  details?: string;
 };
 
 export type clearSignatureByButtonType = {
@@ -482,22 +482,22 @@ export const multiDeliveryLocally = ({
 };
 
 export const multiDeliverStatus = ({
-  date,
+  createdAt,
   signature,
   noAddressee,
-  input,
-  username,
-  chooseSubject,
+  deliveryInput,
+  user,
+  subject,
   details,
 }: multiDeliverStatusType) => {
   return {
     nameOfStatus: "DELIVERED",
-    createdAt: date,
+    createdAt,
     signature,
     noAddressee,
-    deliveryInput: input,
-    user: username,
-    subject: chooseSubject,
+    deliveryInput,
+    user,
+    subject,
     details,
   };
 };

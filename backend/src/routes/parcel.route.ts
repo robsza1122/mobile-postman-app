@@ -15,6 +15,7 @@ import {
   markingOnFalseInListHandler,
   markParcelInVerificationHandler,
   removeParcelsInVerificationHandler,
+  leaveParcelOnPostBranchHandler,
 } from "../controllers/parcel.controller";
 
 const parcelRoutes = Router();
@@ -44,6 +45,10 @@ parcelRoutes.post(
   "/removingParcelsVERIFICATION",
   removeParcelsInVerificationHandler
 );
+
+// Leaving parcel on post branch
+
+parcelRoutes.post('/leaveParcelOnPostBranch', leaveParcelOnPostBranchHandler);
 
 //Deleting all dates
 parcelRoutes.post("/deleteAllDates", clearDatesHandler);

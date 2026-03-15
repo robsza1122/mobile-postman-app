@@ -24,11 +24,64 @@
   &__window {
     font-family: Post, sans-serif;
     width: 85%;
-    height: 60vh;
+    height: 45vh;
     background-color: rgb(235, 232, 232);
     border: 1px solid gray;
     border-radius: 10px;
-    margin: 60px auto;
+    margin: 10px auto;
+    &--settled {
+      background-color: lightgreen;
+    }
+  }
+  &__advicing-offices {
+    font-family: Post, sans-serif;
+    width: 85%;
+    height: 35vh;
+    background-color: rgb(235, 232, 232);
+    border: 1px solid gray;
+    border-radius: 10px;
+    margin-bottom: 100px;
+    margin: 0 auto;
+    &-text {
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+    }
+    &-list {
+      list-style: none;
+      padding: 0;
+      border-top: 1px solid gray;
+    }
+    &-link {
+      text-decoration: none;
+      color: black;
+      &-active {
+        &:hover {
+          background-color: black;
+        }
+      };
+    }
+    &-list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 11.5px 15px;
+      border-bottom: 1px solid gray;
+      &-active {
+        &:hover {
+          background-color: lightgray;
+        }
+      };
+      &-name {
+        margin: 0;
+      }
+      &-number {
+        margin: 0;
+        width: 40px;
+      }
+      &-settled {
+        background-color: lightgreen;
+      }
+    }
     &--settled {
       background-color: lightgreen;
     }
@@ -48,7 +101,16 @@
   &__data {
     display: flex;
     justify-content: space-between;
-    margin: 0 15px;
+    padding: 7.5px 15px;
+    height: 30px;
+  }
+
+  &__number {
+    margin: 0;
+  }
+
+  &__text {
+    margin: 0;
   }
   &__button {
     position: fixed;

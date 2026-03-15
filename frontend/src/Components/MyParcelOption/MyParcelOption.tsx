@@ -93,6 +93,7 @@ export const MyParcelOption = ({ option }: MyParcelOptionProps) => {
   };
 
   console.log(handleRouterLinks(header));
+  console.log(amount)
 
   return (
     <Link

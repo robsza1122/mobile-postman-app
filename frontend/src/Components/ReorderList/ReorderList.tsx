@@ -11,15 +11,16 @@ export const ReorderList = () => {
     useContext(PostManState);
   const { parcels } = useParcels();
   console.log(parcels);
-  const [dragged, setDragged] = useState(null);
+  const [dragged, setDragged] = useState<number | null>(null);
   const [mouse, setMouse] = useState([0, 0]);
   const [closestDropZone, setClosestDropZone] = useState(0);
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: MouseEvent) => {
       if (dragged !== null) {
         event.preventDefault();
         setDragged(null);
+        //@ts-expect-error
         setDownloadedParcels(parcel => reorderList(parcel, dragged, closestDropZone))
       }
     };
@@ -30,7 +31,7 @@ export const ReorderList = () => {
   });
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: MouseEvent) => {
       setMouse([event.x, event.y]);
     };
     document.addEventListener("mousemove", handleMouseMove);

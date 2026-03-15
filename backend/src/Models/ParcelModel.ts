@@ -26,6 +26,7 @@ export interface ParcelDocument extends mongoose.Document {
   isMarkedVERIFICATION: boolean,
   amountOfTrials: number,
   isDeliveryCode: boolean,
+  placeOfLeavingParcel: string,
   status: {
     name: string,
     createdAt: String,
@@ -136,6 +137,9 @@ const parcelSchima = new mongoose.Schema<ParcelDocument>({
     },
     isDeliveryCode: {
         type: Boolean,
+    },
+    placeOfLeavingParcel: {
+        type: String,
     },
     status: {
         type: [

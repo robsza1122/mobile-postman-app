@@ -36,18 +36,24 @@ export const StatusHandler = ({
   const inDeliveryParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status && parcel.status[parcel.status.length - 1].name === "IN DELIVERY" &&
-      parcel.forUser === currentUser.username,
+      parcel.forUser === currentUser.username &&
+      parcel.isDownloaded &&
+      parcel.placeOfLeavingParcel === "",
   );
 
   const advicedParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status && parcel.status[parcel.status.length - 1].name === "ADVICED" &&
-      parcel.forUser === currentUser.username,
+      parcel.forUser === currentUser.username &&
+      parcel.isDownloaded &&
+      parcel.placeOfLeavingParcel === "",
   );
   const otherParcels = downloadedParcels.filter(
     (parcel) =>
       parcel.status && parcel.status[parcel.status.length - 1].name === "OTHER" &&
-      parcel.forUser === currentUser.username,
+      parcel.forUser === currentUser.username &&
+      parcel.isDownloaded &&
+      parcel.placeOfLeavingParcel === "",
   );
 
   const [searchInput, setSearchInput] = useState("");

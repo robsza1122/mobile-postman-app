@@ -68,6 +68,7 @@ export const TrailOption = () => {
   console.log(currentUser);
 
   const onSubmit = async () => {
+    const {dateStr} = date();
     setLoading(true);
     setLoadingText("Looking for books...");
     setTimeout(() => {
@@ -111,9 +112,9 @@ export const TrailOption = () => {
       inDeliveryStatus({
         numberOfBook: typedParcelBookNumber,
         username: typedParcel.forUser,
-        createdAt: date,
+        createdAt: dateStr,
       });
-
+      setDayIsFinished(false);
       setDownloadedParcels([
         ...downloadedParcels,
         ...(Array.isArray(parcels) ? parcels : parcels?.data || [])
@@ -127,7 +128,7 @@ export const TrailOption = () => {
                   ...(Array.isArray(parcel.status) ? parcel.status : []),
                   {
                     name: "IN DELIVERY",
-                    createdAt: date,
+                    createdAt: dateStr,
                     subject: "",
                     details: "",
                     signature: null,

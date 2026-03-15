@@ -48,3 +48,8 @@ export type StatusType = {
   export type deleteBookType = {
     numberOfBook: string;
   }
+
+  export type leaveParcelOnPostBranchType = {
+    officeOfAdvice: string;
+    user: string;
+  }

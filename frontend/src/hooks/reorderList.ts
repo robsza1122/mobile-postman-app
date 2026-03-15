@@ -1,3 +1,5 @@
+import { CreateParcelOrder } from "../types/parcel.type";
+
 const _reorderForward = (l: number[], start: number, end: number) => {
   const temp = l[start];
 

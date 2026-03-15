@@ -63,7 +63,8 @@ export const BookList = () => {
               >{`${parcel.city} ${parcel.postCode}`}</p>
             </div>
           );
-        })}
+        })
+        }
       </div>
     </nav>
   );

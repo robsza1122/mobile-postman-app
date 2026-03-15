@@ -39,8 +39,9 @@ export const DeliveryCodeScreen = () => {
 
       const previousParcels = queryClient.getQueriesData({ queryKey: [PARCELS] });
 
-      queryClient.setQueryData([PARCELS], (old: CreateParcelOrder[] = []) =>
-        old.map((parcel) => {
+      queryClient.setQueryData([PARCELS], (old: CreateParcelOrder[] = []) => {
+        return old.map((parcel) => {
+          const { dateStr } = date();
           if (parcel._id === updatedParcel._id) {
             return {
               ...parcel,
@@ -49,12 +50,13 @@ export const DeliveryCodeScreen = () => {
               isMarked: false,
               forUser: updatedParcel.forUser,
               isDeliveryCode: true,
-              status: parcel.status ? [...parcel.status, deliverWithCodeQueryClient(date)] : [deliverWithCodeQueryClient(date)],
+              status: parcel.status ? [...parcel.status, deliverWithCodeQueryClient(dateStr)] : [deliverWithCodeQueryClient(dateStr)],
             };
           }
 
           return parcel;
-        }),
+        })
+      },
       );
 
       return { previousParcels };
@@ -102,6 +104,7 @@ export const DeliveryCodeScreen = () => {
   }, []);
 
   const onDeliveryCode = (clickedParcel: CreateParcelOrder) => {
+    const { dateStr } = date();
     if (
       clickedParcel.deliveryCode !== deliveryCode &&
       deliveryCode.length === (clickedParcel.deliveryCode ? clickedParcel.deliveryCode.length : 0) &&
@@ -146,12 +149,12 @@ export const DeliveryCodeScreen = () => {
       setIsUpdatingParcel(true);
       asyncDeliveredStatus(
         deliveryWithCode({
-        id: clickedParcel._id,
-        date,
-        numberOfBook: clickedParcel.numberOfBook,
-        username: currentUser.username,
-      }),
-    )
+          id: clickedParcel._id,
+          date: dateStr,
+          numberOfBook: clickedParcel.numberOfBook,
+          username: currentUser.username,
+        }),
+      )
         .catch((err) => {
           console.error("addDeliveredStatus failed:", err);
         })
@@ -162,7 +165,7 @@ export const DeliveryCodeScreen = () => {
         });
 
       setDownloadedParcels(
-        deliveryWithCodeLocally({ downloadedParcels, updatedParcel: clickedParcel, date }),
+        deliveryWithCodeLocally({ downloadedParcels, updatedParcel: clickedParcel, date: dateStr }),
       );
 
       navigate("/workPage");

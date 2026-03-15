@@ -2,13 +2,12 @@ import "./WorkPage.scss";
 import { WorkNav } from "../WorkNav/WorkNav.jsx";
 import { myToolsOptions } from "../../utils/DataProvider.js";
 import { MyToolOption } from "../MyToolOption/MyToolOption.jsx";
-import { Children, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { PostManState } from "../../PostGlobalProvider.js";
 import { APMOption } from "../APMOption/APMOption.jsx";
 import { MyParcelOption } from "../MyParcelOption/MyParcelOption.jsx";
 import { MenuServisData } from "../MenuServisData/MenuServisData.jsx";
 import useParcels from "../../hooks/useParcels.js";
-import useAuth from "../../hooks/useAuth.js";
 import { Loading } from "../../Loading/Loading.jsx";
 import { CreateParcelOrder } from "../../types/parcel.type.js";
 import { ReactNode } from "react";
@@ -19,6 +18,7 @@ interface WorkPageProps {
 
 export const WorkPage = ({ children }: WorkPageProps) => {
   const { parcels } = useParcels();
+  console.log(parcels);
 
   const { slideOptions, downloadedParcels, setDownloadedParcels, currentUser } =
     useContext(PostManState);
@@ -38,7 +38,7 @@ export const WorkPage = ({ children }: WorkPageProps) => {
       window.removeEventListener("popstate", handlePop);
     };
   }, [currentUser]);
-  const usersParcels = (Array.isArray(parcels) ? parcels : parcels?.data || []).filter(
+  const usersParcels = downloadedParcels.filter(
     (parcel: CreateParcelOrder) => parcel.forUser === currentUser.username && parcel.isDownloaded,
   );
   const parcelsToDeliver = downloadedParcels.filter(
@@ -56,6 +56,8 @@ export const WorkPage = ({ children }: WorkPageProps) => {
       parcel.status && parcel.status[parcel.status.length - 1].name === "OTHER" &&
       parcel.forUser === currentUser.username,
   );
+
+  console.log(usersParcels)
 
   const myParcelsOptions = [
     {

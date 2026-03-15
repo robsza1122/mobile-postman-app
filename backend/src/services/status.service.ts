@@ -2,6 +2,7 @@ import { APP_ORIGIN } from "../constants/env";
 import { NOT_FOUND } from "../constants/http";
 import { parcelModel } from "../Models/ParcelModel";
 import UserModel from "../Models/UserModel";
+import { leaveParcelOnPostBranchSchima } from "../schimas/leaveParcelOnPostBranchSchima";
 import appAssert from "../utils/AppAssert";
 import { getAdvicingEmail } from "../utils/getAdvicingEmail";
 import { getDeliveredEmailTemplate } from "../utils/getDeliveredEmailTemplate";
@@ -60,7 +61,7 @@ export const addInDeliveryStatus = async ({
     {
       $push: { status: addStatus },
       $set: { isDownloaded: true, forUser: username },
-    }
+    },
   );
 
   const assignParcelsToUser = await parcelModel.find({
@@ -70,7 +71,7 @@ export const addInDeliveryStatus = async ({
 
   await UserModel.updateOne(
     { username },
-    { $push: { parcels: { ...assignParcelsToUser } } }
+    { $push: { parcels: { ...assignParcelsToUser } } },
   );
 
   await Promise.all(
@@ -79,12 +80,12 @@ export const addInDeliveryStatus = async ({
         ? sendEmail({
             ...getInDeliveryStatusEmail(
               parcel,
-              `${APP_ORIGIN}/checkStatus/${parcel._id}`
+              `${APP_ORIGIN}/checkStatus/${parcel._id}`,
             ),
             to: parcel.clientEmail,
           })
-        : Promise.resolve()
-    )
+        : Promise.resolve(),
+    ),
   );
 
   return {
@@ -135,7 +136,7 @@ export const deliveredStatus = async ({
         isDeliveryCode,
       },
       $push: { status: addStatus },
-    }
+    },
   );
 
   const updateParcelsForUser = await parcelModel.find({
@@ -147,7 +148,7 @@ export const deliveredStatus = async ({
     { username },
     {
       $set: { parcels: updateParcelsForUser },
-    }
+    },
   );
 
   appAssert(updatedUser, NOT_FOUND, "Can not update user");
@@ -205,7 +206,7 @@ export const advicedStatus = async ({
     {
       $set: { isBooked, numberOfBook, isMarked: false },
       $push: { status: addStatus },
-    }
+    },
   );
 
   const updateParcelsForUser = await parcelModel.find({
@@ -217,7 +218,7 @@ export const advicedStatus = async ({
     { username },
     {
       $set: { parcels: updateParcelsForUser },
-    }
+    },
   );
 
   appAssert(updatedUser, NOT_FOUND, "Can not update user");
@@ -272,7 +273,7 @@ export const otherStatus = async ({
     {
       $set: { isBooked, numberOfBook, isMarked: false },
       $push: { status: addStatus },
-    }
+    },
   );
 
   const updateParcelsForUser = await parcelModel.find({
@@ -284,7 +285,7 @@ export const otherStatus = async ({
     { username },
     {
       $set: { parcels: updateParcelsForUser },
-    }
+    },
   );
 
   appAssert(updatedUser, NOT_FOUND, "Can not update user");
@@ -299,5 +300,60 @@ export const otherStatus = async ({
 
   return {
     updatedUser,
+  };
+};
+
+type LeaveParcelOnPostBranchParams = {
+  user: string;
+  officeOfAdvice: string;
+};
+
+export const leaveParcelOnPostBranch = async ({
+  user,
+  officeOfAdvice,
+}: LeaveParcelOnPostBranchParams) => {
+  await parcelModel.updateMany(
+    {
+      $expr: {
+        $and: [
+          { $eq: [{ $arrayElemAt: ["$status.name", -1] }, "ADVICED"] },
+          {
+            $eq: [
+              { $arrayElemAt: ["$status.officeOfAdvice", -1] },
+              officeOfAdvice,
+            ],
+          },
+        ],
+      },
+      placeOfLeavingParcel: "",
+      forUser: user,
+      isDownloaded: true,
+    },
+    {
+      $set: {
+        placeOfLeavingParcel: officeOfAdvice,
+      },
+    },
+  );
+
+  const updatedParcels = await parcelModel.find({
+    $expr: {
+      $and: [
+        { $eq: [{ $arrayElemAt: ["$status.name", -1] }, "ADVICED"] },
+        {
+          $eq: [
+            { $arrayElemAt: ["$status.officeOfAdvice", -1] },
+            officeOfAdvice,
+          ],
+        },
+      ],
+    },
+    placeOfLeavingParcel: "",
+    forUser: user,
+    isDownloaded: true,
+  });
+
+  return {
+    updatedParcels,
   };
 };

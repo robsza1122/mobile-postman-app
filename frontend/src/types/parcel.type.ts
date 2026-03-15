@@ -22,6 +22,7 @@ export type CreateParcelOrder = {
   amountOfTrials?: number;
   isDeliveryCode?: boolean;
   noAddressee?: boolean;
+  placeOfLeavingParcel?: string;
   status?: {
     name: string;
     createdAt: String;

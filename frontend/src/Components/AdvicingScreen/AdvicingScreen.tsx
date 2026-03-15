@@ -102,6 +102,7 @@ export const AdvicingScreen = () => {
   };
 
   const handleConfirmButton = () => {
+    const { dateStr } = date();
     setIsUpdatingParcel(true);
     if (currentParcels.length === 1) {
       changeStatusAsync(
@@ -110,7 +111,7 @@ export const AdvicingScreen = () => {
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
-          date: date(),
+          date: dateStr,
     }),
       )
         .catch((err) => {
@@ -125,7 +126,7 @@ export const AdvicingScreen = () => {
         advicedStatusLocally({
           downloadedParcels,
           currentParcel: currentParcels[0],
-          date: date(),
+          date: dateStr,
           chooseReason,
           chooseOffice,
           chooseNotifiedPlace,
@@ -137,7 +138,7 @@ export const AdvicingScreen = () => {
     if (currentParcels.length > 1) {
       asyncMultiAdvice(
         multiAdvicedStatus({
-          createdAt: date(),
+          createdAt: dateStr,
           reasonOfAdvice: chooseReason,
           placeOfAdvice: chooseOffice,
           placeOfNotification: chooseNotifiedPlace,
@@ -155,7 +156,7 @@ export const AdvicingScreen = () => {
       setDownloadedParcels(
         multiAdvicedStatusLocally({
           downloadedParcels,
-          createdAt: date(),
+          createdAt: dateStr,
           reasonOfAdvice: chooseReason,
           officeOfAdvice: chooseOffice,
           placeOfNotification: chooseNotifiedPlace,

@@ -96,6 +96,7 @@ export const TraditionalDeliver = () => {
   }, [downloadedParcels, navigate]);
 
   const handleConfirmButton = () => {
+    const { dateStr } = date();
     setIsUpdatingParcel(true);
     if (
       findParcels[0].noAddressee &&
@@ -122,12 +123,12 @@ export const TraditionalDeliver = () => {
       asyncMultiDelivery(
         {
           nameOfStatus: "DELIVERED",
-          date,
+          createdAt: dateStr,
           signature: savePoints,
           noAddressee: findParcels[0].noAddressee,
-          input,
-          username: currentUser.username,
-          chooseSubject,
+          deliveryInput: input,
+          user: currentUser.username,
+          subject: chooseSubject,
           details: "",
         }
       )
@@ -142,7 +143,7 @@ export const TraditionalDeliver = () => {
       setDownloadedParcels(
         multiDeliveryLocally({
           downloadedParcels,
-          date,
+          date: dateStr,
           chooseSubject,
           details: "",
           noAddressee: findParcels[0].noAddressee,
@@ -157,12 +158,12 @@ export const TraditionalDeliver = () => {
       asyncMultiDelivery(
         {
           nameOfStatus: "DELIVERED",
-          date,
+          createdAt: dateStr,
           signature: savePoints,
           noAddressee: findParcels[0].noAddressee,
-          input,
-          username: currentUser.username,
-          chooseSubject,
+          deliveryInput: input,
+          user: currentUser.username,
+          subject: chooseSubject,
           details: particularSubject,
         }
       )
@@ -178,7 +179,7 @@ export const TraditionalDeliver = () => {
       setDownloadedParcels(
         multiDeliveryLocally({
           downloadedParcels,
-          date,
+          date: dateStr,
           chooseSubject,
           details: particularSubject,
           noAddressee: findParcels[0].noAddressee,
@@ -195,7 +196,7 @@ export const TraditionalDeliver = () => {
           chooseSubject,
           savePoints,
           input,
-          date,
+          date: dateStr,
         }),
       )
 
@@ -211,7 +212,7 @@ export const TraditionalDeliver = () => {
         deliveryStatusLocally({
           downloadedParcels,
           updatedParcel: findParcels[0],
-          date,
+          date: dateStr,
           chooseSubject,
           particularSubject,
           input,
@@ -229,7 +230,7 @@ export const TraditionalDeliver = () => {
           particularSubject,
           savePoints,
           input,
-          date,
+          date: dateStr,
         }),
       )
         .catch((err) => {
@@ -244,7 +245,7 @@ export const TraditionalDeliver = () => {
         deliveryStatusLocally({
           downloadedParcels,
           updatedParcel: findParcels[0],
-          date,
+          date: dateStr,
           chooseSubject,
           particularSubject,
           input,

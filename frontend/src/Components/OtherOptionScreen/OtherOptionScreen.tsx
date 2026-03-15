@@ -70,6 +70,7 @@ export const OtherOptionScreen = () => {
   };
 
   const handleConfirmButton = () => {
+    const { dateStr } = date();
     if (chooseDetails === "Parcel returned from other reason" && input === "") {
       alert("No other reason is typed");
       return;
@@ -95,7 +96,7 @@ export const OtherOptionScreen = () => {
           chooseResult,
           chooseDetails,
           input,
-          date,
+          date: dateStr,
     }),
       )
         .catch((err) => {
@@ -113,7 +114,7 @@ export const OtherOptionScreen = () => {
           input,
           chooseResult,
           chooseDetails,
-          date,
+          date: dateStr,
     }),
       );
       navigate("/workPage");
@@ -121,7 +122,7 @@ export const OtherOptionScreen = () => {
     if (currentParcels.length > 1) {
       multiResultsAsync(
         multiResults({
-          date,
+          date: dateStr,
           chooseResult,
           chooseDetails,
           input,
@@ -140,7 +141,7 @@ export const OtherOptionScreen = () => {
       setDownloadedParcels(
         multiResultsLocally({
           downloadedParcels,
-          createdAt: date,
+          createdAt: dateStr,
           chooseResult,
           chooseDetails,
           input,

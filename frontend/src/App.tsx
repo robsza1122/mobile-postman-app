@@ -23,6 +23,7 @@ import { CreateBook } from "./Components/CreateBook/CreateBook.tsx";
 import { MultiDeliveryVerification } from "./Components/MultiStatusVerification/MultiDeliveryVerification.tsx";
 import { MultiAdvicingVerification } from "./Components/MultiStatusVerification/MultiAdvicingVerification.tsx";
 import { MultiResultsVerification } from "./Components/MultiStatusVerification/MultiResultsVerification.tsx";
+import { LeaveParcelOnPostBranch } from "./Components/LeaveParcelOnPostBranch/LeaveParcelOnPostBranch.tsx";
 
 export const App = () => {
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ export const App = () => {
         <Route path="/multiResultsVerification"
           element={<MultiResultsVerification />}
         />
+        <Route path="/leaveParcelOnPostBranch" element={<LeaveParcelOnPostBranch />} />
         <Route path="*" element={<Navigate to="/workPage" replace />} />
       </Routes>
     </PostGlobalProvider>

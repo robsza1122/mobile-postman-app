@@ -32,10 +32,11 @@ import { markAllParcelInListSchima } from "../schimas/markAllParcelInListSchima"
 import { multiAdvicingSchima, multiDeliverySchima, multiResultsSchima } from "../schimas/multiStatus.schima";
 import { createNewUser, createOrder, date, loginUser } from "../services/parcel.service";
 import { multiAdvicing, multiDelivery, multiResults } from "../services/multiStatus.service";
-import { addInDeliveryStatus, advicedStatus, deliveredStatus, otherStatus } from "../services/status.service";
+import { addInDeliveryStatus, advicedStatus, deliveredStatus, leaveParcelOnPostBranch, otherStatus } from "../services/status.service";
 import { assignParcels, failedDeliveryCode, markParcel } from "../services/check.service";
 import { markParcelInVerification, removeParcelsInVerification } from "../services/verification.service";
 import { deleteBook, markAllParcelOnFalseInList, markAllParcelOnTrueInList } from "../services/book.service";
+import { leaveParcelOnPostBranchSchima } from "../schimas/leaveParcelOnPostBranchSchima";
 
 export const orderedParcelHandler = catchErrors(async (req, res) => {
   const request = parcelSchima.parse({
@@ -81,6 +82,7 @@ export const getParcelsHandler = catchErrors(async (req, res) => {
       amountOfTrials: 1,
       isDownloaded: 1,
       isDeliveryCode: 1,
+      placeOfLeavingParcel: 1,
       status: 1,
       isBooked: 1,
       numberOfBook: 1,
@@ -322,6 +324,7 @@ export const clearDatesHandler = catchErrors(async (req, res) => {
         numberOfBook: "",
         isMarked: false,
         amountOfTrials: 0,
+        placeOfLeavingParcel: "",
       },
     }
   );
@@ -370,3 +373,15 @@ export const multiResultsHandler = catchErrors(async (req, res) => {
 
   res.status(OK).json(updatedParcels);
 })
+
+export const leaveParcelOnPostBranchHandler = catchErrors(async (req, res) => {
+  const request = leaveParcelOnPostBranchSchima.parse({
+    ...req.body,
+    userAgent: req.headers["user-agent"],
+  });
+
+  const { updatedParcels } = await leaveParcelOnPostBranch(request);
+
+  res.status(OK).json(updatedParcels);
+
+});
