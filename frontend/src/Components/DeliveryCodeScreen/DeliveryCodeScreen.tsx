@@ -187,8 +187,6 @@ export const DeliveryCodeScreen = () => {
     return;
   };
 
-  console.log(parcels);
-
   return (
     <div className="dsc__content">
       <nav className="dsc__nav">

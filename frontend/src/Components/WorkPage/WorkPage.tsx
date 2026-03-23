@@ -18,7 +18,6 @@ interface WorkPageProps {
 
 export const WorkPage = ({ children }: WorkPageProps) => {
   const { parcels } = useParcels();
-  console.log(parcels);
 
   const { slideOptions, downloadedParcels, setDownloadedParcels, currentUser } =
     useContext(PostManState);
@@ -56,8 +55,6 @@ export const WorkPage = ({ children }: WorkPageProps) => {
       parcel.status && parcel.status[parcel.status.length - 1].name === "OTHER" &&
       parcel.forUser === currentUser.username,
   );
-
-  console.log(usersParcels)
 
   const myParcelsOptions = [
     {

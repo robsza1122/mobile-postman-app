@@ -28,9 +28,6 @@ export const LeaveParcelOnPostBranch = () => {
             parcel.forUser === currentUser.username,
     );
 
-
-    console.log(parcels);
-    console.log(placeOfLeavingParcels);
     const handleSettlingButton =  async () => {
         setIsUpdatingParcel(true);
         asyncLeavingParcels({

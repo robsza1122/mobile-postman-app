@@ -76,8 +76,6 @@ export const StatusHandlingList = ({
     setDownloadedParcels(updateParcels)
   }
 
-  console.log(parcels);
-  console.log(isMultiStatus);
     return (
         <>
                     <div className="deliver__titlepanelblock" style={{
@@ -86,7 +84,6 @@ export const StatusHandlingList = ({
             {settled
               ? ""
               : listOfParcels.map((parcel) => {
-                console.log(parcel.isMarked)
                   return (
                     <StatusHandlingPosition 
                     key={parcel._id}

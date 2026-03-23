@@ -13,6 +13,7 @@ import sessionRoutes from "./routes/session.route";
 import authRoutes from "./routes/auth.route";
 import multiStatusRoutes from "./routes/multiStatus.route";
 import statusRoutes from "./routes/status.route";
+import path from "path";
 
 const app = express();
 
@@ -22,9 +23,10 @@ app.use(
   cors({
     origin: APP_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(authRoutes);
 app.use(multiStatusRoutes);
 app.use(parcelRoutes);

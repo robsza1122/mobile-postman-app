@@ -64,8 +64,6 @@ export const TrailOption = () => {
   const typedParcel = (Array.isArray(parcels) ? parcels : parcels?.data || []).find(
     (parcel: CreateParcelOrder) => parcel.numberOfParcel === parcelsNumber,
   );
-  console.log(user);
-  console.log(currentUser);
 
   const onSubmit = async () => {
     const {dateStr} = date();
@@ -190,8 +188,6 @@ export const TrailOption = () => {
     setParcelsNumber("");
   };
 
-  console.log(parcels);
-  console.log(downloadedParcels)
 
   return (
     <>

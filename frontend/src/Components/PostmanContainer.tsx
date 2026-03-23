@@ -16,10 +16,6 @@ export const PostmanContainer = () => {
     }
   }, []);
 
-  console.log(user);
-  console.log(currentUser);
-  console.log(isMainPage);
-
   return (
     <>
       {isLoading && (

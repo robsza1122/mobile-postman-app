@@ -11,7 +11,6 @@ export const OtherOptionDetails = ({onChooseDetails, chooseResult}: OtherOptionD
                   <div className="advice__background"></div>
                   <div className="advice__window">
                     {handleChoosingOptions(chooseResult).map((reason) => {
-                      console.log(reason);
                       return (
                         <>
                           <button

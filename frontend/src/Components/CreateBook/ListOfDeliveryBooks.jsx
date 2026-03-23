@@ -42,8 +42,6 @@ export const ListOfDeliveryBooks = () => {
         };
 
         const handleOpeningBook = (clickedBook) => {
-          console.log(clickedBook);
-          console.log(book.numberOfBook);
           if (clickedBook === book.numberOfBook) {
             setOpenBookNumber(clickedBook);
             setInput("");
@@ -54,7 +52,6 @@ export const ListOfDeliveryBooks = () => {
         };
 
         const deleteDeliveryBook = (clickedBook) => {
-          console.log(clickedBook);
           deleteBook({ numberOfBook: clickedBook });
 
           const deleteBookByNumber = deliveryBooks.filter(

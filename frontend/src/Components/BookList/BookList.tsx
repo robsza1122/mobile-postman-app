@@ -7,9 +7,6 @@ import useParcels from "../../hooks/useParcels";
 export const BookList = () => {
   const { currentUser, downloadedParcels } = useContext(PostManState);
   const { parcels } = useParcels();
-  console.log(parcels);
-
-  console.log(downloadedParcels);
 
 
   return (

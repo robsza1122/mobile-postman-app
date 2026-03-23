@@ -133,7 +133,6 @@ export const MultiAdvicingVerification = () => {
     const parcelMarkedLength = downloadedParcels.filter(
       (parcel) => parcel.isMarkedVERIFICATION,
     ).length;
-    console.log(parcelMarkedLength);
     if (parcelMarkedLength === 0) {
       alert("No parcels to remove");
       return;
@@ -170,10 +169,6 @@ export const MultiAdvicingVerification = () => {
 
     return '';
   };
-
-  console.log(parcels);
-  console.log(markedParcels);
-  console.log(downloadedParcels);
   return (
     <div className="msv">
       <AppNavigation

@@ -1,13 +1,8 @@
 import classNames from "classnames";
-import { CreateParcelOrder } from "../../types/parcel.type";
-import { PostManState } from "../../PostGlobalProvider";
-import { useContext } from "react";
 import { StatusHandlingPositionProps } from "./StatusHandlingPosition";
 
 export const StatusHandlingVerifiedPosition = ({ parcel, handleMarkParcel }: StatusHandlingPositionProps) => {
-  const {isMultiStatus} = useContext(PostManState);
-  console.log(parcel.isMarkedVERIFICATION);
-  console.log(isMultiStatus);
+
   return (
     <div className="deliver__position" key={parcel._id}>
       <div className="deliver__positioncontent">

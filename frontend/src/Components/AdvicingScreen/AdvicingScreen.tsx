@@ -167,8 +167,6 @@ export const AdvicingScreen = () => {
     }
   };
 
-  console.log(currentParcels);
-
   return (
     <>
       {showReason && (

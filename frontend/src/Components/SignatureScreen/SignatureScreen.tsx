@@ -42,8 +42,6 @@ export const SignatureScreen = () => {
     navigate("/traditionalDeliver");
   };
 
-  console.log(downloadedParcels);
-  console.log(savePoints);
 
   return (
     <div className="sign__content">

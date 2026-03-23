@@ -10,7 +10,6 @@ export const ReorderList = () => {
   const { currentUser, downloadedParcels, setDownloadedParcels } =
     useContext(PostManState);
   const { parcels } = useParcels();
-  console.log(parcels);
   const [dragged, setDragged] = useState<number | null>(null);
   const [mouse, setMouse] = useState([0, 0]);
   const [closestDropZone, setClosestDropZone] = useState(0);
@@ -53,10 +52,6 @@ export const ReorderList = () => {
       setClosestDropZone(result);
     }
   }, [dragged, mouse]);
-
-
-  console.log(dragged)
-  console.log(closestDropZone)
 
   return (
     <>

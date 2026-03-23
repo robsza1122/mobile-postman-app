@@ -57,7 +57,6 @@ export const TDSubjectWindow = ({
             setChooseSubject(subject);
             setSavePoints(null);
           };
-          console.log(id);
           return (
             <button
               className="td__subjectposition"
