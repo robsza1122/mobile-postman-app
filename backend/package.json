@@ -13,7 +13,6 @@
     "mongoose": "^8.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-dom-server": "^0.0.5",
     "resend": "^4.1.2",
     "web-vitals": "^2.1.4",
     "zod": "^3.24.1"
