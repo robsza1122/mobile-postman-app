@@ -35,7 +35,6 @@ app.use(statusRoutes);
 app.use("/user", authenticate, userRoutes);
 app.use("/sessions", authenticate, sessionRoutes);
 app.use(errorHandler);
-//@ts-expect-error
 app.get("/firstParcel", (_, res) => {
   return res.status(OK).json({
     name: "first parcel",
