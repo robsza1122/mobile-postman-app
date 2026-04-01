@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev --files src/index.ts",
-    "start": "react-scripts start",
+    "start": "ts-node src/index.ts",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

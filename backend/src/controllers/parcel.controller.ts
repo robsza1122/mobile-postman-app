@@ -56,7 +56,7 @@ export const orderedParcelHandler = catchErrors(async (req, res) => {
 export const getParcelsHandler = catchErrors(async (req, res) => {
   const parcels = await parcelModel.find(
     {
-      userId: req.userId,
+      userId: (req as any).userId,
     },
     {
       senderName: 1,
@@ -181,7 +181,7 @@ export const inDeliveryEmailHandler = catchErrors(async (req, res) => {
 export const showUsersHandler = catchErrors(async (req, res) => {
   const users = await UserModel.find(
     {
-      userId: req.userId,
+      userId: (req as any).userId,
     },
     {
       username: 1,
