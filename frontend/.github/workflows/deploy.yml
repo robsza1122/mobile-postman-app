@@ -28,7 +28,8 @@ jobs:
 
       - name: Build
         run: npm run build
-        working-directory: ./frontend # WCHODZIMY DO FOLDERU
+        env:
+          VITE_API_URL: https://onrender.com
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
