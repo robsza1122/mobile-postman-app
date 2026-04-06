@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: './package-lock.json' # Ścieżka do locka
+          cache-dependency-path: './frontend/package-lock.json' # Ścieżka do locka
 
       - name: Install dependencies
         run: npm install
@@ -28,13 +28,12 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          VITE_API_URL: https://onrender.com
+        working-directory: ./frontend # WCHODZIMY DO FOLDERU
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # ŚCIEŻKA DO ZBUDOWANEGO PROJEKTU
+          path: './frontend/dist' # ŚCIEŻKA DO ZBUDOWANEGO PROJEKTU
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
