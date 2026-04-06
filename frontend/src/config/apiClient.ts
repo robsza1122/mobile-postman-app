@@ -5,7 +5,7 @@ import { UNAUTHORIZED } from "../constants/http.mjs";
 import { navigate } from "../api/navigation";
 
 const options = {
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: 'http://localhost:4004',
   withCredentials: true,
 };
 
