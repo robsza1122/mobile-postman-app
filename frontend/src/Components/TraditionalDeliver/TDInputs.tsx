@@ -24,7 +24,6 @@ export const TDInputs = ({
   particularSubject,
 }: TDInputsProps) => {
   const { downloadedParcels, setDownloadedParcels } = useContext(PostManState);
-  console.log(addresseesData);
   return (
     <div className="td__inputs">
       {!markedParcels[0]?.noAddressee && (
@@ -36,7 +35,7 @@ export const TDInputs = ({
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              clearSignatureByButton(downloadedParcels, markedParcels);
+              clearSignatureByButton({downloadedParcels, updateParcels: markedParcels});
             }}
             placeholder="Write name and surname"
           />
@@ -64,7 +63,7 @@ export const TDInputs = ({
                   );
                 } else {
                   setInput("");
-                  clearSignatureByButton(downloadedParcels, markedParcels);
+                  clearSignatureByButton({downloadedParcels, updateParcels: markedParcels});
                 }
               }}
             />

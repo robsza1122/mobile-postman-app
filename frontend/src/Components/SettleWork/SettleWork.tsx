@@ -44,10 +44,6 @@ export const SettleWork = () => {
       parcel.forUser === currentUser.username,
   ).length;
 
-  console.log(parcelsInDelivery);
-  console.log(settled);
-  console.log(downloadedParcels);
-
   const handleSettlingButton = () => {
     if (parcelsInDelivery > 0) {
       alert("You have parcels in delivery. Settle them first.");
@@ -56,8 +52,7 @@ export const SettleWork = () => {
       setSettled(true);
     }
   };
-
-  console.log(dayIsFinished);
+  
   return (
     <>
       {isUpdatingParcel &&

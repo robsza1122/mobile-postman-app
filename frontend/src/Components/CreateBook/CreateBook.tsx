@@ -15,10 +15,6 @@ export const CreateBook = () => {
   const [assignedUser, setAssignedUser] = useState("");
   const [showUsersWindow, setShowUsersWindow] = useState(false);
 
-  console.log(parcels);
-  console.log(deliveryBooks);
-  console.log(assignedUser);
-
   return (
     <>
       <div className="createbook">

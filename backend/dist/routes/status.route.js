@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const parcel_controller_1 = require("../controllers/parcel.controller");
+const statusRoutes = (0, express_1.Router)();
+statusRoutes.post("/addDeliveredStatus", parcel_controller_1.deliveredStatusHandler);
+statusRoutes.post("/addAdvicedStatus", parcel_controller_1.advicedStatusHandler);
+statusRoutes.post("/addOtherStatus", parcel_controller_1.otherResultHandler);
+statusRoutes.post("/handleFailedDeliveryCode", parcel_controller_1.failedDeliveryCodeHandler);
+statusRoutes.post("/addInDeliveryStatus", parcel_controller_1.addInDeliveryStatusHandler);
+exports.default = statusRoutes;

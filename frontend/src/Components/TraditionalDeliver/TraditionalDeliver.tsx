@@ -259,13 +259,6 @@ export const TraditionalDeliver = () => {
     }
   };
 
-  console.log(currentUser);
-  console.log(input);
-  console.log(showParticularSubject);
-  console.log(downloadedParcels);
-  console.log(chooseSubject);
-  console.log(parcels);
-  console.log(particularSubject);
   return (
     <>
       <div className="td__content">

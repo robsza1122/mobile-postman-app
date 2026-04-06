@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const postManDataBase = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(process.env.MONGO_DB_URI || MONGO_URI);
     console.log("Successfully connected with DB");
   } catch (error) {
     console.error("Cannot connect to DB", error);

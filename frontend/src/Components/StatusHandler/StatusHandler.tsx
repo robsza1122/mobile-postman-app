@@ -97,8 +97,6 @@ export const StatusHandler = ({
     return filterPosition;
   };
 
-  console.log(downloadedParcels);
-  console.log(parcels);
 
   return (
     <div className="deliver__content">

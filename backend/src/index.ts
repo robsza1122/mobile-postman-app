@@ -13,6 +13,7 @@ import sessionRoutes from "./routes/session.route";
 import authRoutes from "./routes/auth.route";
 import multiStatusRoutes from "./routes/multiStatus.route";
 import statusRoutes from "./routes/status.route";
+import path from "path";
 
 const app = express();
 
@@ -22,9 +23,10 @@ app.use(
   cors({
     origin: APP_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(authRoutes);
 app.use(multiStatusRoutes);
 app.use(parcelRoutes);
@@ -33,7 +35,6 @@ app.use(statusRoutes);
 app.use("/user", authenticate, userRoutes);
 app.use("/sessions", authenticate, sessionRoutes);
 app.use(errorHandler);
-//@ts-expect-error
 app.get("/firstParcel", (_, res) => {
   return res.status(OK).json({
     name: "first parcel",
@@ -43,3 +44,11 @@ app.listen(PORT, async () => {
   console.log(`Server is listening on port ${PORT} in ${NODE_ENV}`);
   await postManDataBase();
 });
+
+if (NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../../frontend/dist");
+  app.use(express.static(frontendPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}

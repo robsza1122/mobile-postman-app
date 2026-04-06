@@ -30,10 +30,6 @@ export const LoginPage = () => {
       });
     },
   });
-  console.log(currentUser);
-  console.log(user);
-  console.log(isMainPage);
-
 
   return (
     <>

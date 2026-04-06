@@ -26,9 +26,6 @@ export const CheckStatus = () => {
   const [showOthers, setShowOthers] = useState(false);
   const [clickedId, setClickedId] = useState<string | number | null | undefined>(null);
 
-  console.log(checkStatus);
-  console.log(parcels);
-
   return (
     <>
       <Navigation />
@@ -123,7 +120,6 @@ export const CheckStatus = () => {
                         setClickedId(status._id);
                         setShowOthers(!showOthers);
                       }
-                      console.log(clickedId);
                     };
 
                     return (

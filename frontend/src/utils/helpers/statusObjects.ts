@@ -505,7 +505,7 @@ export const multiDeliverStatus = ({
 export const clearSignatureByButton = ({
   downloadedParcels,
   updateParcels,
-}: clearSignatureByButtonType) => {
+}: clearSignatureByButtonType): any => {
   return downloadedParcels.map((parcel) => {
     if (parcel._id === updateParcels[0]._id) {
       return {

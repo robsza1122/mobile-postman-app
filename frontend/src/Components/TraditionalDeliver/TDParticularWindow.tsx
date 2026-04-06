@@ -70,7 +70,6 @@ export const TDParticularWindow = ({
             setShowParticularSubject(false);
             setParticularSubject(subject);
           };
-          console.log(id);
           return (
             <button
               className="td__subjectposition"

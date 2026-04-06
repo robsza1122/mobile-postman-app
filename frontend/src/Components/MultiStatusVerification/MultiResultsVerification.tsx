@@ -133,7 +133,6 @@ export const MultiResultsVerification = () => {
     const parcelMarkedLength = downloadedParcels.filter(
       (parcel) => parcel.isMarkedVERIFICATION,
     ).length;
-    console.log(parcelMarkedLength);
     if (parcelMarkedLength === 0) {
       alert("No parcels to remove");
       return;
@@ -155,8 +154,6 @@ export const MultiResultsVerification = () => {
 
       return parcel;
     });
-    console.log("hey");
-    setDownloadedParcels(updateParcels);
   };
 
   const handleLinksOnRemovingParcels = () => {
@@ -172,9 +169,6 @@ export const MultiResultsVerification = () => {
     return '';
   };
 
-  console.log(parcels);
-  console.log(markedParcels);
-  console.log(downloadedParcels);
   return (
     <div className="msv">
       <AppNavigation

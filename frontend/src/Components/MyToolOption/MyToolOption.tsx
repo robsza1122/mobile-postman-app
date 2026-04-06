@@ -32,8 +32,6 @@ export const MyToolOption = ({option}: MyToolOptionProps) => {
     },
   });
 
-  console.log(user);
-
   const { mutate: deleteDates } = useMutation({
     mutationFn: deleteAllDates,
     onSuccess: () => {

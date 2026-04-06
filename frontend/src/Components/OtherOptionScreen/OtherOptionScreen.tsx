@@ -151,9 +151,6 @@ export const OtherOptionScreen = () => {
     }
   };
 
-  console.log(chooseResult);
-  console.log(chooseDetails);
-
   return (
     <>
       {showResult && (

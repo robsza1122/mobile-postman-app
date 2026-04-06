@@ -23,7 +23,6 @@ const handleAppError = (res: Response, error: AppError) => {
     });
 };
 
-//@ts-expect-error
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
     console.log(`PATH ${req.path}`, error);
 

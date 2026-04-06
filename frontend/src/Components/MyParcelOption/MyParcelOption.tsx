@@ -53,7 +53,6 @@ export const MyParcelOption = ({ option }: MyParcelOptionProps) => {
   });
 
   const { header, title, amount } = option;
-  console.log(header);
   const handleRouterLinks = (chosenLink: string) => {
     switch (chosenLink) {
       case "DELIVER":
@@ -92,8 +91,6 @@ export const MyParcelOption = ({ option }: MyParcelOptionProps) => {
     );
   };
 
-  console.log(handleRouterLinks(header));
-  console.log(amount)
 
   return (
     <Link

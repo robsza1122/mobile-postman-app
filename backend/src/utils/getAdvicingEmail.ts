@@ -1,9 +1,13 @@
 import { CreateParcelOrder } from "../services/parcel.service";
 
+export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => {
+  const baseUrl =
+    url.split("/status")[0] || url.split("/")[0] + "//" + url.split("/")[2];
+  const imageUrl = `${baseUrl}/image/Trąba-postman.png`;
 
-export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
+  return {
     subject: "Your parcel is adviced",
-    text:   `Your parcel is adviced on ${parcel?.status?.[parcel.status.length - 1]?.officeOfAdvice}`,
+    text: `Your parcel is adviced on ${parcel?.status?.[parcel.status.length - 1]?.officeOfAdvice}`,
     html: ` <html lang="en-US">
     <head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
     <title>
@@ -37,10 +41,10 @@ export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
                 <tr>
                   <td>
                     <img
-                      alt="Pocztex Baner"
+                      alt="Baner"
                       height="100px"
                       width="100%"
-                      src="https://www.superpaczka.pl/app/uploads/2021/03/pocztex-1.jpg"
+                      src="http://localhost:3000/image/Trąba-postman.png"
                       style="display:block;outline:none;border:none;text-decoration:none;width:100%;border-radius:12px;object-fit:cover" />
                     <table
                       align="center"
@@ -94,5 +98,5 @@ export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => ({
     </table>
         </body>
         </html>`,
-  });
-  
+  };
+};

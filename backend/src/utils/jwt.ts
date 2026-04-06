@@ -52,7 +52,7 @@ export const verifyToken = <TPayload extends object = AccessTokenPayload>(
     const payload = jwt.verify(token, secret, {
         ...defaults,
         ...verifyOpts,
-    }) as TPayload;
+    } as VerifyOptions) as unknown as TPayload;
     return {
         payload,
     };
