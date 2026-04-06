@@ -28,7 +28,7 @@ jobs:
 
       - name: Build
         run: npm run build
-        working-directory: ./frontend # WCHODZIMY DO FOLDERU
+        working-directory: ./frontend
         env:
           VITE_API_URL: https://mobile-postman-app.onrender.com # PODSTAWIAMY ADRES RENDERA
 
