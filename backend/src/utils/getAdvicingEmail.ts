@@ -42,9 +42,9 @@ export const getAdvicingEmail = (parcel: CreateParcelOrder, url: string) => {
                   <td>
                     <img
                       alt="Baner"
-                      height="100px"
+                      height="280px"
                       width="100%"
-                      src="http://localhost:3000/image/Trąba-postman.png"
+                      src="https://i.ibb.co/xKKCpJFt/1-mar-2026-15-01-52.png"
                       style="display:block;outline:none;border:none;text-decoration:none;width:100%;border-radius:12px;object-fit:cover" />
                     <table
                       align="center"

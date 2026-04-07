@@ -5,7 +5,7 @@ import { UNAUTHORIZED } from "../constants/http.mjs";
 import { navigate } from "../api/navigation";
 
 const options = {
-  baseURL: 'http://localhost:4004',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4004",
   withCredentials: true,
 };
 
@@ -16,21 +16,31 @@ TokenRefreshClient.interceptors.response.use((response) => response.data);
 
 const API = axios.create(options);
 
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 API.interceptors.response.use(
   (response) => response.data,
   async (error) => {
     const { config, response } = error;
     const { status, data } = response || {};
 
-    // try to refresh the access token behind the scenes
-        // refresh the access token, then retry the original request
-        try {
-        await TokenRefreshClient.get("/refresh");
+    if (status === 401) {
+      try {
+        const refreshResponse = await TokenRefreshClient.get("/refresh");
+        // Store the new access token
+        if (refreshResponse.accessToken) {
+          localStorage.setItem("accessToken", refreshResponse.accessToken);
+        }
         // @ts-ignore
-        navigate('/workPage')
-        return TokenRefreshClient(config);
+        config.headers.Authorization = `Bearer ${refreshResponse.accessToken}`;
+        return API(config);
       } catch (error) {
-        // handle refresh errors by clearing the query cache & redirecting to login
         queryClient.clear();
         // @ts-ignore
         navigate("/login", {
@@ -39,8 +49,7 @@ API.interceptors.response.use(
           },
         });
       }
-    
-
+    }
     return Promise.reject({ status, ...data });
   },
 );

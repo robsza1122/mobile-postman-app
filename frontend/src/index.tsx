@@ -17,7 +17,7 @@ const root = ReactDOM.createRoot(document.getElementById("root")!);
 
 root.render(
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter basename="/mobile-postman-app">
+    <BrowserRouter basename="mobile-postman-app">
       <App />
     </BrowserRouter>
   </QueryClientProvider>,

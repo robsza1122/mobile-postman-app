@@ -8,14 +8,19 @@ import { useNavigate } from "react-router-dom";
 import { PostManState } from "../../PostGlobalProvider";
 import useAuth from "../../hooks/useAuth";
 import { MainPage } from "../MainPage/MainPage";
+import useParcels from "../../hooks/useParcels";
 
 export const LoginPage = () => {
   const { currentUser, setIsMainPage, isMainPage, setIsLoggedOut } = useContext(PostManState);
   const {user} = useAuth();
+  const {parcels} = useParcels();
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  console.log(user);
+  console.log(parcels);
 
   const {
     mutate: signIn,

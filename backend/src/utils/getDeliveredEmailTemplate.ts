@@ -39,10 +39,10 @@ export const getDeliveredEmailTemplate = (parcel: CreateParcelOrder, url: string
                 <tr>
                   <td>
                     <img
-                      alt="Pocztex Baner"
-                      height="100px"
+                      alt="Postman Baner"
+                      height="280px"
                       width="100%"
-                      src="https://www.superpaczka.pl/app/uploads/2021/03/pocztex-1.jpg"
+                      src="https://i.ibb.co/xKKCpJFt/1-mar-2026-15-01-52.png"
                       style="display:block;outline:none;border:none;text-decoration:none;width:100%;border-radius:12px;object-fit:cover" />
                     <table
                       align="center"

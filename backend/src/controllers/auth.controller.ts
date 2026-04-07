@@ -47,7 +47,9 @@ export const logoutHandler = catchErrors(async (req, res) => {
 });
 
 export const refreshHandler = catchErrors(async (req, res) => {
-  const refreshToken = req.cookies.refreshToken as string;
+  const refreshToken = (req.cookies.refreshToken as string) || 
+    req.body.refreshToken ||
+    req.headers.authorization?.split(" ")[1];
 
   appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
