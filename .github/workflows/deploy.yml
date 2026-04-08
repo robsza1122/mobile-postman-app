@@ -2,7 +2,7 @@ name: Deploy Vite site to Pages
 
 on:
   push:
-    branches: ["develop"] # Zmień na master, jeśli takiej używasz
+    branches: ["additional_branch"] # Zmień na master, jeśli takiej używasz
 
 permissions:
   contents: read
