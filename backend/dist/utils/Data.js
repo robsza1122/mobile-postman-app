@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ONE_DAY_MS = exports.thirtyDaysFromNow = exports.fifteenMinutesFromNow = exports.threeMonthsFromNow = void 0;
+const threeMonthsFromNow = () => new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000);
+exports.threeMonthsFromNow = threeMonthsFromNow;
+const fifteenMinutesFromNow = () => new Date(Date.now() + 15 * 60 * 1000);
+exports.fifteenMinutesFromNow = fifteenMinutesFromNow;
+const thirtyDaysFromNow = () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+exports.thirtyDaysFromNow = thirtyDaysFromNow;
+exports.ONE_DAY_MS = 24 * 60 * 60 * 1000;
