@@ -27,10 +27,11 @@ jobs:
         working-directory: ./frontend # WCHODZIMY DO FOLDERU
 
       - name: Build
-        run: npm run build
+        run: |
+          npm run build
         working-directory: ./frontend
         env:
-          VITE_API_URL: https://mobile-postman-app.onrender.com # PODSTAWIAMY ADRES RENDERA
+          VITE_API_URL: https://mobile-postman-app.onrender.com
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
