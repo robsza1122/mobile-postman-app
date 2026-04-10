@@ -7,16 +7,16 @@
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
     "dotenv": "^16.4.5",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^4.1.2",
+    "ts-node-dev": "^2.0.0",
     "web-vitals": "^2.1.4",
-    "zod": "^3.24.1",
-    "ts-node-dev": "^2.0.0"
+    "zod": "^3.24.1"
   },
   "scripts": {
     "dev": "ts-node-dev --files src/index.ts",
@@ -28,7 +28,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-    "eslintConfig": {
+  "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
@@ -48,10 +48,11 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
-    "@types/cookie-parser": "^1.4.8",
-    "@types/cors": "^2.8.17",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/express": "^5.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.5.2",
     "typescript": "^5.4.5"
   }
 }
